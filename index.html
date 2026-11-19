@@ -1,0 +1,633 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>고전독서 박람회</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#e9eff0;--paper:#fbfdfc;--ink:#14272b;--muted:#51666b;--line:#c3d0d2;--soft:#dcebec;
+  --accent:#0b5c6b;--on-accent:#fff;--stamp:#b3261e;--notice:#fff2c9;--notice-ink:#574300;
+  --board:#0d1f24;--board-2:#183239;--board-ink:#f1f7f6;--board-muted:#9fb8bb;--board-hot:#ffb74d;--board-over:#ff8a80;
+  --wood:#a06b3c;--wood-2:#6e4526;
+  --display:"Do Hyeon","Gowun Dodum","Noto Sans KR",sans-serif;
+  --body:"Gowun Dodum","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#10191c;--paper:#1a262a;--ink:#e6f0f0;--muted:#a0b3b6;--line:#34464b;--soft:#24363b;
+  --accent:#6cc5d4;--on-accent:#06262c;--stamp:#ff9d94;--notice:#3b3210;--notice-ink:#f5e2a0;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body)}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:8px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.brand{font:400 1.25rem var(--display);color:var(--accent)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px}
+.tab{color:var(--muted);text-decoration:none;font:400 1.05rem var(--display);padding:8px 12px;border-radius:8px;min-height:40px}
+.tab[aria-current="page"]{background:var(--accent);color:var(--on-accent)}
+.tab.quiet{font:.9rem var(--body);margin-left:auto}
+.view{max-width:1240px;margin:0 auto;padding:20px 16px 56px;display:grid;gap:18px}
+.lede{color:var(--muted)}
+.h1{font-size:clamp(1.6rem,3.6vw,2.3rem);line-height:1.2}
+.h2{font-size:1.4rem}
+.btn{font:400 1.02rem var(--display);min-height:44px;padding:7px 15px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent);color:var(--on-accent);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled,.btn.off{opacity:.45;cursor:not-allowed}
+.btn.sm{min-height:36px;padding:4px 10px;font-size:.95rem}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.field{display:grid;gap:4px;min-width:0}
+.field>label,.lab{font:400 1rem var(--display)}
+input[type=text],input[type=url],input[type=password],input[type=search],select,textarea{background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:9px 10px;min-height:44px;width:100%;max-width:100%}
+textarea{min-height:76px;resize:vertical}
+.err{color:var(--stamp);font-size:.94rem}
+.ok{color:var(--accent);font-size:.94rem}
+.small{font-size:.87rem;color:var(--muted)}
+.panel{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px;min-width:0}
+.notice{background:var(--notice);color:var(--notice-ink);padding:10px 14px;border-radius:8px}
+.tablebox{overflow-x:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{padding:8px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th{font:400 .95rem var(--display);color:var(--muted)}
+td.code{color:var(--stamp);font-family:var(--display)}
+td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
+tr.on td{background:var(--soft)}
+td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
+.free{color:var(--muted)}
+
+/* 전자칠판 */
+.bwrap{background:var(--board);color:var(--board-ink);min-height:calc(100vh - 58px);padding:clamp(14px,2.5vw,32px);display:grid;grid-template-rows:auto 1fr auto;gap:clamp(10px,2vh,24px)}
+.bwrap:fullscreen{min-height:100vh}
+.bhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 20px;align-items:baseline}
+.bphase{font:400 clamp(1.2rem,2.4vw,2rem) var(--display);color:var(--board-muted)}
+.bclock{font:500 clamp(1.3rem,3vw,2.6rem) var(--mono);font-variant-numeric:tabular-nums}
+.bclock small{font:400 clamp(.9rem,1.5vw,1.2rem) var(--body);color:var(--board-muted);margin-left:10px}
+.bmain{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:clamp(6px,1.6vh,18px);min-width:0}
+.btime{font:500 min(15vw,34vh)/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.04em;white-space:nowrap}
+.btime.hot{color:var(--board-hot)}.btime.over{color:var(--board-over)}.btime.paused{opacity:.55}
+.btitle{font:400 clamp(1.6rem,3.6vw,3.2rem)/1.2 var(--display);word-break:keep-all}
+.btitle.sm{font-size:clamp(1.2rem,2.4vw,2rem);color:var(--board-muted)}
+.bmsg{font:400 clamp(2.2rem,5.6vw,5.4rem)/1.3 var(--display);white-space:pre-line;word-break:keep-all;overflow-wrap:break-word;text-wrap:balance;max-width:min(100%,20em)}
+.btodo{font-size:clamp(1.3rem,2.8vw,2.5rem);line-height:1.35;white-space:pre-line;word-break:keep-all;overflow-wrap:break-word;text-wrap:balance;max-width:min(100%,24em)}
+.bnext{font-size:clamp(1rem,1.6vw,1.35rem);color:var(--board-muted);margin-top:6px}
+.strip{display:flex;gap:3px}
+.seg{min-width:0;padding-top:8px;border-top:8px solid var(--board-2);font-size:clamp(.72rem,1.15vw,1rem);color:var(--board-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg.done{border-top-color:var(--board-muted)}
+.seg.now{border-top-color:var(--board-hot);color:var(--board-ink)}
+.bctl{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:6px}
+.bbtn{font:400 1rem var(--display);min-height:42px;padding:5px 13px;border:1.5px solid var(--board-muted);border-radius:8px;background:transparent;color:var(--board-ink);cursor:pointer}
+.bbtn.main{background:var(--board-hot);border-color:var(--board-hot);color:#2b1a00}
+@media (max-width:760px){.btime{font-size:24vw}.seg{font-size:0;padding-top:4px}}
+
+/* 책 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:16px 14px}
+.bk{all:unset;cursor:pointer;display:grid;gap:6px;align-content:start;min-width:0}
+.bk:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.bk:hover .cover{transform:translateY(-3px)}
+.bk-title{font:400 1.08rem/1.25 var(--display)}
+.bk-tag{font-size:.82rem;color:var(--muted)}
+.cover{aspect-ratio:2/3;border-radius:3px 8px 8px 3px;overflow:hidden;position:relative;box-shadow:inset 7px 0 0 rgba(0,0,0,.18),0 2px 8px rgba(0,0,0,.2);transition:transform .15s;width:100%;max-width:100%;container-type:inline-size}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:var(--paper)}
+.cv{position:absolute;inset:0;padding:11cqw 9cqw 8cqw 14cqw;display:flex;flex-direction:column;background:var(--c1);color:var(--c2)}
+.cv::before{content:"";position:absolute;inset:auto 0 0 0;height:42%;opacity:.4}
+.p0 .cv::before{background:repeating-linear-gradient(135deg,var(--c2) 0 2cqw,transparent 2cqw 7cqw)}
+.p1 .cv::before{background:radial-gradient(circle,var(--c2) 1.6cqw,transparent 1.8cqw) 0 0/9cqw 9cqw}
+.p2 .cv::before{background:repeating-radial-gradient(circle at 80% 100%,var(--c2) 0 1.5cqw,transparent 1.5cqw 7cqw)}
+.p3 .cv::before{background:repeating-linear-gradient(0deg,var(--c2) 0 1.5cqw,transparent 1.5cqw 6cqw)}
+.cv b{font:400 12.5cqw/1.15 var(--display);position:relative;word-break:keep-all}
+.cv i{font:normal 6.4cqw/1.3 var(--body);margin-top:5cqw;position:relative;opacity:.9}
+.cv u{text-decoration:none;font-size:6cqw;margin-top:auto;position:relative;background:var(--c1);padding:1cqw 2cqw;align-self:flex-start}
+
+/* 책장 */
+.shelf{display:grid;gap:0}
+.plate{justify-self:start;background:var(--wood-2);color:#f6e9d4;font-size:1.08rem;padding:3px 14px;border-radius:6px 6px 0 0}
+.rowbox{overflow-x:auto;overflow-y:hidden;background:linear-gradient(#2c2019,#3d2c20);padding-top:26px;scrollbar-width:thin}
+.shelfrow{display:flex;align-items:flex-end;gap:3px;height:310px;width:max-content;min-width:100%;padding:0 16px;justify-content:center}
+.plank{height:16px;background:linear-gradient(var(--wood),var(--wood-2));box-shadow:0 6px 10px rgba(0,0,0,.28);border-radius:0 0 3px 3px}
+.end{align-self:flex-end;height:66%;writing-mode:vertical-rl;background:#e9dcc6;color:#3c2a1c;font:400 .86rem var(--display);padding:10px 6px;margin:0 7px;border-radius:3px 3px 0 0;white-space:nowrap;display:flex;align-items:center;justify-content:center}
+.spine{position:relative;flex:none;width:var(--w);height:var(--h);padding:0;border:0;background:none;cursor:pointer;color:var(--c2);transition:transform .2s ease;transform-origin:bottom center}
+.spine:focus-visible{outline:3px solid #ffd76e;outline-offset:1px}
+.sp{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.26),transparent 14%,transparent 84%,rgba(0,0,0,.3)),var(--c1);border-radius:3px 3px 0 0;writing-mode:vertical-rl;display:flex;flex-direction:column;gap:2px;align-items:flex-start;justify-content:flex-start;padding:14px 4px 10px;overflow:hidden;text-align:left}
+.sp b{font:400 1.08rem/1.15 var(--display)}
+.sp i{font:normal .72rem/1.1 var(--body);opacity:.85;margin-top:auto}
+.pop{position:absolute;left:0;bottom:6px;width:172px;z-index:3;pointer-events:none;opacity:0;visibility:hidden;transform:perspective(700px) rotateY(-68deg) translateX(-8px);transform-origin:left center;transition:transform .28s ease,opacity .18s ease,visibility 0s linear .28s}
+.pop .cover{box-shadow:0 12px 26px rgba(0,0,0,.55)}
+.pr .pop{left:auto;right:0;transform-origin:right center;transform:perspective(700px) rotateY(68deg) translateX(8px)}
+@media (hover:hover){
+ .spine:hover{transform:translateY(-14px);z-index:4}
+ .spine:hover .pop{opacity:1;visibility:visible;transform:none;transition:transform .28s ease,opacity .18s ease}
+}
+.spine:focus-visible{transform:translateY(-14px);z-index:4}
+.spine:focus-visible .pop{opacity:1;visibility:visible;transform:none}
+.spine.pulling{transform:translateY(-22px) scale(1.07);z-index:5}
+.enter .spine{animation:shelve .42s cubic-bezier(.2,.8,.25,1) backwards;animation-delay:var(--d)}
+@keyframes shelve{from{transform:translateY(-34px) rotate(3deg);opacity:0}}
+.dialog.opening{animation:bookOpen .3s ease;transform-origin:left center}
+@keyframes bookOpen{from{transform:perspective(1200px) rotateY(-24deg) scale(.94);opacity:0}}
+@media (hover:none){.pop{display:none}}
+@media (prefers-reduced-motion:reduce){.enter .spine,.dialog.opening{animation:none}.pop{transform:none}}
+/* 상세·확대 */
+.overlay{position:fixed;inset:0;z-index:20;background:rgba(5,18,22,.72);display:grid;place-items:start center;overflow:auto;padding:24px 16px}
+.dialog{background:var(--paper);border-radius:14px;padding:20px;width:100%;max-width:880px;display:grid;gap:16px;min-width:0}
+.d-top{display:grid;grid-template-columns:190px minmax(0,1fr);gap:20px}
+.d-top .cover{max-width:190px}
+.d-info{display:grid;gap:8px;align-content:start;min-width:0}
+.close{justify-self:end}
+.rx{display:flex;flex-wrap:wrap;gap:8px}
+.rxb{font:inherit;min-height:44px;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;cursor:pointer}
+.rxb[aria-pressed="true"]{border-color:var(--stamp);color:var(--stamp);font-weight:700}
+.clist{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.clist li{border-bottom:1px solid var(--line);padding-bottom:8px;overflow-wrap:anywhere}
+.nick{font:400 .98rem var(--display);color:var(--accent)}
+@media (max-width:620px){.d-top{grid-template-columns:minmax(0,1fr)}.d-top .cover{max-width:150px}}
+
+/* 입장권 */
+.ticket{background:var(--paper);border:1.5px dashed var(--muted);border-radius:14px;padding:16px;display:grid;gap:12px}
+.stubs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stub{background:var(--bg);border-radius:8px;padding:10px 12px;display:grid;gap:4px;align-content:start;min-width:0}
+.stub.me{background:var(--soft)}
+.stub.now{box-shadow:0 0 0 3px var(--stamp)}
+.when{font-size:.84rem;color:var(--muted)}
+.where{font:400 1.3rem var(--display);color:var(--stamp)}
+.what{font:400 1.06rem/1.3 var(--display)}
+.who{font-size:.86rem;color:var(--muted)}
+.stub textarea{min-height:58px;font-size:.92rem;padding:6px 8px}
+@media (max-width:820px){.stubs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:440px){.stubs{grid-template-columns:minmax(0,1fr)}}
+
+/* 소감판 */
+.formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.wide{grid-column:1/-1}
+@media (max-width:700px){.formgrid{grid-template-columns:minmax(0,1fr)}}
+.wall{columns:4 240px;column-gap:12px}
+.post{break-inside:avoid;margin:0 0 12px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:13px;display:grid;gap:7px;overflow-wrap:anywhere}
+.post .picks{font:400 1.02rem var(--display);color:var(--accent)}
+.zoom{position:fixed;inset:0;z-index:30;background:var(--board);color:var(--board-ink);padding:clamp(18px,4vw,56px);display:grid;grid-template-rows:auto 1fr auto;gap:18px;overflow:auto}
+.zbody{align-self:center;display:grid;gap:clamp(12px,3vh,32px);overflow-wrap:anywhere}
+.zfeel{font-size:clamp(1.9rem,5vw,5rem);line-height:1.35;white-space:pre-wrap}
+.zpick{font:400 clamp(1.3rem,2.8vw,2.6rem)/1.3 var(--display);color:var(--board-hot)}
+.zreason{font-size:clamp(1.2rem,2.6vw,2.4rem);line-height:1.4;color:var(--board-muted);white-space:pre-wrap}
+
+/* 교사 */
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.cols{grid-template-columns:minmax(0,1fr)}}
+.steps{display:grid;gap:3px;max-height:360px;overflow:auto}
+.stepb{all:unset;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:6px 9px;border-radius:6px}
+.stepb:hover{background:var(--soft)}.stepb.now{background:var(--accent);color:var(--on-accent)}
+.stepb:focus-visible{outline:3px solid var(--accent)}
+.check{display:flex;gap:9px;align-items:flex-start}
+.check input{width:20px;height:20px;margin-top:3px;flex:none}
+.bookrow{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.bookrow:last-child{border-bottom:0}
+.bookrow .cover{max-width:72px}
+.bookform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
+.bookform .t{grid-column:1/-1;font:400 1.08rem var(--display)}
+@media (max-width:640px){.bookform{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in"><span class="brand">고전독서 박람회</span><nav class="tabs" id="nav" aria-label="메뉴"></nav></div><p class="notice" id="noStore" hidden style="margin:0;border-radius:0">이 창에서는 저장과 새 탭 열기가 제한돼요. 파일을 내려받아 크롬에서 열어 주세요.</p></header>
+<main id="app"></main>
+<div id="layer"></div>
+
+<script>
+"use strict";
+/* ---------- 고정 자료 ---------- */
+var BOOKS=[
+ {k:"지구 속 여행",t:"지구 속 여행",a:"쥘 베른",c:"김석희 역",p:"열림원",h:"화산 분화구로 내려가 땅속 세계를 탐험해요",part:1,no:1},
+ {k:"해저 2만 리",t:"해저 2만 리",a:"쥘 베른",c:"김석희 역",p:"파랑새어린이",h:"잠수함 노틸러스호를 타고 바닷속을 누벼요",part:1,no:1},
+ {k:"보물섬",t:"보물섬",a:"로버트 루이스 스티븐슨",c:"최용준 역, 머빈 피크 그림",p:"열린책들",h:"보물 지도를 손에 넣은 소년의 항해",part:1,no:1},
+ {k:"모모",t:"모모",a:"미하엘 엔데",c:"한미희 역",p:"비룡소",h:"사람들의 시간을 훔치는 회색 신사에 맞서는 소녀",part:1,no:1},
+ {k:"화씨 451",t:"화씨 451",a:"레이 브래드버리",c:"박상준 역",p:"민음인",h:"책을 불태우던 소방관이 책에 눈을 떠요",part:1,no:2},
+ {k:"1984",t:"1984",a:"조지 오웰",c:"정영수 역",p:"미르북컴퍼니",h:"모든 것이 감시당하는 사회를 사는 한 남자",part:1,no:2},
+ {k:"오만과 편견",t:"오만과 편견",a:"제인 오스틴",c:"김유미 역, 휴 톰슨 그림",p:"미르북컴퍼니",h:"첫인상의 오해를 넘어 서로를 알아 가는 두 사람",part:1,no:2},
+ {k:"키다리 아저씨",t:"키다리 아저씨",a:"진 웹스터",c:"허윤정 역",p:"미르북컴퍼니",h:"얼굴 모르는 후원자에게 편지를 쓰는 고아 소녀",part:1,no:2},
+ {k:"백야",t:"백야",a:"표도르 도스토옙스키",c:"박은정 역",p:"문학동네",h:"잠 못 드는 여름밤 거리에서 만난 두 사람",part:1,no:2},
+ {k:"로빈슨 크루소",t:"로빈슨 크루소",a:"대니얼 디포",c:"고영직 역, 김민경 그림",p:"삼성당",h:"무인도에서 홀로 살아남는 남자",part:2,no:3},
+ {k:"15소년 표류기",t:"15소년 표류기",a:"쥘 베른",c:"",p:"파랑새어린이",h:"무인도에 표류한 소년들의 공동생활",part:2,no:3},
+ {k:"셜록 홈즈",t:"셜록 홈즈 1: 주홍색 연구",a:"아서 코난 도일",c:"공경희 역",p:"미르북컴퍼니",h:"홈즈와 왓슨이 처음 만나 사건을 풀어요",part:2,no:3},
+ {k:"톰 소여의 모험",t:"톰 소여의 모험",a:"마크 트웨인",c:"지혜연 역, 도널드 매케이 그림",p:"시공사",h:"말썽꾸러기 소년의 짜릿한 모험",part:2,no:3},
+ {k:"안네의 일기",t:"안네의 일기",a:"안네 프랑크",c:"홍경호 역",p:"북센",h:"은신처에서 소녀가 써 내려간 진짜 일기",part:2,no:4},
+ {k:"어린왕자",t:"어린왕자",a:"생텍쥐페리",c:"김미정 역",p:"미르북컴퍼니",h:"사막에 불시착한 비행사가 작은 별의 왕자를 만나요",part:2,no:4},
+ {k:"나의 라임오렌지나무",t:"나의 라임오렌지나무",a:"J. M. 바스콘셀로스",c:"박동원 역",p:"동녘",h:"라임오렌지나무와 이야기 나누는 다섯 살 제제",part:2,no:4},
+ {k:"수레바퀴 아래서",t:"수레바퀴 아래서",a:"헤르만 헤세",c:"이순학 역",p:"미르북컴퍼니",h:"주변의 기대에 짓눌려 가는 모범생 소년",part:2,no:4},
+ {k:"투명인간",t:"투명인간",a:"허버트 조지 웰스",c:"임종기 역",p:"문예출판사",h:"몸이 보이지 않게 된 과학자의 이야기",part:2,no:0,viewOnly:true}
+];
+var YES24={"로빈슨 크루소":98801328,"안네의 일기":135806469,"화씨 451":3315954,"나의 라임오렌지나무":88384312,"투명인간":153521244,"모모":125711161,"해저 2만 리":118267887,"보물섬":4248245,"톰 소여의 모험":435729,"백야":195254819,"지구 속 여행":110336157,"15소년 표류기":129094234,"키다리 아저씨":144415074,"셜록 홈즈":154932317,"수레바퀴 아래서":38241196,"1984":143750404,"오만과 편견":143750410,"어린왕자":103952369};
+var THEME={1:"모험·상상",2:"사회와 관계",3:"모험·사건",4:"성장·내면"};
+var byK={};BOOKS.forEach(function(b,i){b.i=i;b.y=YES24[b.k];byK[b.k]=b});
+var COLORS=[["#17433b","#f2d58a"],["#0f3a5f","#a8e0ee"],["#7c2d12","#fde3b0"],["#3f3a78","#f6c7d6"],["#b2361d","#ffe9c7"],["#1c1f24","#e8e8e0"],["#f0e2c6","#5b2333"],["#f6cbd3","#6d1f3d"],["#2a3f6b","#e4ecff"],["#37602f","#f3eebc"],["#14606e","#ffe08a"],["#2d2a32","#e6b655"],["#c9651b","#fff3dc"],["#d9d5c7","#2b2a26"],["#17366e","#ffd76e"],["#5f7f1f","#f8f6cf"],["#4c5a60","#e9f0ee"],["#1f5e3a","#fbd9e2"],["#e4e7ea","#22303a"]];
+var P1=[["1구역-1","지구 속 여행","김수현"],["1구역-2","해저 2만 리","박소은"],["1구역-3","보물섬","전강민"],["2구역-1","화씨 451","강담율"],["2구역-2","1984","손가희"],["2구역-3","모모","신지혜"],["3구역-1","오만과 편견","박가현"],["3구역-2","키다리 아저씨","김태이"],["3구역-3","백야","안서연"]];
+var P2=[["1구역-1","로빈슨 크루소","강민서"],["1구역-2","15소년 표류기","이성진"],["1구역-3","안네의 일기","김주원"],["2구역-1","셜록 홈즈","강민준"],["2구역-2","톰 소여의 모험","김정후"],["3구역-1","어린왕자","권서윤"],["3구역-2","나의 라임오렌지나무","변조훈"],["3구역-3","수레바퀴 아래서","윤준호"]];
+var V1={"강담율":["어린왕자","나의 라임오렌지나무","로빈슨 크루소"],"손가희":["로빈슨 크루소","15소년 표류기","어린왕자"],"박소은":["15소년 표류기","톰 소여의 모험","나의 라임오렌지나무"],"전강민":["셜록 홈즈","수레바퀴 아래서","로빈슨 크루소"],"안서연":["안네의 일기","어린왕자","셜록 홈즈"],"박가현":["톰 소여의 모험","로빈슨 크루소","15소년 표류기"],"신지혜":["수레바퀴 아래서","안네의 일기","톰 소여의 모험"],"김태이":["나의 라임오렌지나무","로빈슨 크루소","안네의 일기"],"김수현":["15소년 표류기","셜록 홈즈","수레바퀴 아래서"]};
+var V2={"김정후":["백야","지구 속 여행","보물섬"],"이성진":["화씨 451","백야","해저 2만 리"],"권서윤":["키다리 아저씨","1984","오만과 편견"],"강민서":["1984","보물섬","백야"],"김주원":["해저 2만 리","오만과 편견","모모"],"윤준호":["오만과 편견","키다리 아저씨","지구 속 여행"],"변조훈":["지구 속 여행","모모","화씨 451"],"강민준":["보물섬","화씨 451","1984"]};
+var NAMES=Object.keys(V1).concat(Object.keys(V2)).sort(function(a,b){return a.localeCompare(b,"ko")});
+function ko(o){return Object.keys(o).sort(function(a,b){return a.localeCompare(b,"ko")})}
+function presenter(k){var r=P1.concat(P2).filter(function(x){return x[1]===k})[0];return r?r[2]:""}
+function booth(k){var r=P1.concat(P2).filter(function(x){return x[1]===k})[0];return r?r[0]:""}
+
+/* ---------- 수업 단계: 합계 40분 ---------- */
+var STEPS=[];
+function st(ph,phase,title,todo,sec,o){STEPS.push(Object.assign({ph:ph,phase:phase,title:title,todo:todo,sec:sec},o||{}))}
+st(-1,"동기유발","동기유발","고전은 어떻게 몇백 년을 건너\n지금 우리에게 왔을까요?",0);
+st(-1,"학습 문제","학습 문제","나만의 고전을\n알맞은 매체로 소개해 봅시다",0);
+st(-1,"활동 안내","활동 안내","활동1. 나만의 고전 소개하기\n활동2. 다음 독자 되기",0);
+st(0,"자료 준비","자료 준비","1부 발표자는 부스에서 자료를 열고\n2부 학생은 1회차 부스로 가요",180);
+function talk(part,ph){
+ var other=part===1?2:1;
+ for(var r=1;r<=3;r++){
+  st(ph,part+"부 소개",part+"부 "+r+"회차 · 소개와 질문",part+"부는 책을 소개하고\n"+other+"부는 듣고 질문을 1개 해요",180,{talk:part,round:r,auto:true,kind:"talk"});
+  if(r<3)st(ph,part+"부 소개",part+"부 "+r+"회차 · 이동",(r+1)+"회차 부스로 이동해요",30,{talk:part,round:r,auto:true,kind:"move"});
+ }
+ STEPS[STEPS.length-1].auto=false;
+}
+talk(1,1);
+st(2,"역할 바꾸기","역할 바꾸기","관람한 책에 반응을 남기고\n자리를 바꿔 2부 자료를 열어요",180);
+talk(2,3);
+st(4,"책 선정·소감","읽고 싶은 책 선정·소감 쓰기","읽고 싶은 책 2권을 고르고\n프로젝트 소감을 남겨요",300);
+st(-1,"발표","발표하기","가장 읽고 싶어진 책과\n그 이유를 나눠요",0);
+st(-1,"마무리","다음 차시 안내","다음 시간에는\n아직 만나지 못한 작품을 살펴봐요",0);
+var PHASES=[];STEPS.forEach(function(s,i){s.timed=s.sec>0;if(s.ph<0)return;var p=PHASES[s.ph]||(PHASES[s.ph]={name:s.phase,sec:0,first:i,last:i});p.sec+=s.sec;p.last=i});
+var TOTAL=STEPS.reduce(function(a,s){return a+s.sec},0);
+
+/* ---------- 저장소: 나중에 Firebase로 바꿀 자리는 load/save 두 함수 ---------- */
+var KEY="gojeon-fair-v1",MYKEY="gojeon-fair-my";
+function fresh(){return{timer:{i:0,running:false,endsAt:0,remain:STEPS[0].sec},settings:{mode:"class",lock:true,pin:"1234",sound:true},books:{},reactions:{},comments:[],posts:{},notes:{}}}
+var memoryOnly=false,memMy={};
+function load(){var fallback=db||fresh();try{var raw=localStorage.getItem(KEY);if(!raw)return fallback;var d=JSON.parse(raw);if(d&&d.timer&&d.settings)return d;return fallback}catch(e){memoryOnly=true;return fallback}}
+var db=null;db=load();if(!STEPS[db.timer.i])db.timer=fresh().timer;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){if(e&&(e.name==="QuotaExceededError"||e.code===22))return false;memoryOnly=true;return true}}
+function my(){try{return JSON.parse(localStorage.getItem(MYKEY))||{}}catch(e){return memMy}}
+function setMy(o){memMy=o;try{localStorage.setItem(MYKEY,JSON.stringify(o))}catch(e){}}
+var S={teacher:false,open:null,zoom:null,draft:{},msg:{},filter:"all",q:"",dirty:false,lastI:db.timer.i,lastCmt:0,look:"shelf",enter:true,justOpen:false};
+try{S.teacher=sessionStorage.getItem("gojeon-t")==="1"}catch(e){}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function bd(k){return db.books[k]||(db.books[k]={})}
+function isShare(){return db.settings.mode==="share"}
+function safeUrl(u){u=String(u||"").trim();return /^https?:\/\/\S+$/i.test(u)?u:""}
+
+/* ---------- 타이머 ---------- */
+function remain(){var t=db.timer;return t.running?(t.endsAt-Date.now())/1000:t.remain}
+function step(){return STEPS[db.timer.i]}
+function fmt(sec){var neg=sec<0;sec=neg?Math.floor(-sec):Math.ceil(sec);return(neg?"+":"")+String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0")}
+function tStart(){var t=db.timer;if(t.running||!step().timed)return;t.endsAt=Date.now()+t.remain*1000;t.running=true;save();renderAll();unlockAudio()}
+function tPause(){var t=db.timer;if(!t.running)return;t.remain=remain();t.running=false;save();renderAll()}
+function tGo(i){var t=db.timer;i=Math.max(0,Math.min(STEPS.length-1,i));t.i=i;t.remain=STEPS[i].sec;t.running=STEPS[i].timed;if(t.running){t.endsAt=Date.now()+t.remain*1000;unlockAudio()}S.lastI=i;save();renderAll()}
+function tAdd(s){var t=db.timer;t.remain+=s;if(t.running)t.endsAt+=s*1000;save();tick()}
+function tReset(){db.timer=fresh().timer;S.lastI=0;save();renderAll()}
+var audio=null;
+function unlockAudio(){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume()}catch(e){}}
+function beep(kind){if(!db.settings.sound||!audio)return;try{var f=kind==="move"?[660,880]:kind==="ask"?[523]:[440,440];f.forEach(function(fr,n){var o=audio.createOscillator(),g=audio.createGain();o.frequency.value=fr;o.connect(g);g.connect(audio.destination);var at=audio.currentTime+n*.28;g.gain.setValueAtTime(.25,at);g.gain.exponentialRampToValueAtTime(.001,at+.25);o.start(at);o.stop(at+.26)})}catch(e){}}
+function tick(){
+ var t=db.timer;
+ if(t.running&&Date.now()>=t.endsAt&&step().auto){
+  db=load();t=db.timer;var moved=false;
+  while(t.running&&Date.now()>=t.endsAt&&STEPS[t.i].auto&&t.i<STEPS.length-1){t.i++;t.endsAt+=STEPS[t.i].sec*1000;moved=true}
+  if(moved)save();
+ }
+ if(S.lastI!==t.i){S.lastI=t.i;beep(step().kind);if(!inField())renderAll();else S.dirty=true}
+ var el=document.getElementById("bTime");
+ if(el){var r=remain();el.textContent=fmt(r);el.className="btime"+(r<0?" over":r<=30?" hot":"")+(t.running?"":" paused")}
+ var c=document.getElementById("bClock");
+ if(c){var d=new Date();c.firstChild.textContent=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");
+ }
+ var mini=document.getElementById("tTime");if(mini)mini.textContent=fmt(remain());
+}
+function locked(){return db.settings.lock&&!S.teacher&&!isShare()&&!!step().talk&&db.timer.running}
+
+/* ---------- 표지 ---------- */
+function coverHtml(b){
+ var d=db.books[b.k]||{};
+ var c=COLORS[b.i%COLORS.length];
+ var img=d.cover?'<img src="'+esc(d.cover)+'" alt="'+esc(b.t)+' 표지">':(b.y?'<img data-y="1" src="https://image.yes24.com/goods/'+b.y+'/XL" alt="'+esc(b.t)+' 표지" referrerpolicy="no-referrer" decoding="async">':'');
+ return '<div class="cover p'+(b.i%4)+'" style="--c1:'+c[0]+';--c2:'+c[1]+'"><div class="cv"><b>'+esc(b.t)+'</b><i>'+esc(b.a)+'</i><u>'+esc(b.p)+'</u></div>'+img+'</div>';
+}
+function bookTag(b){return b.viewOnly?b.part+"부 · 자료 열람":b.part+"부 · "+b.no+"모둠"}
+
+/* ---------- 화면 ---------- */
+var TABS=[["board","전자칠판"],["explore","고전 탐험하기"],["booth","내 부스·시간표"],["wrap","읽고 싶은 책·소감"],["teacher","선생님"]];
+function route(){
+ var h=S.route||(location.hash||"").slice(1);
+ if(TABS.map(function(t){return t[0]}).indexOf(h)<0)h=isShare()?"explore":"board";
+ if(isShare()&&(h==="board"||h==="booth")&&!S.teacher)h="explore";
+ return h;
+}
+function renderNav(){
+ var cur=route();
+ document.getElementById("noStore").hidden=!memoryOnly;
+ document.getElementById("nav").innerHTML=TABS.filter(function(t){return !isShare()||S.teacher||(t[0]!=="board"&&t[0]!=="booth")}).map(function(t){
+  return '<a class="tab'+(t[0]==="teacher"?" quiet":"")+'" href="#'+t[0]+'"'+(t[0]===cur?' aria-current="page"':'')+'>'+t[1]+'</a>'}).join("");
+}
+function vBoard(){
+ var s=step(),t=db.timer,i=t.i,next=STEPS[i+1];
+ var who=s.talk?(s.talk+"부 발표 · "+(s.talk===1?2:1)+"부 관람 · "+s.round+"회차"):s.phase;
+ var strip=PHASES.map(function(p){var cls=i>p.last?"done":i>=p.first?"now":"";return '<div class="seg '+cls+'" style="flex:'+p.sec+' 1 0">'+esc(p.name)+' '+Math.round(p.sec/60)+'분</div>'}).join("");
+ var ctl=S.teacher?'<div class="bctl">'
+  +(s.timed?(t.running?'<button class="bbtn main" data-act="pause">일시정지</button>':'<button class="bbtn main" data-act="start">시작</button>'):'')
+  +'<button class="bbtn" data-act="prev">이전 단계</button><button class="bbtn'+(s.timed?'':' main')+'" data-act="next">다음 단계</button>'
+  +(s.timed?'<button class="bbtn" data-act="add" data-arg="60">+1분</button><button class="bbtn" data-act="add" data-arg="-60">-1분</button>':'')
+  +'<button class="bbtn" data-act="fs">전체 화면</button></div>':'';
+ var main=s.timed
+  ?'<div class="btitle">'+esc(s.title)+'</div><div class="btime" id="bTime">'+fmt(remain())+'</div><div class="btodo">'+esc(s.todo)+'</div>'
+  :'<div class="btitle sm">'+esc(s.title)+'</div><div class="bmsg">'+esc(s.todo)+'</div>';
+ return '<div class="bwrap" id="boardWrap"><div class="bhead"><div class="bphase">'+esc(who)+'</div><div class="bclock" id="bClock"><span>--:--:--</span></div></div>'
+ +'<div class="bmain">'+main+'<div class="bnext">'+(next?"다음: "+esc(next.title):"마지막 단계예요")+'</div>'+ctl+'</div>'
+ +'<div class="strip">'+strip+'</div>'+(S.teacher?'':'<p class="small" style="color:var(--board-muted)">시작과 단계 이동은 선생님 탭에서 로그인하면 이 화면에 나타나요.</p>')+'</div>';
+}
+function vLocked(title){return '<div class="view"><div class="panel"><h1 class="h1">지금은 친구의 소개를 듣는 시간이에요</h1><p>'+esc(title)+'은(는) 소개가 끝나면 열려요. 내 부스와 메모는 지금도 볼 수 있어요.</p><div class="row"><a class="btn" href="#booth">내 부스 보기</a></div></div></div>'}
+function vExplore(){
+ if(locked())return vLocked("고전 탐험하기");
+ var q=S.q.trim();
+ var list=BOOKS.filter(function(b){
+  if(S.filter==="p1"&&b.part!==1)return false;
+  if(S.filter==="p2"&&b.part!==2)return false;
+  if(q&&(b.t+b.a+b.p+b.h).indexOf(q)<0)return false;
+  return true});
+ function chip(v,l){return '<button class="btn sm '+(S.filter===v?"":"ghost")+'" data-act="filter" data-arg="'+v+'">'+l+'</button>'}
+ return '<div class="view"><div><h1 class="h1">고전 탐험하기</h1><p class="lede">마음에 드는 책을 꺼내 보세요. 소개 자료로 바로 갈 수 있고, 보고 나면 반응도 남길 수 있어요.</p></div>'
+ +(isShare()?'<p class="notice">다른 반 친구들을 위한 공유 화면이에요. 댓글은 선생님이 확인한 뒤 보여요.</p>':'')
+ +'<div class="row">'+chip("all","전체")+chip("p1","1부")+chip("p2","2부")
+ +'<input id="q" type="search" aria-label="책 찾기" placeholder="제목, 작가로 찾기" style="max-width:260px" value="'+esc(S.q)+'" data-input="q"></div>'
+ +'<div class="row"><button class="btn sm '+(S.look==="shelf"?"":"ghost")+'" data-act="look" data-arg="shelf">책장으로 보기</button><button class="btn sm '+(S.look==="grid"?"":"ghost")+'" data-act="look" data-arg="grid">표지로 보기</button></div>'
+ +(list.length?(S.look==="shelf"?shelfHtml(list):'<div class="grid">'+list.map(function(b){
+   var d=db.books[b.k]||{};var has=safeUrl(d.canva)||safeUrl(d.web);
+   return '<button class="bk" data-act="open" data-arg="'+b.i+'">'+coverHtml(b)+'<span class="bk-title">'+esc(b.t)+'</span><span class="bk-tag">'+bookTag(b)+(has?"":" · 링크 준비 중")+'</span></button>'}).join("")+'</div>')
+  :'<p class="lede">찾는 책이 없어요. 다른 낱말로 찾아보세요.</p>')+'</div>';
+}
+function shelfHtml(list){
+ var enter=S.enter,n=0;
+ function spine(b,last){
+  var c=COLORS[b.i%COLORS.length],h=86+(b.i*37%15),w=62+(b.i*23%20);
+  var pr=last;
+  var st='--c1:'+c[0]+';--c2:'+c[1]+';--h:'+h+'%;--w:'+w+'px;--d:'+(n++*45)+'ms';
+  return '<button class="spine'+(pr?" pr":"")+'" data-act="open" data-arg="'+b.i+'" style="'+st+'" aria-label="'+esc(b.t)+' 꺼내 보기"><span class="sp"><b>'+esc(b.t)+'</b><i>'+esc(b.a)+'</i></span><span class="pop" aria-hidden="true">'+coverHtml(b)+'</span></button>';
+ }
+ return [[1,"1부 책장"],[2,"2부 책장"]].map(function(p){
+  var inPart=list.filter(function(b){return b.part===p[0]});
+  if(!inPart.length)return "";
+  var nos=[];inPart.forEach(function(b){if(nos.indexOf(b.no)<0)nos.push(b.no)});
+  var seen=0;
+  var row=nos.map(function(no){
+   var g=inPart.filter(function(b){return b.no===no});
+   var end='<span class="end">'+(no?no+'모둠 · '+THEME[no]:'자료 열람')+'</span>';
+   return end+g.map(function(b){seen++;return spine(b,seen>inPart.length/2)}).join("");
+  }).join("");
+  return '<section class="shelf'+(enter?" enter":"")+'"><h2 class="plate">'+p[1]+'</h2><div class="rowbox"><div class="shelfrow">'+row+'</div></div><div class="plank"></div></section>';
+ }).join("");
+}
+function vDetail(b){
+ var d=db.books[b.k]||{},mine=my().rx||{},share=isShare(),c=safeUrl(d.canva),w=safeUrl(d.web);
+ var pr=presenter(b.k);
+ var cm=db.comments.filter(function(x){return x.book===b.k&&x.ok});
+ var kinds=[["want","읽고 싶어요"],["fun","이 책 추천해요"]];
+ var link=(c?'<a class="btn" href="'+esc(c)+'" target="_blank" rel="noopener noreferrer">캔바 자료 열기</a>':'')+(w?'<a class="btn '+(c?"ghost":"")+'" href="'+esc(w)+'" target="_blank" rel="noopener noreferrer">웹앱 열기</a>':'');
+ if(!link)link='<button class="btn off" disabled>링크 등록 전이에요</button>';
+ return '<div class="overlay" data-act="closeBg"><div class="dialog'+(S.justOpen?" opening":"")+'" role="dialog" aria-modal="true" aria-label="'+esc(b.t)+'" data-stop="1">'
+ +'<button class="btn ghost sm close" data-act="close">닫기</button>'
+ +'<div class="d-top">'+coverHtml(b)+'<div class="d-info"><span class="small">'+bookTag(b)+(!share&&pr?" · 소개 "+esc(pr)+" ("+booth(b.k)+")":"")+'</span><h2 class="h1">'+esc(b.t)+'</h2>'
+ +'<p class="small">'+esc(b.a)+(b.c?" · "+esc(b.c):"")+" · "+esc(b.p)+'</p>'
+ +'<p>'+esc(d.intro||b.h)+'</p>'+(d.why?'<p class="small">이 양식을 고른 이유: '+esc(d.why)+'</p>':'')
+ +'<div class="row">'+link+'</div><p class="small">자료는 새 탭에서 열려요. 다 보면 그 탭을 닫고 돌아오면 돼요.</p>'+(b.viewOnly?'<p class="small">이 책은 박람회 부스에는 없고, 발표 자료만 볼 수 있어요.</p>':'')+'</div></div>'
+ +(b.viewOnly?'</div></div>':'')
+ +(b.viewOnly?'':'<div class="field"><span class="lab">이 소개를 보고 나서</span><div class="rx">'+kinds.map(function(k){var on=!!(mine[b.k]&&mine[b.k][k[0]]);return '<button class="rxb" data-act="rx" data-arg="'+k[0]+'" aria-pressed="'+on+'">'+k[1]+'</button>'}).join("")+'</div></div>'
+ +'<div class="field"><span class="lab">댓글</span>'
+ +(cm.length?'<ul class="clist">'+cm.map(function(x){return '<li><span class="nick">'+esc(x.nick)+'</span> '+esc(x.text)+'</li>'}).join("")+'</ul>':'<p class="small">첫 댓글을 남겨 보세요. 어떤 부분이 궁금해졌나요?</p>')
+ +'</div><form class="field" data-form="comment" style="gap:8px"><div class="row" style="align-items:flex-start"><div class="field" style="flex:1 1 130px"><label for="cNick">별칭</label><input id="cNick" type="text" maxlength="10" data-input="nick" value="'+esc(S.draft.nick||"")+'" placeholder="실명 대신 별칭"></div>'
+ +'<div class="field" style="flex:4 1 260px"><label for="cText">내용 (100자까지)</label><input id="cText" type="text" maxlength="100" data-input="text" value="'+esc(S.draft.text||"")+'" placeholder="어떤 점이 궁금해졌는지 적어 주세요"></div></div>'
+ +'<div class="row"><button class="btn">댓글 남기기</button>'+(S.msg.comment?'<span class="'+S.msg.comment[0]+'">'+esc(S.msg.comment[1])+'</span>':'')+'</div></form></div></div>');
+}
+function vBooth(){
+ var me=my().me||"",s=step(),t=db.timer;
+ var o='<option value="">이름을 고르세요</option>'+[["1부 발표",V1],["2부 발표",V2]].map(function(g){return '<optgroup label="'+g[0]+'">'+ko(g[1]).map(function(n){return '<option'+(n===me?" selected":"")+'>'+n+'</option>'}).join("")+'</optgroup>'}).join("");
+ var box='<p class="lede">이름을 고르면 입장권이 나와요. 전체 표는 아래에 있어요.</p>';
+ if(me){
+  var in1=!!V1[me],P=in1?P1:P2,Q=in1?P2:P1,tour=(in1?V1:V2)[me],mp=in1?1:2,op=in1?2:1;
+  var mine=P.filter(function(x){return x[2]===me})[0];
+  var notes=db.notes[me]||[];
+  box='<div class="stubs"><div class="stub me'+(s.talk===mp?" now":"")+'"><span class="when">'+mp+'부 시간 · 3번 발표</span><span class="where">'+mine[0]+'</span><span class="what">'+esc(byK[mine[1]].t)+'</span><span class="who">내 부스</span></div>'
+  +tour.map(function(k,n){var b=Q.filter(function(x){return x[1]===k})[0];var on=s.talk===op&&s.round===n+1;
+    return '<div class="stub'+(on?" now":"")+'"><span class="when">'+op+'부 시간 · '+(n+1)+'회차 관람</span><span class="where">'+b[0]+'</span><span class="what">'+esc(byK[k].t)+'</span><span class="who">발표 '+b[2]+'</span>'
+    +'<label class="small" for="note'+n+'">읽고 싶어진 이유 한 줄</label><textarea id="note'+n+'" maxlength="80" data-note="'+n+'">'+esc(notes[n]||"")+'</textarea></div>'}).join("")+'</div>';
+ }
+ function sec(part,V,P){
+  var nowR=s.talk===part?s.round:0;
+  function th(r){return '<th'+(nowR===r?' class="nowcol"':'')+'>'+r+'회차</th>'}
+  function td(r,h,cls){return '<td class="'+(cls||"")+(nowR===r?" nowcol":"")+'">'+h+'</td>'}
+  return '<section style="display:grid;gap:10px"><h2 class="h2">'+part+'부 시간</h2>'
+  +'<div class="tablebox"><table><thead><tr><th>관람 학생</th>'+th(1)+th(2)+th(3)+'</tr></thead><tbody>'+ko(V).map(function(n){return '<tr class="'+(n===me?"on":"")+'"><td>'+n+'</td>'+V[n].map(function(k,i){return td(i+1,esc(byK[k].t)+' <span class="who">('+booth(k)+')</span>')}).join("")+'</tr>'}).join("")+'</tbody></table></div>'
+  +'<div class="tablebox"><table><thead><tr><th>부스</th><th>책</th><th>발표</th>'+th(1)+th(2)+th(3)+'</tr></thead><tbody>'+P.map(function(b){return '<tr><td class="code">'+b[0]+'</td><td>'+esc(byK[b[1]].t)+'</td><td>'+b[2]+'</td>'+[0,1,2].map(function(r){var w=ko(V).filter(function(n){return V[n][r]===b[1]});return w.length?td(r+1,w.join(", ")):td(r+1,"선생님·참관자","free")}).join("")+'</tr>'}).join("")+'</tbody></table></div></section>';
+ }
+ var tl=PHASES.map(function(p){var on=t.i>=p.first&&t.i<=p.last;return '<tr class="'+(on?"on":"")+'"><td>'+esc(p.name)+'</td><td class="num">'+Math.round(p.sec/60)+'분</td></tr>'}).join("");
+ return '<div class="view"><div><h1 class="h1">내 부스·시간표</h1><p class="lede">지금 가야 할 곳은 빨간 테두리로 표시돼요.</p></div>'
+ +'<div class="ticket"><div class="row"><label class="lab" for="me">내 이름</label><select id="me" data-act-change="me" style="max-width:220px">'+o+'</select></div>'+box+'</div>'
+ +'<section style="display:grid;gap:10px"><h2 class="h2">오늘의 시간표</h2><div class="tablebox"><table><thead><tr><th>활동</th><th class="num">시간</th></tr></thead><tbody>'+tl+'</tbody></table></div><p class="small">한 회차는 소개와 질문 3분, 이동 30초예요.</p></section>'
+ +sec(1,V2,P1)+sec(2,V1,P2)+'</div>';
+}
+function postList(){return Object.keys(db.posts).map(function(k){return db.posts[k]}).filter(function(p){return byK[p.b1]&&byK[p.b2]}).sort(function(a,b){return b.at-a.at})}
+function vWrap(){
+ if(locked())return vLocked("읽고 싶은 책·소감");
+ var share=isShare(),d=S.draft,posts=postList();
+ function bookOpts(key){return '<option value="">책을 고르세요</option>'+BOOKS.filter(function(b){return !b.viewOnly}).map(function(b){return '<option value="'+esc(b.k)+'"'+(d[key]===b.k?" selected":"")+'>'+esc(b.t)+'</option>'}).join("")}
+ var form=share?"":'<form class="panel" data-form="post"><h2 class="h2">읽고 싶은 책과 소감 남기기</h2><div class="formgrid">'
+ +'<div class="field"><label for="pName">내 이름</label><select id="pName" data-input="pName"><option value="">이름을 고르세요</option>'+NAMES.map(function(n){return '<option'+(d.pName===n?" selected":"")+'>'+n+'</option>'}).join("")+'</select></div>'
+ +'<div class="field"><label for="pB1">가장 읽고 싶은 책</label><select id="pB1" data-input="pB1">'+bookOpts("pB1")+'</select></div>'
+ +'<div class="field"><label for="pB2">그다음으로 읽고 싶은 책</label><select id="pB2" data-input="pB2">'+bookOpts("pB2")+'</select></div>'
+ +'<div class="field wide"><label for="pReason">읽고 싶어진 이유</label><input id="pReason" type="text" maxlength="100" data-input="pReason" value="'+esc(d.pReason||"")+'" placeholder="어떤 장면이나 말이 궁금해졌나요?"></div>'
+ +'<div class="field wide"><label for="pFeel">고전 프로젝트 소감</label><textarea id="pFeel" maxlength="200" data-input="pFeel" placeholder="고전을 읽고 소개하면서 무엇이 달라졌나요?">'+esc(d.pFeel||"")+'</textarea></div></div>'
+ +'<div class="row"><button class="btn">게시하기</button>'+(S.msg.post?'<span class="'+S.msg.post[0]+'">'+esc(S.msg.post[1])+'</span>':'')+'<span class="small">다시 올리면 내 글이 새 내용으로 바뀌어요.</span></div></form>';
+ return '<div class="view"><div><h1 class="h1">읽고 싶은 책·소감</h1><p class="lede">글을 누르면 전자칠판에서 크게 볼 수 있어요.</p></div>'+form
+ +'<section style="display:grid;gap:10px"><h2 class="h2">소감판 <span class="small">'+posts.length+'개</span></h2>'
+ +(posts.length?'<div class="wall">'+posts.map(function(p,i){return '<article class="post"><span class="nick">'+(share?"6학년 친구":esc(p.name))+'</span><span class="picks">'+esc(byK[p.b1].t)+' · '+esc(byK[p.b2].t)+'</span><p>'+esc(p.feel)+'</p><div class="row"><button class="btn ghost sm" data-act="zoom" data-arg="'+i+'">크게 보기</button></div></article>'}).join("")+'</div>'
+  :'<p class="lede">아직 올라온 글이 없어요. 첫 소감을 남기면 여기에 카드로 나타나요.</p>')+'</section></div>';
+}
+function vZoom(){
+ var posts=postList(),p=posts[S.zoom];if(!p)return "";
+ var share=isShare();
+ return '<div class="zoom" role="dialog" aria-modal="true" aria-label="소감 크게 보기"><div class="row" style="justify-content:space-between"><span class="zpick" style="color:var(--board-muted)">'+(share?"6학년 친구":esc(p.name))+'</span><span class="small" style="color:var(--board-muted)">'+(S.zoom+1)+' / '+posts.length+'</span></div>'
+ +'<div class="zbody"><p class="zfeel">'+esc(p.feel)+'</p><p class="zpick">읽고 싶은 책: '+esc(byK[p.b1].t)+', '+esc(byK[p.b2].t)+'</p><p class="zreason">'+esc(p.reason)+'</p></div>'
+ +'<div class="row"><button class="bbtn" data-act="zprev">이전 글</button><button class="bbtn" data-act="znext">다음 글</button><button class="bbtn main" data-act="zclose">닫기</button></div></div>';
+}
+function vTeacher(){
+ if(!S.teacher)return '<div class="view"><form class="panel" data-form="pin" style="max-width:440px"><h1 class="h1">선생님 화면</h1><div class="field"><label for="pin">PIN</label><input id="pin" type="password" autocomplete="off"></div><div class="row"><button class="btn">들어가기</button>'+(S.msg.pin?'<span class="err">'+esc(S.msg.pin)+'</span>':'')+'</div>'+(db.settings.pin==="1234"?'<p class="small">처음 PIN은 1234예요. 들어가서 바꿔 주세요.</p>':'')+'</form></div>';
+ var t=db.timer,set=db.settings;
+ var pending=db.comments.filter(function(c){return !c.ok}),okc=db.comments.filter(function(c){return c.ok});
+ var picks={};postList().forEach(function(p){picks[p.b1]=(picks[p.b1]||0)+1;picks[p.b2]=(picks[p.b2]||0)+1});
+ var linked=BOOKS.filter(function(b){return (safeUrl((db.books[b.k]||{}).canva)||safeUrl((db.books[b.k]||{}).web))}).length;
+ var stats=BOOKS.filter(function(b){return !b.viewOnly}).map(function(b){var r=db.reactions[b.k]||{};return '<tr><td>'+esc(b.t)+'</td><td class="num">'+(r.want||0)+'</td><td class="num">'+(r.fun||0)+'</td><td class="num">'+db.comments.filter(function(c){return c.book===b.k&&c.ok}).length+'</td><td class="num">'+(picks[b.k]||0)+'</td></tr>'}).join("");
+ function cRow(c){var b=byK[c.book];return '<li><span class="nick">'+esc(c.nick)+'</span> <span class="small">'+esc(b?b.t:"")+'</span><br>'+esc(c.text)+'<div class="row" style="margin-top:5px">'+(c.ok?'':'<button class="btn sm" data-act="cOk" data-arg="'+c.id+'">공개</button>')+'<button class="btn ghost sm" data-act="cDel" data-arg="'+c.id+'">삭제</button></div></li>'}
+ return '<div class="view"><div class="row" style="justify-content:space-between"><h1 class="h1">선생님 화면</h1><button class="btn ghost sm" data-act="logout">나가기</button></div>'
+ +'<div class="cols"><section class="panel"><h2 class="h2">수업 진행 <span id="tTime" style="font-family:var(--mono)">'+fmt(remain())+'</span></h2><p>'+esc(step().title)+'</p>'
+ +'<div class="row">'+(t.running?'<button class="btn" data-act="pause">일시정지</button>':'<button class="btn" data-act="start">시작</button>')+'<button class="btn ghost" data-act="prev">이전</button><button class="btn ghost" data-act="next">다음</button><button class="btn ghost" data-act="add" data-arg="60">+1분</button><button class="btn ghost" data-act="add" data-arg="-60">-1분</button><button class="btn ghost" data-act="reset">처음으로</button></div>'
+ +'<div class="steps">'+STEPS.map(function(s,i){return '<button class="stepb'+(i===t.i?" now":"")+'" data-act="go" data-arg="'+i+'"><span>'+esc(s.title)+'</span><span>'+(s.timed?fmt(s.sec):'글자')+'</span></button>'}).join("")+'</div></section>'
+ +'<section class="panel"><h2 class="h2">운영 설정</h2>'
+ +'<label class="check"><input type="checkbox" data-set="lock"'+(set.lock?" checked":"")+'><span>소개 시간에는 학생의 탐험·소감 탭 잠그기</span></label>'
+ +'<label class="check"><input type="checkbox" data-set="sound"'+(set.sound?" checked":"")+'><span>단계가 바뀔 때 신호음 울리기</span></label>'
+ +'<label class="check"><input type="checkbox" data-set="share"'+(isShare()?" checked":"")+'><span>다른 반 공유 모드: 실명, 부스표, 전자칠판을 숨기고 댓글은 승인 후 공개</span></label>'
+ +'<form class="field" data-form="newpin"><label for="np">PIN 바꾸기</label><div class="row"><input id="np" type="text" maxlength="12" style="flex:1 1 140px;width:auto"><button class="btn ghost">바꾸기</button></div>'+(S.msg.np?'<span class="ok">'+esc(S.msg.np)+'</span>':'')+'</form>'
+ +'<div class="field"><span class="lab">자료 옮기기·백업</span><div class="row"><button class="btn ghost sm" data-act="export">내보내기</button><label class="btn ghost sm" for="imp">가져오기</label><input id="imp" type="file" accept="application/json" hidden data-import="1"></div>'+(S.msg.imp?'<span class="'+S.msg.imp[0]+'">'+esc(S.msg.imp[1])+'</span>':'')+'</div>'
+ +'<div class="row"><button class="btn ghost sm" data-act="wipe">'+(S.wipe?"정말 지워요? 한 번 더 누르면 삭제":"댓글·반응·소감 모두 지우기")+'</button></div></section></div>'
+ +'<section class="panel"><h2 class="h2">댓글 관리 <span class="small">승인 대기 '+pending.length+'개</span></h2>'
+ +(db.comments.length?'<ul class="clist">'+pending.concat(okc).map(cRow).join("")+'</ul>':'<p class="small">아직 댓글이 없어요.</p>')+'</section>'
+ +'<section style="display:grid;gap:10px"><h2 class="h2">반응 모아 보기 <span class="small">선생님만 봐요</span></h2><div class="tablebox"><table><thead><tr><th>책</th><th class="num">읽고 싶어요</th><th class="num">이 책 추천해요</th><th class="num">댓글</th><th class="num">2권 선택</th></tr></thead><tbody>'+stats+'</tbody></table></div></section>'
+ +'<section class="panel"><h2 class="h2">책 자료 관리 <span class="small">링크 등록 '+linked+' / '+BOOKS.length+'권</span></h2><p class="small">입력하면 바로 저장돼요. 캔바는 보기 전용 링크를 넣어 주세요.</p><div class="row"><label class="btn ghost sm" for="bulk">표지 여러 장 한번에 올리기</label><input id="bulk" type="file" accept="image/*" multiple hidden data-bulk="1"><span class="small">파일 이름에 책 제목이나 YES24 번호가 들어 있으면 알아서 맞춰요.</span></div>'
+ +'<div class="field"><label for="pasteL" class="lab">링크 한꺼번에 붙여 넣기</label><textarea id="pasteL" placeholder="한 줄에 한 명씩: 학생 이름이나 책 제목 + 링크&#10;예) 신지혜 https://www.canva.com/design/.../view"></textarea><div class="row"><button class="btn ghost sm" data-act="pasteLinks">붙여 넣은 링크 저장</button><span class="small">구글 폼 응답 시트에서 이름·링크 칸을 복사해 붙여 넣어도 돼요. 캔바 주소는 캔바 칸에, 나머지는 웹앱 칸에 들어가요.</span></div>'+(S.msg.links?'<p class="'+S.msg.links[0]+'">'+esc(S.msg.links[1])+'</p>':'')+'</div>'+(S.msg.bulk?'<p class="'+S.msg.bulk[0]+'">'+esc(S.msg.bulk[1])+'</p>':'')
+ +(S.msg.book?'<p class="err">'+esc(S.msg.book)+'</p>':'')
+ +BOOKS.map(function(b){var d=db.books[b.k]||{};function f(key,label,type){var bad=(key==="canva"||key==="web")&&d[key]&&!safeUrl(d[key]);return '<div class="field"><label class="small" for="'+key+b.i+'">'+label+'</label><input id="'+key+b.i+'" type="'+type+'" data-book="'+b.i+'" data-key="'+key+'" value="'+esc(d[key]||"")+'">'+(bad?'<span class="err">https://로 시작하는 주소를 넣어 주세요.</span>':'')+'</div>'}
+  return '<div class="bookrow">'+coverHtml(b)+'<div class="bookform"><div class="t">'+esc(b.t)+' <span class="small">'+bookTag(b)+(presenter(b.k)?" · "+esc(presenter(b.k)):"")+'</span></div>'+f("canva","캔바 링크","url")+f("web","웹앱 링크","url")+f("intro","책 소개 (비우면 기본 소개)","text")+f("why","이 양식을 고른 이유","text")
+  +'<div class="row"><label class="btn ghost sm" for="cov'+b.i+'">표지 올리기</label><input id="cov'+b.i+'" type="file" accept="image/*" hidden data-cover="'+b.i+'">'+(b.y?'<a class="btn ghost sm" href="https://image.yes24.com/goods/'+b.y+'/XL" target="_blank" rel="noopener noreferrer">YES24 표지 열기</a>':'')+(d.cover?'<button class="btn ghost sm" data-act="covDel" data-arg="'+b.i+'">표지 지우기</button>':'')+'</div></div></div>'}).join("")+'</section></div>';
+}
+function inField(){var a=document.activeElement;return !!a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=="checkbox"&&a.type!=="file"}
+function renderLayer(){
+ var l=document.getElementById("layer"),top=(l.querySelector(".overlay")||{}).scrollTop||0;
+ l.innerHTML=S.zoom!==null?vZoom():S.open!==null?vDetail(BOOKS[S.open]):"";
+ var o=l.querySelector(".overlay");if(o)o.scrollTop=top;
+}
+function renderAll(){
+ var a=document.activeElement,fk=a&&a.dataset?{act:a.dataset.act,arg:a.dataset.arg,id:a.id}:null,sy=window.scrollY;
+ renderNav();
+ var r=route(),f={board:vBoard,explore:vExplore,booth:vBooth,wrap:vWrap,teacher:vTeacher}[r];
+ document.getElementById("app").innerHTML=f();
+ if(locked()&&S.open!==null)S.open=null;
+ renderLayer();
+ window.scrollTo(0,sy);
+ if(fk){var n=fk.id?document.getElementById(fk.id):fk.act?document.querySelector('[data-act="'+fk.act+'"]'+(fk.arg!=null?'[data-arg="'+fk.arg+'"]':"")):null;if(n)n.focus({preventScroll:true})}
+ S.dirty=false;if(r==="explore")S.enter=false;tick();
+}
+
+/* ---------- 입력 ---------- */
+var BAD=/시발|씨발|ㅅㅂ|병신|ㅄ|지랄|꺼져|닥쳐|멍청|바보|존나|개새/;
+function addComment(){
+ var b=BOOKS[S.open],nick=(S.draft.nick||"").trim(),text=(S.draft.text||"").trim();
+ function m(c,t){S.msg.comment=[c,t];renderLayer()}
+ if(!nick)return m("err","별칭을 적어 주세요.");
+ if(!text)return m("err","내용을 적어 주세요.");
+ if(BAD.test(nick+text))return m("err","친구가 읽고 기분 좋은 말로 바꿔 주세요.");
+ if(isShare()&&NAMES.some(function(n){return (nick+text).indexOf(n)>=0}))return m("err","친구 이름은 빼고 적어 주세요.");
+ if(Date.now()-S.lastCmt<10000)return m("err","10초 뒤에 다시 남길 수 있어요.");
+ db=load();db.comments.push({id:Date.now()+"-"+Math.random().toString(36).slice(2,6),book:b.k,nick:nick,text:text,at:Date.now(),ok:!isShare()});
+ save();S.lastCmt=Date.now();S.draft.text="";
+ m("ok",isShare()?"보냈어요. 선생님이 확인하면 보여요.":"댓글을 남겼어요.");
+}
+function addPost(){
+ var d=S.draft;function m(c,t){S.msg.post=[c,t];renderAll()}
+ if(!d.pName)return m("err","이름을 골라 주세요.");
+ if(!d.pB1||!d.pB2)return m("err","읽고 싶은 책 2권을 골라 주세요.");
+ if(d.pB1===d.pB2)return m("err","서로 다른 책 2권을 골라 주세요.");
+ var reason=(d.pReason||"").trim(),feel=(d.pFeel||"").trim();
+ if(!reason)return m("err","읽고 싶어진 이유를 적어 주세요.");
+ if(!feel)return m("err","프로젝트 소감을 적어 주세요.");
+ if(BAD.test(reason+feel))return m("err","친구가 읽고 기분 좋은 말로 바꿔 주세요.");
+ db=load();db.posts[d.pName]={name:d.pName,b1:d.pB1,b2:d.pB2,reason:reason,feel:feel,at:Date.now()};save();
+ S.draft={};m("ok","게시했어요.");
+}
+function readCover(i,file){
+ return new Promise(function(done){
+  var r=new FileReader();
+  r.onerror=function(){done("read")};
+  r.onload=function(){var im=new Image();
+   im.onload=function(){
+    var w=360,h=Math.round(im.height*w/im.width),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);
+    var k=BOOKS[i].k;db=load();var before=bd(k).cover;bd(k).cover=c.toDataURL("image/jpeg",.78);
+    if(!save()){if(before)bd(k).cover=before;else delete bd(k).cover;done("full")}else done("")};
+   im.onerror=function(){done("read")};im.src=r.result};
+  r.readAsDataURL(file)});
+}
+var COVER_ERR={read:"이미지를 읽지 못했어요. JPG나 PNG로 올려 주세요.",full:"저장 공간이 부족해요. 다른 표지를 지운 뒤 다시 올려 주세요."};
+function fileCover(i,file){readCover(i,file).then(function(err){S.msg.book=COVER_ERR[err]||"";S.msg.bulk=null;renderAll()})}
+function findBook(line){var n=line.normalize("NFC").replace(/\s/g,"");
+ return BOOKS.filter(function(b){var p=presenter(b.k);return (p&&n.indexOf(p)>=0)||n.indexOf(b.k.replace(/\s/g,""))>=0||n.indexOf(b.t.replace(/\s/g,""))>=0})[0]}
+function pasteLinks(text){
+ var ok=0,miss=[];db=load();
+ text.split(/\r?\n/).forEach(function(line){
+  if(!line.trim())return;
+  var urls=line.match(/https?:\/\/[^\s"'<>]+/g);if(!urls){miss.push(line.trim().slice(0,30));return}
+  var b=findBook(line.replace(/https?:\/\/\S+/g,""));if(!b){miss.push(line.trim().slice(0,30));return}
+  urls.forEach(function(u){if(/canva\.(com|link)/i.test(u))bd(b.k).canva=u;else bd(b.k).web=u});ok++});
+ save();S.msg.links=[miss.length?"err":"ok",ok+"권의 링크를 저장했어요."+(miss.length?" 책을 찾지 못한 줄: "+miss.join(" / "):"")];renderAll();
+}
+function matchCover(name){var n=String(name).normalize("NFC").replace(/\s/g,"");return BOOKS.filter(function(b){return n.indexOf(String(b.y))>=0||n.indexOf(b.k.replace(/\s/g,""))>=0})[0]}
+function bulkCovers(files){
+ var list=[].slice.call(files),ok=0,miss=[],fail=0;
+ list.reduce(function(p,f){return p.then(function(){var b=matchCover(f.name);if(!b){miss.push(f.name);return}return readCover(b.i,f).then(function(e){if(e)fail++;else ok++})})},Promise.resolve()).then(function(){
+  S.msg.book="";S.msg.bulk=[(miss.length||fail)?"err":"ok",ok+"권의 표지를 올렸어요."+(fail?" "+fail+"개는 읽거나 저장하지 못했어요.":"")+(miss.length?" 맞는 책을 찾지 못한 파일: "+miss.join(", "):"")];renderAll()});
+}
+function goTab(name){S.route=name;S.open=null;S.enter=true;try{history.replaceState(null,"","#"+name)}catch(x){}window.scrollTo(0,0);renderAll()}
+document.addEventListener("click",function(e){
+ var link=e.target.closest('a[href^="#"]');
+ if(link){e.preventDefault();goTab(link.getAttribute("href").slice(1));return}
+ var t=e.target.closest("[data-act]");if(!t)return;
+ var act=t.dataset.act,arg=t.dataset.arg;
+ if(act==="closeBg"){if(e.target.closest("[data-stop]"))return;S.open=null;S.msg.comment=null;renderLayer();return}
+ switch(act){
+  case"start":tStart();break;case"pause":tPause();break;
+  case"next":tGo(db.timer.i+1);break;case"prev":tGo(db.timer.i-1);break;
+  case"go":tGo(+arg);break;case"add":tAdd(+arg);break;case"reset":tReset();break;
+  case"fs":var b=document.getElementById("boardWrap");if(b&&b.requestFullscreen)b.requestFullscreen().catch(function(){});if(navigator.wakeLock)navigator.wakeLock.request("screen").catch(function(){});unlockAudio();break;
+  case"filter":S.filter=arg;renderAll();break;
+  case"look":S.look=arg;renderAll();break;
+  case"pasteLinks":var ta=document.getElementById("pasteL");if(ta)pasteLinks(ta.value);break;
+  case"open":
+   var doOpen=function(){S.open=+arg;S.msg.comment=null;S.justOpen=true;renderLayer();S.justOpen=false;var c=document.querySelector("#layer .close");if(c)c.focus()};
+   var calm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
+   if(t.classList.contains("spine")&&!calm){t.classList.add("pulling");setTimeout(function(){doOpen();t.classList.remove("pulling")},280)}else doOpen();
+   break;
+  case"close":S.open=null;S.msg.comment=null;renderLayer();break;
+  case"rx":var k=BOOKS[S.open].k,m=my();m.rx=m.rx||{};m.rx[k]=m.rx[k]||{};var on=!m.rx[k][arg];m.rx[k][arg]=on;setMy(m);
+   db=load();var rr=db.reactions[k]=db.reactions[k]||{};rr[arg]=Math.max(0,(rr[arg]||0)+(on?1:-1));save();renderLayer();
+   var nb=document.querySelector('[data-act="rx"][data-arg="'+arg+'"]');if(nb)nb.focus();break;
+  case"zoom":S.zoom=+arg;renderLayer();break;
+  case"zclose":S.zoom=null;renderLayer();break;
+  case"zprev":S.zoom=Math.max(0,S.zoom-1);renderLayer();break;
+  case"znext":S.zoom=Math.min(postList().length-1,S.zoom+1);renderLayer();break;
+  case"logout":S.teacher=false;try{sessionStorage.removeItem("gojeon-t")}catch(x){}renderAll();break;
+  case"cOk":db=load();db.comments.forEach(function(c){if(c.id===arg)c.ok=true});save();renderAll();break;
+  case"cDel":db=load();db.comments=db.comments.filter(function(c){return c.id!==arg});save();renderAll();break;
+  case"covDel":db=load();delete bd(BOOKS[+arg].k).cover;save();renderAll();break;
+  case"wipe":if(!S.wipe){S.wipe=true;renderAll();break}S.wipe=false;db=load();db.comments=[];db.reactions={};db.posts={};db.notes={};save();setMy(Object.assign(my(),{rx:{}}));renderAll();break;
+  case"export":var keep=JSON.parse(JSON.stringify(db));var blob=new Blob([JSON.stringify(keep)],{type:"application/json"});var u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="고전독서박람회-백업.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);break;
+ }
+});
+document.addEventListener("input",function(e){
+ var t=e.target;
+ if(t.dataset.input){if(t.dataset.input==="q"){S.q=t.value;var pos=t.selectionStart;renderAll();var q=document.getElementById("q");if(q){q.focus();q.setSelectionRange(pos,pos)}}else S.draft[t.dataset.input]=t.value}
+});
+document.addEventListener("change",function(e){
+ var t=e.target;
+ if(t.dataset.actChange==="me"){var m=my();m.me=t.value;setMy(m);renderAll();return}
+ if(t.dataset.note!=null){var me=my().me;if(!me)return;db=load();var n=db.notes[me]=db.notes[me]||[];n[+t.dataset.note]=t.value.slice(0,80);save();return}
+ if(t.dataset.set){db=load();if(t.dataset.set==="share")db.settings.mode=t.checked?"share":"class";else db.settings[t.dataset.set]=t.checked;save();renderAll();return}
+ if(t.dataset.book!=null){db=load();bd(BOOKS[+t.dataset.book].k)[t.dataset.key]=t.value.trim();save();renderAll();return}
+ if(t.dataset.cover!=null&&t.files[0]){fileCover(+t.dataset.cover,t.files[0]);return}
+ if(t.dataset.bulk&&t.files.length){bulkCovers(t.files);return}
+ if(t.dataset.import&&t.files[0]){var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||!d.timer||!d.settings||!d.books)throw 0;db=d;if(!save())throw 0;S.msg.imp=["ok","가져왔어요."]}catch(x){S.msg.imp=["err","이 앱에서 내보낸 파일만 가져올 수 있어요."]}renderAll()};r.readAsText(t.files[0]);return}
+});
+document.addEventListener("submit",function(e){
+ e.preventDefault();
+ var f=e.target.dataset.form;
+ if(f==="comment")addComment();
+ else if(f==="post")addPost();
+ else if(f==="pin"){if(document.getElementById("pin").value===db.settings.pin){S.teacher=true;S.msg.pin="";try{sessionStorage.setItem("gojeon-t","1")}catch(x){}}else S.msg.pin="PIN이 맞지 않아요.";renderAll()}
+ else if(f==="newpin"){var v=document.getElementById("np").value.trim();if(v.length>=4){db=load();db.settings.pin=v;save();S.msg.np="PIN을 바꿨어요."}else S.msg.np="4자리 이상으로 적어 주세요.";renderAll()}
+});
+document.addEventListener("keydown",function(e){
+ if(S.zoom!==null){if(e.key==="Escape"){S.zoom=null;renderLayer()}if(e.key==="ArrowLeft"){S.zoom=Math.max(0,S.zoom-1);renderLayer()}if(e.key==="ArrowRight"){S.zoom=Math.min(postList().length-1,S.zoom+1);renderLayer()}return}
+ if(S.open!==null&&e.key==="Escape"){S.open=null;renderLayer()}
+});
+document.addEventListener("focusout",function(){setTimeout(function(){if(S.dirty&&!inField())renderAll()},0)});
+window.addEventListener("hashchange",function(){S.route=(location.hash||"").slice(1);window.scrollTo(0,0);S.open=null;S.enter=true;renderAll()});
+document.addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&t.dataset.y)t.remove()},true);
+window.addEventListener("storage",function(e){if(e.key!==KEY)return;db=load();if(inField())S.dirty=true;else renderAll()});
+renderAll();setInterval(tick,250);
+</script>
+</body>
+</html>
+
+</body></html>
