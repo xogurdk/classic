@@ -449,9 +449,30 @@ function expectHtml(b,id){
  var m=S.msg["ex:"+b.k],saved=getExpect(b.k);
  return '<form class="field exform" data-form="expect" data-k="'+esc(b.k)+'"><label class="lab" for="'+id+'">기대평 · 이 책에서 기대되는 부분</label>'
  +'<textarea id="'+id+'" maxlength="200" data-exdraft="'+esc(b.k)+'" placeholder="두 문장 정도로 적어 보세요. 예) 어떤 장면이 궁금해졌나요? 왜 읽고 싶어졌나요?">'+esc(exDraft(b.k))+'</textarea>'
- +'<div class="row">'+exCount(b.k)+'<button class="btn sm">'+(saved?"기대평 고치기":"기대평 올리기")+'</button></div>'
+ +'<div class="row">'+exCount(b.k)+'<span class="row">'+(saved?'<button type="button" class="btn ghost sm" data-act="exMine" data-k="'+esc(b.k)+'">'+(S.exDelAsk===uname()+"|"+b.k?"정말 지울까요?":"지우기")+'</button>':'')+'<button class="btn sm">'+(saved?"기대평 고치기":"기대평 올리기")+'</button></span></div>'
  +(m?'<span class="'+m[0]+'">'+esc(m[1])+'</span>':'')
  +'<span class="small">공백 빼고 '+BADGE_MIN+'자 이상 올리면 이 책의 뱃지를 받아요. 고전 탐험하기와 내 부스·시간표에 함께 기록돼요.</span></form>';
+}
+/* 기대평 = 댓글: 책마다 모두의 기대평이 작성자와 함께 남아요 */
+function expectsFor(k){
+ var me=uname(),L=expectList().filter(function(x){return x.book===k&&x.text&&x.name!==me});
+ var mine=getExpect(k);if(me&&mine){var u=db.users[me]||{},ex=(u.expect||{})[k]||{};L.push({name:me,book:k,text:mine,at:ex.at||0})}
+ return L.sort(function(a,b){return (b.at||0)-(a.at||0)});
+}
+function dispName(n){if(!isShare()||n===uname())return n;var m=String(n).match(/^(\d)학년/);return (m?m[1]:"6")+"학년 친구"}
+function expectListHtml(b){
+ var L=expectsFor(b.k),me=uname();
+ return '<div class="field"><span class="lab">기대평 <span class="small">'+L.length+'개</span></span>'
+ +(L.length?'<ul class="clist">'+L.map(function(x){var mine=x.name===me;return '<li><span class="nick">'+esc(dispName(x.name))+(mine?' <span class="small">(나)</span>':'')+'</span> '+esc(x.text)
+   +(S.teacher&&!mine?' <button class="btn ghost sm" data-act="exDel" data-arg="'+esc(x.name)+'" data-k="'+esc(b.k)+'">'+(S.exDelAsk===x.name+"|"+b.k?"정말 지울까요?":"지우기")+'</button>':'')+'</li>'}).join("")+'</ul>'
+  :'<p class="small">'+(presenter(b.k)===me&&me?'아직 내 책에 달린 기대평이 없어요.':'아직 기대평이 없어요. 첫 기대평을 남겨 보세요.')+'</p>')+'</div>';
+}
+function delExpect(name,k){
+ function after(){if(S.open!==null)renderLayer();else renderAll()}
+ if(name===uname()){setExpect(k,"",true);delete S.draft["ex:"+k];S.msg["ex:"+k]=["ok","내 기대평을 지웠어요."];after();return}
+ db=load();if(db.users&&db.users[name]&&db.users[name].expect)delete db.users[name].expect[k];
+ if(db.expects)db.expects=db.expects.filter(function(x){return !(x.name===name&&x.book===k)});save();after();
+ if(REMOTE)api({action:"unexpect",pin:tPin(),name:name,book:k}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np="기대평을 지우지 못했어요. "+netErr(e);renderAll()});
 }
 function submitExpect(k){
  var text=String(exDraft(k)).trim(),key="ex:"+k;
@@ -670,7 +691,7 @@ function bookPanel(b,o){
  return '<section class="panel"><div class="fb-top">'+coverHtml(b)+'<div class="d-info"><span class="small">'+o.label+'</span><h2 class="h1">'+esc(b.t)+'</h2><p class="small">'+esc(b.a)+' · '+esc(b.p)+'</p>'
  +(o.who?'<p>'+o.code+' 부스 · 발표 <b>'+esc(o.who)+'</b></p>':'')
  +'<div class="row">'+(c?'<a class="btn" href="'+esc(c)+'" target="_blank" rel="noopener noreferrer">'+(o.mine?"내 발표 자료 열기":"발표 자료 보기")+'</a>':'<button class="btn off" disabled>링크 등록 전이에요</button>')+(w?'<a class="btn ghost" href="'+esc(w)+'" target="_blank" rel="noopener noreferrer">웹앱 열기</a>':'')+(posters(b).length?'<button class="btn ghost" data-act="poster" data-arg="'+b.i+'">포스터 보기</button>':'')+'</div>'
- +(o.extra||'')+'</div>'+badgeBox(b,"f-badge")+'</div>'+(o.review?rxHtml(b)+expectHtml(b,"exf"+b.i):'')+'</section>';
+ +(o.extra||'')+'</div>'+badgeBox(b,"f-badge")+'</div>'+(o.review?rxHtml(b)+expectListHtml(b)+expectHtml(b,"exf"+b.i):o.mine?expectListHtml(b):'')+'</section>';
 }
 /* 소개 시간: 발표자는 내 발표 자료, 듣는 사람은 지금 회차 발표 자료만 보여요. 3분이 지나면 다음 부스 안내 */
 function vFocus(){
@@ -826,7 +847,6 @@ function openBook(i,from){
 function vDetail(b){
  var d=db.books[b.k]||{},mine=myRx(),share=isShare(),c=canvaOf(b),w=safeUrl(d.web);
  var pr=presenter(b.k);
- var cm=db.comments.filter(function(x){return x.book===b.k&&x.ok});
  var kinds=[["want","읽고 싶어요"],["fun","이 책 추천해요"]];
  var link=(c?'<a class="btn" href="'+esc(c)+'" target="_blank" rel="noopener noreferrer">캔바 자료 열기</a>':'')+(w?'<a class="btn '+(c?"ghost":"")+'" href="'+esc(w)+'" target="_blank" rel="noopener noreferrer">웹앱 열기</a>':'');
  if(!link)link='<button class="btn off" disabled>링크 등록 전이에요</button>';
@@ -837,13 +857,10 @@ function vDetail(b){
  +'<p class="small">'+esc(b.a)+(b.c?" · "+esc(b.c):"")+" · "+esc(b.p)+'</p>'
  +'<p>'+esc(d.intro||b.h)+'</p>'+(d.why?'<p class="small">이 양식을 고른 이유: '+esc(d.why)+'</p>':'')
  +'<div class="row">'+link+'</div><p class="small">자료는 새 탭에서 열려요. 다 보면 그 탭을 닫고 돌아오면 돼요.</p>'+(b.viewOnly?'<p class="small">이 책은 박람회 부스에는 없고, 발표 자료만 볼 수 있어요.</p>':'')+'</div>'+badgeBox(b,"d-badge")+'</div>'
- +(b.viewOnly?(uname()?expectHtml(b,"exd"+b.i):'')+'</div></div>':'')
- +(b.viewOnly?'':rxHtml(b)+(uname()&&presenter(b.k)!==uname()?expectHtml(b,"exd"+b.i):'')
- +'<div class="field"><span class="lab">댓글</span>'
- +(cm.length?'<ul class="clist">'+cm.map(function(x){return '<li><span class="nick">'+esc(x.nick)+'</span> '+esc(x.text)+'</li>'}).join("")+'</ul>':'<p class="small">첫 댓글을 남겨 보세요. 어떤 부분이 궁금해졌나요?</p>')
- +'</div><form class="field" data-form="comment" style="gap:8px"><div class="row" style="align-items:flex-start"><div class="field" style="flex:1 1 130px"><label for="cNick">별칭</label><input id="cNick" type="text" maxlength="10" data-input="nick" value="'+esc(defNick())+'" placeholder="실명 대신 별칭"></div>'
- +'<div class="field" style="flex:4 1 260px"><label for="cText">내용 (100자까지)</label><input id="cText" type="text" maxlength="100" data-input="text" value="'+esc(S.draft.text||"")+'" placeholder="어떤 점이 궁금해졌는지 적어 주세요"></div></div>'
- +'<div class="row"><button class="btn">댓글 남기기</button>'+(S.msg.comment?'<span class="'+S.msg.comment[0]+'">'+esc(S.msg.comment[1])+'</span>':'')+'</div></form></div></div>');
+ +(b.viewOnly?'':rxHtml(b))
+ +expectListHtml(b)
+ +(uname()&&presenter(b.k)!==uname()?expectHtml(b,"exd"+b.i):'')
+ +(S.msg.comment?'<p class="'+S.msg.comment[0]+'">'+esc(S.msg.comment[1])+'</p>':'')+'</div></div>';
 }
 function defNick(){var gu=my().guest;return S.draft.nick!=null?S.draft.nick:(gu&&my().name?gu.n:(isShare()?"":uname()))}
 function vBooth(){
@@ -901,11 +918,9 @@ function vZoom(){
 function vTeacher(){
  if(!S.teacher)return '<div class="view"><form class="panel" data-form="pin" style="max-width:440px"><h1 class="h1">선생님 화면</h1><div class="field"><label for="pin">PIN</label><input id="pin" type="password" autocomplete="off"></div><div class="row"><button class="btn">들어가기</button>'+(S.msg.pin?'<span class="err">'+esc(S.msg.pin)+'</span>':'')+'</div>'+(!REMOTE&&db.settings.pin==="1234"?'<p class="small">처음 PIN은 1234예요. 들어가서 바꿔 주세요.</p>':'')+'</form></div>';
  var t=db.timer,set=db.settings;
- var pending=db.comments.filter(function(c){return !c.ok}),okc=db.comments.filter(function(c){return c.ok});
  var picks={};postList().forEach(function(p){picks[p.b1]=(picks[p.b1]||0)+1});
  var linked=BOOKS.filter(function(b){return (canvaOf(b)||safeUrl((db.books[b.k]||{}).web))}).length;
- var stats=BOOKS.filter(function(b){return !b.viewOnly}).map(function(b){var r=db.reactions[b.k]||{};return '<tr><td>'+esc(b.t)+'</td><td class="num">'+(r.want||0)+'</td><td class="num">'+(r.fun||0)+'</td><td class="num">'+db.comments.filter(function(c){return c.book===b.k&&c.ok}).length+'</td><td class="num">'+(picks[b.k]||0)+'</td></tr>'}).join("");
- function cRow(c){var b=byK[c.book];return '<li><span class="nick">'+esc(c.nick)+'</span> <span class="small">'+esc(b?b.t:"")+'</span><br>'+esc(c.text)+'<div class="row" style="margin-top:5px">'+(c.ok?'':'<button class="btn sm" data-act="cOk" data-arg="'+c.id+'">공개</button>')+'<button class="btn ghost sm" data-act="cDel" data-arg="'+c.id+'">삭제</button></div></li>'}
+ var stats=BOOKS.filter(function(b){return !b.viewOnly}).map(function(b){var r=db.reactions[b.k]||{};return '<tr><td>'+esc(b.t)+'</td><td class="num">'+(r.want||0)+'</td><td class="num">'+(r.fun||0)+'</td><td class="num">'+expectsFor(b.k).length+'</td><td class="num">'+(picks[b.k]||0)+'</td></tr>'}).join("");
  return '<div class="view"><div class="row" style="justify-content:space-between"><h1 class="h1">선생님 화면</h1><button class="btn ghost sm" data-act="logout">나가기</button></div>'
  +'<div class="cols"><section class="panel"><h2 class="h2">수업 진행 <span id="tTime" style="font-family:var(--mono)">'+fmt(remain())+'</span></h2><p>'+esc(step().title)+'</p>'+(REMOTE?'<div class="row"><p data-sync class="'+(S.sync&&S.sync.ok===false?"err":"small")+'" style="flex:1 1 220px">'+esc(syncText())+'</p><button class="btn ghost sm" data-act="sync">학생 태블릿에 다시 보내기</button></div>':'')
  +'<div class="row">'+(t.running?'<button class="btn" data-act="pause">일시정지</button>':'<button class="btn" data-act="start">시작</button>')+'<button class="btn ghost" data-act="prev">이전</button><button class="btn ghost" data-act="next">다음</button><button class="btn ghost" data-act="add" data-arg="60">+1분</button><button class="btn ghost" data-act="add" data-arg="-60">-1분</button><button class="btn ghost" data-act="reset">처음으로</button></div>'
@@ -913,13 +928,11 @@ function vTeacher(){
  +'<section class="panel"><h2 class="h2">운영 설정</h2>'
  +'<label class="check"><input type="checkbox" data-set="lock"'+(set.lock?" checked":"")+'><span>소개 시간에는 학생 화면을 발표 자료로 고정하기 (발표자는 내 자료, 듣는 사람은 지금 회차 자료)</span></label>'
  +'<label class="check"><input type="checkbox" data-set="sound"'+(set.sound?" checked":"")+'><span>단계가 바뀔 때 신호음 울리기</span></label>'
- +'<label class="check"><input type="checkbox" data-set="share"'+(isShare()?" checked":"")+'><span>다른 반 공유 모드: 실명, 부스표, 전자칠판을 숨기고 댓글은 승인 후 공개</span></label>'
+ +'<label class="check"><input type="checkbox" data-set="share"'+(isShare()?" checked":"")+'><span>다른 반 공유 모드: 실명, 부스표, 전자칠판을 숨겨요 (기대평 작성자는 “○학년 친구”로 보여요)</span></label>'
  +'<form class="field" data-form="newpin"><label for="np">PIN 바꾸기</label><div class="row"><input id="np" type="text" maxlength="12" style="flex:1 1 140px;width:auto"><button class="btn ghost">바꾸기</button></div>'+(S.msg.np?'<span class="ok">'+esc(S.msg.np)+'</span>':'')+'</form>'
  +'<div class="field"><span class="lab">자료 옮기기·백업</span><div class="row"><button class="btn ghost sm" data-act="export">내보내기</button><label class="btn ghost sm" for="imp">가져오기</label><input id="imp" type="file" accept="application/json" hidden data-import="1"></div>'+(S.msg.imp?'<span class="'+S.msg.imp[0]+'">'+esc(S.msg.imp[1])+'</span>':'')+'</div>'
- +'<div class="row"><button class="btn ghost sm" data-act="wipe">'+(S.wipe?"정말 지워요? 한 번 더 누르면 삭제":"댓글·반응·소감 모두 지우기")+'</button></div></section></div>'
- +'<section class="panel"><h2 class="h2">댓글 관리 <span class="small">승인 대기 '+pending.length+'개</span></h2>'
- +(db.comments.length?'<ul class="clist">'+pending.concat(okc).map(cRow).join("")+'</ul>':'<p class="small">아직 댓글이 없어요.</p>')+'</section>'
- +'<section style="display:grid;gap:10px"><h2 class="h2">반응 모아 보기 <span class="small">선생님만 봐요</span></h2><div class="tablebox"><table><thead><tr><th>책</th><th class="num">읽고 싶어요</th><th class="num">이 책 추천해요</th><th class="num">댓글</th><th class="num">가장 읽고 싶은 책</th></tr></thead><tbody>'+stats+'</tbody></table></div></section>'
+ +'<div class="row"><button class="btn ghost sm" data-act="wipe">'+(S.wipe?"정말 지워요? 한 번 더 누르면 삭제":"기대평·반응·소감 모두 지우기")+'</button></div></section></div>'
+ +'<section style="display:grid;gap:10px"><h2 class="h2">반응 모아 보기 <span class="small">선생님만 봐요</span></h2><div class="tablebox"><table><thead><tr><th>책</th><th class="num">읽고 싶어요</th><th class="num">이 책 추천해요</th><th class="num">기대평</th><th class="num">가장 읽고 싶은 책</th></tr></thead><tbody>'+stats+'</tbody></table></div></section>'
  +expectSection()
  +'<section class="panel"><h2 class="h2">책 자료 관리 <span class="small">링크 등록 '+linked+' / '+BOOKS.length+'권</span></h2><p class="small">입력하면 바로 저장돼요. 캔바는 보기 전용 링크를 넣어 주세요.</p><div class="row"><label class="btn ghost sm" for="bulk">표지 여러 장 한번에 올리기</label><input id="bulk" type="file" accept="image/*" multiple hidden data-bulk="1"><span class="small">파일 이름에 책 제목이나 YES24 번호가 들어 있으면 알아서 맞춰요.</span></div>'
  +'<div class="field"><label for="pasteL" class="lab">링크 한꺼번에 붙여 넣기</label><textarea id="pasteL" placeholder="한 줄에 한 명씩: 학생 이름이나 책 제목 + 링크&#10;예) 신지혜 https://www.canva.com/design/.../view"></textarea><div class="row"><button class="btn ghost sm" data-act="pasteLinks">붙여 넣은 링크 저장</button><span class="small">구글 폼 응답 시트에서 이름·링크 칸을 복사해 붙여 넣어도 돼요. 캔바 주소는 캔바 칸에, 나머지는 웹앱 칸에 들어가요.</span></div>'+(S.msg.links?'<p class="'+S.msg.links[0]+'">'+esc(S.msg.links[1])+'</p>':'')+'</div>'+(S.msg.bulk?'<p class="'+S.msg.bulk[0]+'">'+esc(S.msg.bulk[1])+'</p>':'')
@@ -935,9 +948,9 @@ function expectList(){
 function expectSection(){
  var L=expectList().filter(function(x){return byK[x.book]&&x.text});
  var rows=BOOKS.map(function(b){var g=L.filter(function(x){return x.book===b.k}).sort(function(a,c){return String(a.name).localeCompare(String(c.name),"ko")});
-  return g.map(function(x,i){return '<tr>'+(i?'':'<td rowspan="'+g.length+'" style="vertical-align:top">'+esc(b.t)+'</td>')+'<td>'+esc(x.name)+'</td><td style="white-space:normal">'+esc(x.text)+'</td></tr>'}).join("")}).join("");
- return '<section style="display:grid;gap:10px"><h2 class="h2">이 책에서 기대되는 부분 <span class="small">'+L.length+'개'+(REMOTE&&!db.expects?' · 저장소가 아직 이 기록을 보내 주지 않아요':'')+'</span></h2>'
- +(L.length?'<div class="tablebox"><table><thead><tr><th>책</th><th>이름</th><th>기대되는 부분</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="small">아직 기록이 없어요.</p>')+'</section>';
+  return g.map(function(x,i){return '<tr>'+(i?'':'<td rowspan="'+g.length+'" style="vertical-align:top">'+esc(b.t)+'</td>')+'<td>'+esc(x.name)+'</td><td style="white-space:normal">'+esc(x.text)+'</td><td><button class="btn ghost sm" data-act="exDel" data-arg="'+esc(x.name)+'" data-k="'+esc(b.k)+'">'+(S.exDelAsk===x.name+"|"+b.k?"정말 지울까요?":"지우기")+'</button></td></tr>'}).join("")}).join("");
+ return '<section style="display:grid;gap:10px"><h2 class="h2">기대평 관리 <span class="small">'+L.length+'개'+(REMOTE&&!db.expects?' · 저장소가 아직 이 기록을 보내 주지 않아요':'')+'</span></h2>'
+ +(L.length?'<div class="tablebox"><table><thead><tr><th>책</th><th>이름</th><th>기대평</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="small">아직 기록이 없어요.</p>')+'</section>';
 }
 function inField(){var a=document.activeElement;return !!a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=="checkbox"&&a.type!=="file"}
 function renderLayer(){
@@ -960,25 +973,6 @@ function renderAll(){
 
 /* ---------- 입력 ---------- */
 var BAD=/시발|씨발|ㅅㅂ|병신|ㅄ|지랄|꺼져|닥쳐|멍청|바보|존나|개새/;
-function addComment(){
- var b=BOOKS[S.open],nick=defNick().trim(),text=(S.draft.text||"").trim();
- function m(c,t){S.msg.comment=[c,t];renderLayer()}
- if(!nick)return m("err","별칭을 적어 주세요.");
- if(!text)return m("err","내용을 적어 주세요.");
- if(BAD.test(nick+text))return m("err","친구가 읽고 기분 좋은 말로 바꿔 주세요.");
- if(isShare()&&NAMES.some(function(n){return (nick+text).indexOf(n)>=0}))return m("err","친구 이름은 빼고 적어 주세요.");
- if(Date.now()-S.lastCmt<10000)return m("err","10초 뒤에 다시 남길 수 있어요.");
- if(REMOTE){
-  m("small","보내는 중이에요…");
-  api({action:"comment",book:b.k,nick:nick,text:text,name:uname(),dev:devId()}).then(function(j){
-   S.lastCmt=Date.now();S.draft.text="";m("ok",j.approved?"댓글을 남겼어요.":"보냈어요. 선생님이 확인하면 보여요.");net.sig="";pull();
-  }).catch(function(e){m("err",netErr(e))});
-  return;
- }
- db=load();db.comments.push({id:Date.now()+"-"+Math.random().toString(36).slice(2,6),book:b.k,nick:nick,by:uname(),text:text,at:Date.now(),ok:!isShare()});
- save();S.lastCmt=Date.now();S.draft.text="";
- m("ok",isShare()?"보냈어요. 선생님이 확인하면 보여요.":"댓글을 남겼어요.");
-}
 function addPost(){
  var d=S.draft;function m(c,t){S.msg.post=[c,t];renderAll()}
  d.pName=uname();
@@ -1098,6 +1092,9 @@ document.addEventListener("click",function(e){
   case"ulogout":var mo=my();delete mo.name;delete mo.me;delete mo.guest;setMy(mo);S.draft={};S.msg={};S.open=null;S.zoom=null;renderAll();var un=document.getElementById("uName");if(un)un.focus();break;
   case"zoom":S.zoom=+arg;renderLayer();break;
   case"unpost":unpost(arg);break;
+  case"exDel":case"exMine":var who2=act==="exMine"?uname():arg,ek2=t.dataset.k,key2=who2+"|"+ek2;
+   if(S.exDelAsk!==key2){S.exDelAsk=key2;if(S.open!==null)renderLayer();else renderAll();break}
+   S.exDelAsk="";delExpect(who2,ek2);break;
   case"awnext":S.award.stage="champ";chime(true);renderLayer();break;
   case"awclose":S.award=null;renderLayer();break;
   case"awhall":S.award=null;S.open=null;S.poster=null;goTab("hall");break;
@@ -1106,8 +1103,6 @@ document.addEventListener("click",function(e){
   case"zprev":S.zoom=Math.max(0,S.zoom-1);renderLayer();break;
   case"znext":S.zoom=Math.min(postList().length-1,S.zoom+1);renderLayer();break;
   case"logout":S.teacher=false;S.pin="";net.sig="";try{sessionStorage.removeItem("gojeon-t");sessionStorage.removeItem("gojeon-pin")}catch(x){}renderAll();break;
-  case"cOk":if(REMOTE){api({action:"approve",pin:tPin(),id:arg}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});break}db=load();db.comments.forEach(function(c){if(c.id===arg)c.ok=true});save();renderAll();break;
-  case"cDel":if(REMOTE){api({action:"delete",pin:tPin(),id:arg}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});break}db=load();db.comments=db.comments.filter(function(c){return c.id!==arg});save();renderAll();break;
   case"covDel":db=load();delete bd(BOOKS[+arg].k).cover;save();renderAll();break;
   case"wipe":if(!S.wipe){S.wipe=true;renderAll();break}S.wipe=false;if(REMOTE)api({action:"wipe",pin:tPin()}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});db=load();db.comments=[];db.reactions={};db.posts={};db.notes={};db.users={};db.expects=null;save();setMy(Object.assign(my(),{rx:{}}));renderAll();break;
   case"export":var keep=JSON.parse(JSON.stringify(db));var blob=new Blob([JSON.stringify(keep)],{type:"application/json"});var u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="고전독서박람회-백업.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);break;
@@ -1135,8 +1130,7 @@ document.addEventListener("submit",function(e){
  var f=e.target.dataset.form;
  if(f==="login"){doLogin();return}
  if(f==="expect"){submitExpect(e.target.dataset.k);return}
- if(f==="comment")addComment();
- else if(f==="post")addPost();
+ if(f==="post")addPost();
  else if(f==="pin"&&REMOTE){var pv=document.getElementById("pin").value;S.msg.pin="확인하는 중이에요…";renderAll();
   api({action:"login",pin:pv}).then(function(){S.teacher=true;S.pin=pv;S.msg.pin="";try{sessionStorage.setItem("gojeon-t","1");sessionStorage.setItem("gojeon-pin",pv)}catch(x){}net.sig="";pull().then(function(){if(!S.srvTimer)pushTimer()});renderAll()})
   .catch(function(e){S.msg.pin=netErr(e);renderAll()})}
