@@ -1,17 +1,17 @@
 /**
  * 고전독서 박람회 기록 저장소 (구글 Apps Script 웹 앱)
  *
- * 설치
- * 1. 새 구글 시트를 만들고 [확장 프로그램] → [Apps Script]를 열어요.
- * 2. 이 파일 내용을 Code.gs에 모두 붙여 넣고 저장해요.
- * 3. [배포] → [새 배포] → 유형: 웹 앱
- *    - 실행 사용자: 나
- *    - 액세스 권한: 모든 사용자
- * 4. 나온 웹 앱 주소(https://script.google.com/macros/s/.../exec)를
- *    index.html 의 API_URL 에 넣어요.
- * 처음 선생님 PIN은 1234예요. 선생님 화면에서 바꿔 주세요.
+ * 기존에 쓰던 Apps Script에 넣는 법 (웹 앱 주소가 그대로라 index.html은 안 바꿔도 돼요)
+ * 1. 지금 API_URL로 쓰고 있는 Apps Script 프로젝트를 열어요.
+ * 2. Code.gs의 내용을 모두 지우고 이 파일 내용을 붙여 넣은 뒤 저장해요.
+ *    (다른 .gs 파일이 있으면 doGet/doPost가 겹치지 않게 지워 주세요.)
+ * 3. [배포] → [배포 관리] → 지금 배포 옆 연필(수정) → 버전: [새 버전] → [배포]
+ *    ※ [새 배포]를 누르면 주소가 바뀌어요. 꼭 [배포 관리]에서 수정해 주세요.
  *
- * 시트 탭(books, comments, reactions, posts, expects)은 처음 쓸 때 자동으로 만들어져요.
+ * 기록은 시트의 '박람회_' 로 시작하는 탭에 저장돼요. 처음 쓸 때 자동으로 만들어지고,
+ * 원래 있던 탭은 건드리지 않아요. 시트에 붙어 있지 않은 스크립트라면
+ * '고전독서 박람회 기록' 시트를 내 드라이브에 새로 만들어 써요.
+ * 선생님 PIN은 처음 1234예요. 선생님 화면에서 바꿔 주세요.
  */
 
 var SHEETS = {
@@ -21,6 +21,7 @@ var SHEETS = {
   posts:     ["name", "b1", "b2", "reason", "feel", "at"],
   expects:   ["name", "book", "text", "at"]
 };
+var TAB = { books: "박람회_책자료", comments: "박람회_댓글", reactions: "박람회_반응", posts: "박람회_소감", expects: "박람회_기대되는부분" };
 var NUM = { at: 1 }, BOOL = { ok: 1 };
 var BOOK_FIELDS = { canva: 1, web: 1, intro: 1, why: 1 };
 
@@ -41,14 +42,26 @@ function doPost(e) {
 
 /* ---------- 설정 ---------- */
 function props() { return PropertiesService.getScriptProperties(); }
-function pin() { return props().getProperty("pin") || "1234"; }
-function mode() { return props().getProperty("mode") === "share" ? "share" : "class"; }
-function timer() { try { return JSON.parse(props().getProperty("timer") || "null"); } catch (e) { return null; } }
+function pin() { return props().getProperty("fair_pin") || "1234"; }
+function mode() { return props().getProperty("fair_mode") === "share" ? "share" : "class"; }
+function timer() { try { return JSON.parse(props().getProperty("fair_timer") || "null"); } catch (e) { return null; } }
 
 /* ---------- 시트 ---------- */
+function book() {
+  var ss = null;
+  try { ss = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) {}
+  if (ss) return ss;
+  var id = props().getProperty("fair_sheet");
+  if (id) { try { return SpreadsheetApp.openById(id); } catch (e) {} }
+  ss = SpreadsheetApp.create("고전독서 박람회 기록");
+  props().setProperty("fair_sheet", ss.getId());
+  return ss;
+}
+var _ss = null;
 function sheet(name) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet(), s = ss.getSheetByName(name);
-  if (!s) { s = ss.insertSheet(name); s.appendRow(SHEETS[name]); s.setFrozenRows(1); }
+  _ss = _ss || book();
+  var s = _ss.getSheetByName(TAB[name]);
+  if (!s) { s = _ss.insertSheet(TAB[name]); s.appendRow(SHEETS[name]); s.setFrozenRows(1); }
   return s;
 }
 function toObj(name, row) {
@@ -89,14 +102,14 @@ function clearSheet(name) {
 
 /* ---------- 캐시: 태블릿 여러 대가 몇 초마다 불러와도 시트를 매번 읽지 않게 ---------- */
 function readAll() {
-  var c = CacheService.getScriptCache(), hit = c.get("db");
+  var c = CacheService.getScriptCache(), hit = c.get("fair_db");
   if (hit) return JSON.parse(hit);
   var d = {};
   Object.keys(SHEETS).forEach(function (n) { d[n] = rows(n); });
-  try { c.put("db", JSON.stringify(d), 300); } catch (e) {}
+  try { c.put("fair_db", JSON.stringify(d), 300); } catch (e) {}
   return d;
 }
-function dirty() { CacheService.getScriptCache().remove("db"); }
+function dirty() { CacheService.getScriptCache().remove("fair_db"); }
 
 function str(v, max) { return String(v == null ? "" : v).trim().slice(0, max); }
 
@@ -171,19 +184,19 @@ function handle(b) {
       }
       case "delete": { needT(); removeWhere("comments", function (r) { return r.id === String(b.id); }); break; }
       case "wipe": { needT(); ["comments", "reactions", "posts", "expects"].forEach(clearSheet); break; }
-      case "mode": { needT(); props().setProperty("mode", b.mode === "share" ? "share" : "class"); break; }
+      case "mode": { needT(); props().setProperty("fair_mode", b.mode === "share" ? "share" : "class"); break; }
       case "setpin": {
         needT();
         var np = str(b.newpin, 12);
         if (np.length < 4) throw new Error("4자리 이상으로 적어 주세요.");
-        props().setProperty("pin", np);
+        props().setProperty("fair_pin", np);
         break;
       }
       case "timer": {
         needT();
         var t = b.timer;
         if (!t || typeof t.i !== "number") throw new Error("타이머 정보가 없어요.");
-        props().setProperty("timer", JSON.stringify({ i: t.i, running: !!t.running, endsAt: Number(t.endsAt) || 0, remain: Number(t.remain) || 0, at: Number(t.at) || now }));
+        props().setProperty("fair_timer", JSON.stringify({ i: t.i, running: !!t.running, endsAt: Number(t.endsAt) || 0, remain: Number(t.remain) || 0, at: Number(t.at) || now }));
         return res; // 시트는 바뀌지 않음
       }
       default: throw new Error("알 수 없는 요청이에요.");
