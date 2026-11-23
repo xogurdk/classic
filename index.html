@@ -233,7 +233,7 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 
 /* 뱃지 */
 .bdg{display:block;width:100%;height:auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.28))}
-.bdg.off{filter:grayscale(1) brightness(.9) contrast(.85);opacity:.42}
+.bdg.off{filter:grayscale(1) brightness(.9) contrast(.85) drop-shadow(0 4px 8px rgba(0,0,0,.28));opacity:.42}
 .d-badge,.f-badge{display:grid;gap:6px;justify-items:center;align-content:start;text-align:center;font-size:.85rem;color:var(--muted)}
 .d-badge b,.f-badge b{font:400 .95rem var(--display);color:var(--stamp)}
 .d-badge .bdg{max-width:130px}.f-badge .bdg{max-width:110px}
@@ -250,6 +250,9 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .bcell:hover{border-color:var(--accent)}
 .bcell:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .bcell .bdg{max-width:104px;aspect-ratio:1;object-fit:contain}
+.bcell .bdg{transition:filter .25s ease,opacity .25s ease,transform .25s ease}
+@media (hover:hover){.bcell:hover .bdg.off{filter:grayscale(0) brightness(1) contrast(1) drop-shadow(0 4px 8px rgba(0,0,0,.28));opacity:1;transform:scale(1.06)}}
+.bcell:focus-visible .bdg.off{filter:grayscale(0) brightness(1) contrast(1) drop-shadow(0 4px 8px rgba(0,0,0,.28));opacity:1}
 .bcell .t{font:400 .98rem/1.2 var(--display)}
 .bcell .st{font-size:.78rem;color:var(--muted)}
 .bcell.got .st{color:var(--accent);font-weight:700}
