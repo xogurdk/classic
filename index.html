@@ -84,6 +84,16 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .bbtn{font:400 1rem var(--display);min-height:42px;padding:5px 13px;border:1.5px solid var(--board-muted);border-radius:8px;background:transparent;color:var(--board-ink);cursor:pointer}
 .bbtn.main{background:var(--board-hot);border-color:var(--board-hot);color:#2b1a00}
 @media (max-width:760px){.btime{font-size:24vw}.seg{font-size:0;padding-top:4px}}
+.bsplit{display:grid;grid-template-columns:minmax(230px,.72fr) minmax(0,1.6fr);gap:clamp(12px,2.2vw,36px);align-items:center;width:100%;text-align:center}
+.bleft{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.4vh,16px);min-width:0}
+.bsplit .btime{font-size:min(10vw,21vh)}
+.bsplit .btodo{font-size:clamp(1.05rem,1.7vw,1.7rem)}
+.bright{display:grid;gap:clamp(6px,1vh,12px);min-width:0;text-align:left}
+.bmaptitle{font:400 clamp(1.1rem,1.9vw,1.9rem) var(--display);color:var(--board-hot)}
+.bchips{display:flex;flex-wrap:wrap;gap:6px}
+.bchip{background:var(--board-2);border-radius:8px;padding:2px 10px;font-size:clamp(.85rem,1.2vw,1.2rem)}
+.bchip b{font-weight:400;font-family:var(--display);color:var(--board-hot);margin-left:6px}
+@media (max-width:900px){.bsplit{grid-template-columns:minmax(0,1fr)}}
 
 /* 책 */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:16px 14px}
@@ -182,10 +192,35 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .pc.fu::after{top:-13px;border-bottom-color:var(--accent)}
 .pc.off{border-style:dashed;border-color:var(--line)}
 .pc.off::after{display:none}
+.map{color:var(--ink)}
+.s-ls{font:400 .9rem/1.25 var(--display);color:var(--accent);word-break:keep-all}
+.s-ls.free{color:#8a7a66}
+.seat.hl{box-shadow:0 0 0 4px var(--stamp);animation:hl 1.2s ease-in-out infinite alternate}
+@keyframes hl{to{box-shadow:0 0 0 7px var(--stamp)}}
+.map.big{--pc:clamp(40px,4vw,62px);gap:clamp(5px,.8vw,10px)}
+.map.big .cover{display:none}
+.map.big .seat{grid-template-columns:minmax(0,1fr);min-height:clamp(70px,10vh,120px);align-content:center}
+.map.big .s-code{font-size:clamp(.9rem,1.3vw,1.3rem)}
+.map.big .s-t{font-size:clamp(.95rem,1.4vw,1.45rem)}
+.map.big .s-ls{font-size:clamp(1rem,1.55vw,1.6rem)}
+.map.big .pc{font-size:clamp(.75rem,1.05vw,1.05rem)}
+.map.big .m-floor{font-size:clamp(.8rem,1.1vw,1.1rem)}
+@media (prefers-reduced-motion:reduce){.seat.hl{animation:none}}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.86rem;color:var(--muted)}
 .legend b{font-weight:400;font-family:var(--display);color:var(--ink)}
 @media (max-width:600px){.map{--pc:38px;gap:5px;padding:8px}.seat{grid-template-columns:minmax(0,1fr);min-height:84px;padding:5px}.seat .cover{display:none}.s-t{font-size:.86rem}.s-code{font-size:.84rem}.pc{font-size:.7rem}.m-floor{font-size:.76rem}}
 @media (max-width:620px){.d-top{grid-template-columns:minmax(0,1fr)}.d-top .cover{max-width:150px}}
+
+/* 발표 시간 고정 화면 */
+.fbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 14px;background:var(--accent);color:var(--on-accent);border-radius:10px;padding:10px 16px;font:400 1.2rem var(--display)}
+.ftime{font:500 1.7rem var(--mono);font-variant-numeric:tabular-nums}
+.fb-top{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px}
+.fb-top .cover{max-width:150px}
+.fnext{background:var(--paper);border:3px solid var(--stamp);border-radius:14px;padding:18px;display:grid;gap:8px;text-align:center;justify-items:center}
+.fnext .big{font:400 clamp(2.2rem,8vw,3.6rem)/1.1 var(--display);color:var(--stamp)}
+.fnext .ttl{font:400 clamp(1.4rem,4.5vw,2rem)/1.25 var(--display)}
+.names{font:400 1.15rem var(--display);color:var(--accent)}
+@media (max-width:560px){.fb-top{grid-template-columns:minmax(0,1fr)}.fb-top .cover{max-width:110px}}
 
 /* 입장권 */
 .ticket{background:var(--paper);border:1.5px dashed var(--muted);border-radius:14px;padding:16px;display:grid;gap:12px}
@@ -314,6 +349,16 @@ function uname(){return my().name||(S.teacher?"선생님":"")}
 function inRoster(n){return NAMES.indexOf(n)>=0}
 function urec(n){db.users=db.users||{};return db.users[n]||(db.users[n]={rx:{},first:Date.now()})}
 function myRx(){var n=uname();return n&&db.users&&db.users[n]?db.users[n].rx||{}:{}}
+function getExpect(k){var u=db.users&&db.users[uname()];return u&&u.expect&&u.expect[k]?u.expect[k].t||"":""}
+function setExpect(k,text,push){var n=uname();if(!n)return;db=load();var u=urec(n);u.expect=u.expect||{};u.expect[k]={t:String(text).slice(0,200),at:nowMs()};save();
+ if(push&&REMOTE)api({action:"expect",name:n,book:k,text:u.expect[k].t}).catch(function(){})}
+function expectHtml(b,id){
+ return '<div class="field"><label class="lab" for="'+id+'">이 책에서 기대되는 부분</label><textarea id="'+id+'" maxlength="200" data-expect="'+esc(b.k)+'" placeholder="소개를 듣고 어떤 장면이나 내용이 기대되나요?">'+esc(getExpect(b.k))+'</textarea><span class="small">고전 탐험하기와 내 부스·시간표에 함께 기록돼요.</span></div>';
+}
+function rxHtml(b){
+ var mine=myRx(),kinds=[["want","읽고 싶어요"],["fun","이 책 추천해요"]];
+ return '<div class="field"><span class="lab">이 소개를 보고 나서</span><div class="rx">'+kinds.map(function(k){var on=!!(mine[b.k]&&mine[b.k][k[0]]),n=((db.reactions[b.k]||{})[k[0]])||0;return '<button class="rxb'+(S.bump===k[0]?" bump":"")+'" data-act="rx" data-arg="'+k[0]+'" data-k="'+esc(b.k)+'" aria-pressed="'+on+'" aria-label="'+k[1]+' '+n+'명">'+k[1]+'<span class="cnt">'+n+'</span></button>'}).join("")+'</div><span class="small">'+(uname()?esc(uname())+' 이름으로 저장돼요. 한 번 더 누르면 취소돼요.':'')+'</span></div>';
+}
 function needLogin(r){return !S.teacher&&!my().name&&r!=="teacher"}
 /* ---------- 구글 시트 연결 ----------
    Apps Script 웹 앱 주소를 아래 따옴표 안에 넣으면 링크·반응·댓글·소감이 모든 기기에서 함께 기록돼요.
@@ -331,8 +376,13 @@ function api(body){
 }
 function netErr(e){return e&&e.message&&!/Failed to fetch|NetworkError|Load failed|JSON/i.test(e.message)?e.message:"인터넷 연결을 확인하고 다시 해 주세요."}
 function applyRemote(d){
- var sig=JSON.stringify(d);if(sig===net.sig)return;net.sig=sig;
+ var c=Object.assign({},d);delete c.now;
+ var sig=JSON.stringify(c);if(sig===net.sig)return;net.sig=sig;
  db=load();
+ if(d.timer&&STEPS[d.timer.i]&&(+d.timer.at||0)>(+db.timer.at||0)){db.timer=d.timer}
+ var un=uname();
+ if(d.me&&un){var u=urec(un);u.rx=d.me.rx||{};u.expect=u.expect||{};var ex=d.me.expect||{};Object.keys(ex).forEach(function(k){var a=u.expect[k];if(!a||(+ex[k].at||0)>=(+a.at||0))u.expect[k]=ex[k]})}
+ if(d.expects)db.expects=d.expects;
  Object.keys(d.books||{}).forEach(function(k){if(!byK[k])return;var cur=bd(k),x=d.books[k];["canva","web","intro","why"].forEach(function(f){cur[f]=x[f]||""})});
  db.comments=d.comments||[];db.posts=d.posts||{};if(d.reactions)db.reactions=d.reactions;
  db.settings.mode=d.mode==="share"?"share":"class";
@@ -342,7 +392,8 @@ function applyRemote(d){
 function pull(){
  if(!REMOTE||net.busy)return Promise.resolve();
  net.busy=true;
- return api({action:"all",pin:S.teacher?tPin():""}).then(function(j){var was=net.ok;net.ok=true;applyRemote(j.data);if(was===false)renderNav()})
+ var t0=Date.now();
+ return api({action:"all",pin:S.teacher?tPin():"",name:my().name||""}).then(function(j){var t1=Date.now();if(j.data&&typeof j.data.now==="number"&&t1-t0<4000)S.skew=j.data.now-(t0+t1)/2;var was=net.ok;net.ok=true;applyRemote(j.data);if(was===false)renderNav()})
   .catch(function(){var was=net.ok;net.ok=false;if(was!==false)renderNav()}).then(function(){net.busy=false});
 }
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -351,22 +402,25 @@ function isShare(){return db.settings.mode==="share"}
 function safeUrl(u){u=String(u||"").trim();return /^https?:\/\/\S+$/i.test(u)?u:""}
 
 /* ---------- 타이머 ---------- */
-function remain(){var t=db.timer;return t.running?(t.endsAt-Date.now())/1000:t.remain}
+function nowMs(){return Date.now()+(S.skew||0)}
+function remain(){var t=db.timer;return t.running?(t.endsAt-nowMs())/1000:t.remain}
 function step(){return STEPS[db.timer.i]}
 function fmt(sec){var neg=sec<0;sec=neg?Math.floor(-sec):Math.ceil(sec);return(neg?"+":"")+String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0")}
-function tStart(){var t=db.timer;if(t.running||!step().timed)return;t.endsAt=Date.now()+t.remain*1000;t.running=true;save();renderAll();unlockAudio()}
-function tPause(){var t=db.timer;if(!t.running)return;t.remain=remain();t.running=false;save();renderAll()}
-function tGo(i){var t=db.timer;i=Math.max(0,Math.min(STEPS.length-1,i));t.i=i;t.remain=STEPS[i].sec;t.running=STEPS[i].timed;if(t.running){t.endsAt=Date.now()+t.remain*1000;unlockAudio()}S.lastI=i;save();renderAll()}
-function tAdd(s){var t=db.timer;t.remain+=s;if(t.running)t.endsAt+=s*1000;save();tick()}
-function tReset(){db.timer=fresh().timer;S.lastI=0;save();renderAll()}
+/* 선생님 기기에서 타이머를 바꾸면 저장소로 보내고, 학생 태블릿은 받아서 같은 단계를 보여요 */
+function pushTimer(){db.timer.at=nowMs();save();if(REMOTE&&S.teacher)api({action:"timer",pin:tPin(),timer:db.timer}).catch(function(){})}
+function tStart(){var t=db.timer;if(t.running||!step().timed)return;t.endsAt=nowMs()+t.remain*1000;t.running=true;pushTimer();renderAll();unlockAudio()}
+function tPause(){var t=db.timer;if(!t.running)return;t.remain=remain();t.running=false;pushTimer();renderAll()}
+function tGo(i){var t=db.timer;i=Math.max(0,Math.min(STEPS.length-1,i));t.i=i;t.remain=STEPS[i].sec;t.running=STEPS[i].timed;if(t.running){t.endsAt=nowMs()+t.remain*1000;unlockAudio()}S.lastI=i;pushTimer();renderAll()}
+function tAdd(s){var t=db.timer;t.remain+=s;if(t.running)t.endsAt+=s*1000;pushTimer();tick()}
+function tReset(){db.timer=fresh().timer;S.lastI=0;pushTimer();renderAll()}
 var audio=null;
 function unlockAudio(){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume()}catch(e){}}
 function beep(kind){if(!db.settings.sound||!audio)return;try{var f=kind==="move"?[660,880]:kind==="ask"?[523]:[440,440];f.forEach(function(fr,n){var o=audio.createOscillator(),g=audio.createGain();o.frequency.value=fr;o.connect(g);g.connect(audio.destination);var at=audio.currentTime+n*.28;g.gain.setValueAtTime(.25,at);g.gain.exponentialRampToValueAtTime(.001,at+.25);o.start(at);o.stop(at+.26)})}catch(e){}}
 function tick(){
  var t=db.timer;
- if(t.running&&Date.now()>=t.endsAt&&step().auto){
+ if(t.running&&nowMs()>=t.endsAt&&step().auto){
   db=load();t=db.timer;var moved=false;
-  while(t.running&&Date.now()>=t.endsAt&&STEPS[t.i].auto&&t.i<STEPS.length-1){t.i++;t.endsAt+=STEPS[t.i].sec*1000;moved=true}
+  while(t.running&&nowMs()>=t.endsAt&&STEPS[t.i].auto&&t.i<STEPS.length-1){t.i++;t.endsAt+=STEPS[t.i].sec*1000;moved=true}
   if(moved)save();
  }
  if(S.lastI!==t.i){S.lastI=t.i;beep(step().kind);if(!inField())renderAll();else S.dirty=true}
@@ -376,8 +430,11 @@ function tick(){
  if(c){var d=new Date();c.firstChild.textContent=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");
  }
  var mini=document.getElementById("tTime");if(mini)mini.textContent=fmt(remain());
+ [].forEach.call(document.querySelectorAll("[data-timer]"),function(x){x.textContent=fmt(remain())});
+ var fk=focusKey();if(fk!==S.lastFK){var had=S.lastFK!=null;S.lastFK=fk;if(had){if(inField())S.dirty=true;else renderAll()}}
 }
-function locked(){return db.settings.lock&&!S.teacher&&!isShare()&&!!step().talk&&db.timer.running}
+function locked(){return db.settings.lock&&!S.teacher&&!isShare()&&!!step().talk}
+function focusKey(){if(!locked())return "";var s=step();return db.timer.i+(s.kind==="talk"&&remain()<=0?"o":"")}
 
 /* ---------- 표지 ---------- */
 function coverHtml(b){
@@ -427,13 +484,78 @@ function vBoard(){
  var main=s.timed
   ?'<div class="btitle">'+esc(s.title)+'</div><div class="btime" id="bTime">'+fmt(remain())+'</div><div class="btodo">'+esc(s.todo)+'</div>'
   :'<div class="btitle sm">'+esc(s.title)+'</div><div class="bmsg">'+esc(s.todo)+'</div>';
+ var nx='<div class="bnext">'+(next?"다음: "+esc(next.title):"마지막 단계예요")+'</div>';
+ var mc=boardMapCtx(s);
  return '<div class="bwrap" id="boardWrap"><div class="bhead"><div class="bphase">'+esc(who)+'</div></div>'
- +'<div class="bmain">'+main+'<div class="bnext">'+(next?"다음: "+esc(next.title):"마지막 단계예요")+'</div>'+ctl+'</div>'
+ +'<div class="bmain">'+(mc?'<div class="bsplit"><div class="bleft">'+main+nx+ctl+'</div>'+boardMap(mc)+'</div>':main+nx+ctl)+'</div>'
  +'<div class="strip">'+strip+'</div>'+(S.teacher?'':'<p class="small" style="color:var(--board-muted)">시작과 단계 이동은 선생님 탭에서 로그인하면 이 화면에 나타나요.</p>')+'</div>';
 }
+/* 전자칠판 배치도: 소개·이동 시간에는 이번(또는 다음) 회차에 누가 어느 부스로 가는지 보여 줘요 */
+function boardMapCtx(s){
+ if(s.talk){var r=s.kind==="move"?s.round+1:s.round;return{part:s.talk,round:Math.min(r,3),moving:s.kind==="move"}}
+ if(s.ph===0)return{part:1,round:1,moving:true};
+ if(s.ph===2)return{part:2,round:1,moving:true};
+ return null;
+}
+function boardMap(mc){
+ var V=mc.part===1?V2:V1,P=mc.part===1?P1:P2;
+ var chips=ko(V).map(function(n){var k=V[n][mc.round-1],row=P.filter(function(x){return x[1]===k})[0];return '<span class="bchip">'+esc(n)+'<b>'+seatCode(row[0])+'</b></span>'}).join("");
+ return '<div class="bright"><div class="bmaptitle">'+mc.part+'부 발표 · '+mc.round+'회차 '+(mc.moving?'이 부스로 이동해요':'지금 듣는 부스')+'</div>'+mapGrid(mc.part,{round:mc.round,big:true,static:true})+'<div class="bchips">'+chips+'</div></div>';
+}
 function vLocked(title){return '<div class="view"><div class="panel"><h1 class="h1">지금은 친구의 소개를 듣는 시간이에요</h1><p>'+esc(title)+'은(는) 소개가 끝나면 열려요. 내 부스와 메모는 지금도 볼 수 있어요.</p><div class="row"><a class="btn" href="#booth">내 부스 보기</a></div></div></div>'}
+function roleOf(part,me){
+ var row=(part===1?P1:P2).filter(function(x){return x[2]===me})[0];if(row)return{pres:true,row:row};
+ var V=part===1?V2:V1;return V[me]?{pres:false,tour:V[me]}:null;
+}
+function rowOf(part,k){return (part===1?P1:P2).filter(function(x){return x[1]===k})[0]}
+function bookPanel(b,o){
+ var c=canvaOf(b),w=safeUrl((db.books[b.k]||{}).web);
+ return '<section class="panel"><div class="fb-top">'+coverHtml(b)+'<div class="d-info"><span class="small">'+o.label+'</span><h2 class="h1">'+esc(b.t)+'</h2><p class="small">'+esc(b.a)+' · '+esc(b.p)+'</p>'
+ +(o.who?'<p>'+o.code+' 부스 · 발표 <b>'+esc(o.who)+'</b></p>':'')
+ +'<div class="row">'+(c?'<a class="btn" href="'+esc(c)+'" target="_blank" rel="noopener noreferrer">'+(o.mine?"내 발표 자료 열기":"발표 자료 보기")+'</a>':'<button class="btn off" disabled>링크 등록 전이에요</button>')+(w?'<a class="btn ghost" href="'+esc(w)+'" target="_blank" rel="noopener noreferrer">웹앱 열기</a>':'')+'</div>'
+ +(o.extra||'')+'</div></div>'+(o.review?rxHtml(b)+expectHtml(b,"exf"+b.i):'')+'</section>';
+}
+/* 소개 시간: 발표자는 내 발표 자료, 듣는 사람은 지금 회차 발표 자료만 보여요. 3분이 지나면 다음 부스 안내 */
+function vFocus(){
+ var s=step(),part=s.talk,me=uname(),role=roleOf(part,me);
+ if(!role)return vLocked("이 화면");
+ var over=s.kind==="move"||remain()<=0,r=s.round,nr=over?r+1:r;
+ var bar='<div class="fbar"><span>'+part+'부 소개 · '+(over?(nr<=3?r+'회차 끝 · '+nr+'회차로 이동':'소개가 모두 끝났어요'):r+'회차 '+(role.pres?'내 발표':'듣는 중'))+'</span><span class="ftime" data-timer>'+fmt(remain())+'</span></div>';
+ var body="";
+ if(role.pres){
+  var mb=byK[role.row[1]],code=seatCode(role.row[0]);
+  if(!over){
+   var ls=listenersAt(part,mb.k,r);
+   body='<h1 class="h1">지금은 내가 발표하는 시간이에요</h1>'+bookPanel(mb,{label:code+' 부스 · 내 발표',mine:true,extra:'<p class="names">이번에 듣는 친구: '+(ls.length?esc(ls.join(", ")):'선생님·참관자')+'</p>'});
+  }else if(nr<=3){
+   var nl=listenersAt(part,mb.k,nr);
+   body='<div class="fnext"><span class="small">'+r+'회차 발표 끝! 잘했어요</span><span class="ttl">'+nr+'회차에 올 친구</span><span class="big">'+(nl.length?esc(nl.join(", ")):'선생님·참관자')+'</span><span class="small">자리를 지키고 다음 발표를 준비해요</span></div>'
+   +bookPanel(mb,{label:code+' 부스 · 내 발표',mine:true});
+  }else if(part===1){
+   var k1=V1[me][0],r1=rowOf(2,k1);
+   body='<div class="fnext"><span class="small">1부 발표가 모두 끝났어요. 수고했어요!</span><span class="ttl">이제 2부 소개를 들으러 가요 · 1회차</span><span class="big">'+seatCode(r1[0])+'</span><span class="ttl">'+esc(byK[k1].t)+'</span><span class="small">발표 '+esc(r1[2])+'</span></div>'+mapSection(2,{me:me,hl:k1,static:true});
+  }else body='<div class="fnext"><span class="ttl">2부 발표가 모두 끝났어요. 수고했어요!</span><span class="small">선생님 안내에 따라 읽고 싶은 책을 고르고 소감을 써요</span></div>';
+ }else{
+  var k=role.tour[r-1],row=rowOf(part,k),b=byK[k];
+  if(!over){
+   body=bookPanel(b,{label:r+'회차 · 지금 듣는 책',who:row[2],code:seatCode(row[0]),review:true});
+  }else{
+   var head="";
+   if(nr<=3){var nk=role.tour[nr-1],nrow=rowOf(part,nk);
+    head='<div class="fnext"><span class="small">다음 부스로 이동해요 · '+nr+'회차</span><span class="big">'+seatCode(nrow[0])+'</span><span class="ttl">'+esc(byK[nk].t)+'</span><span class="small">발표 '+esc(nrow[2])+'</span></div>';
+    body=head+bookPanel(b,{label:'방금 들은 책 · 후기를 남겨요',who:row[2],code:seatCode(row[0]),review:true})+mapSection(part,{me:me,hl:nk,static:true});
+   }else if(part===1){var mine=P2.filter(function(x){return x[2]===me})[0];
+    head='<div class="fnext"><span class="small">1부 소개가 모두 끝났어요</span><span class="ttl">이제 내가 발표할 차례예요. 내 부스로 가요</span><span class="big">'+seatCode(mine[0])+'</span><span class="ttl">'+esc(byK[mine[1]].t)+'</span></div>';
+    body=head+bookPanel(b,{label:'방금 들은 책 · 후기를 남겨요',who:row[2],code:seatCode(row[0]),review:true})+mapSection(2,{me:me,hl:mine[1],static:true});
+   }else{
+    body='<div class="fnext"><span class="ttl">2부 소개가 모두 끝났어요</span><span class="small">방금 들은 책의 후기를 남기고, 선생님 안내를 기다려요</span></div>'+bookPanel(b,{label:'방금 들은 책 · 후기를 남겨요',who:row[2],code:seatCode(row[0]),review:true});
+   }
+  }
+ }
+ return '<div class="view">'+bar+body+(S.msg.comment?'<p class="'+S.msg.comment[0]+'">'+esc(S.msg.comment[1])+'</p>':'')+'</div>';
+}
 function vExplore(){
- if(locked())return vLocked("고전 탐험하기");
+ if(locked())return vFocus();
  var q=S.q.trim();
  var list=BOOKS.filter(function(b){
   if(S.filter==="p1"&&b.part!==1)return false;
@@ -490,26 +612,33 @@ function seatsOf(part){
  [1,2,3].forEach(function(z){[1,2,3].forEach(function(s){if(!out.some(function(o){return o.z===z&&o.slot===s}))out.push({z:z,slot:s,off:true})})});
  return out;
 }
-function mapHtml(list){
- var me=uname(),share=isShare(),q=S.q.trim();
- var parts=S.filter==="p1"?[1]:S.filter==="p2"?[2]:[1,2];
+function listenersAt(part,k,r){var V=part===1?V2:V1;return ko(V).filter(function(n){return V[n][r-1]===k})}
+function seatCode(full){var m=String(full).match(/(\d)구역-(\d)/);return m?m[1]+"-"+m[2]:full}
+/* o: me(강조할 학생), list(보이는 책), q(검색어), round(이 회차 듣는 사람 표시), hl(깜빡일 책), big(전자칠판용) */
+function mapGrid(part,OPT){
+ OPT=OPT||{};var me=OPT.me||"",q=OPT.q||"",list=OPT.list||BOOKS,share=isShare();
  var tour=V1[me]?{part:2,list:V1[me]}:V2[me]?{part:1,list:V2[me]}:null;
- var maps=parts.map(function(part){
   var cells=seatsOf(part).map(function(o){
    var sl=SLOT[o.z][o.slot],pos='grid-row:'+sl.r+';grid-column:'+sl.c;
    var pcpos='grid-row:'+sl.pc.r+';grid-column:'+sl.pc.c;
    if(o.off)return '<div class="seat off '+sl.d+'" style="'+pos+'">빈자리</div><span class="pc off" style="'+pcpos+'" aria-hidden="true"></span>';
    var b=byK[o.k],mine=o.who===me,ti=tour&&tour.part===part?tour.list.indexOf(o.k):-1;
    var dim=list.indexOf(b)<0||(q&&(b.t+b.a+b.p+b.h+o.who).indexOf(q)<0);
+   var ls=OPT.round?listenersAt(part,o.k,OPT.round):null;
    var badge=mine?'<span class="s-badge">내 부스</span>':ti>=0?'<span class="s-badge" style="background:var(--accent);color:var(--on-accent)">내 '+(ti+1)+'회차</span>':'';
    var nm=share?"발표":o.who.slice(1);
-   return '<button class="seat '+sl.d+(mine?" mine":ti>=0?" tour":"")+(dim?" dim":"")+'" style="'+pos+'" data-act="open" data-arg="'+b.i+'" aria-label="'+esc(o.full+" "+b.t+(share?"":" · 발표 "+o.who))+'">'+coverHtml(b)+'<span class="s-txt"><span class="s-code">'+o.code+'</span><span class="s-t">'+esc(b.t)+'</span>'+badge+'</span></button>'
+   return '<button class="seat '+sl.d+(OPT.hl===o.k?" hl":mine?" mine":ti>=0?" tour":"")+(dim?" dim":"")+'" style="'+pos+'"'+(OPT.static?' tabindex="-1"':' data-act="open" data-arg="'+b.i+'"')+' aria-label="'+esc(o.full+" "+b.t+(share?"":" · 발표 "+o.who))+'">'+coverHtml(b)+'<span class="s-txt"><span class="s-code">'+o.code+'</span><span class="s-t">'+esc(b.t)+'</span>'+(ls?(ls.length?'<span class="s-ls">→ '+esc(ls.join(", "))+'</span>':'<span class="s-ls free">참관자</span>'):badge)+'</span></button>'
    +'<span class="pc '+sl.pc.f+'" style="'+pcpos+'" title="'+esc(share?"발표자 자리":o.who+" 발표 자리")+'">'+esc(nm)+'</span>';
   }).join("");
-  return '<section class="mapbox"><h2 class="h2">'+part+'부 자리 배치도 <span class="small">'+(part===1?"9자리":"8자리 · 가운데 빈자리")+'</span></h2>'
-  +'<div class="map" role="group" aria-label="'+part+'부 자리 배치도"><div class="m-back"><span class="m-door">후문</span><span>교실 뒤 · 열린 쪽</span><span></span></div>'
-  +'<div class="m-floor">청중은 가운데를 돌아다니며 들어요</div>'+cells+'<div class="m-board">칠판</div></div></section>';
- }).join("");
+  return '<div class="map'+(OPT.big?" big":"")+'" role="group" aria-label="'+part+'부 자리 배치도"><div class="m-back"><span class="m-door">후문</span><span>교실 뒤 · 열린 쪽</span><span></span></div>'
+  +'<div class="m-floor">청중은 가운데를 돌아다니며 들어요</div>'+cells+'<div class="m-board">칠판</div></div>';
+}
+function mapSection(part,o){return '<section class="mapbox"><h2 class="h2">'+part+'부 자리 배치도 <span class="small">'+(part===1?"9자리":"8자리 · 가운데 빈자리")+'</span></h2>'+mapGrid(part,o)+'</section>'}
+function mapHtml(list){
+ var me=uname(),q=S.q.trim();
+ var parts=S.filter==="p1"?[1]:S.filter==="p2"?[2]:[1,2];
+ var tour=V1[me]||V2[me];
+ var maps=parts.map(function(part){return mapSection(part,{me:me,list:list,q:q})}).join("");
  var extra=BOOKS.filter(function(b){return b.viewOnly&&list.indexOf(b)>=0&&parts.indexOf(b.part)>=0});
  return '<div class="legend"><span><b>동그라미</b> 발표자가 서는 곳. 벽을 등지고 교실 안을 바라봐요</span><span><b>책상</b> 누르면 책과 발표 자료가 열려요</span>'+(tour?'<span><b style="color:var(--stamp)">빨간 테두리</b> 내 부스 · <b style="color:var(--accent)">파란 테두리</b> 내가 들으러 갈 곳</span>':'')+'</div>'
  +'<div class="maps">'+maps+'</div>'
@@ -529,7 +658,7 @@ function vDetail(b){
  +'<p>'+esc(d.intro||b.h)+'</p>'+(d.why?'<p class="small">이 양식을 고른 이유: '+esc(d.why)+'</p>':'')
  +'<div class="row">'+link+'</div><p class="small">자료는 새 탭에서 열려요. 다 보면 그 탭을 닫고 돌아오면 돼요.</p>'+(b.viewOnly?'<p class="small">이 책은 박람회 부스에는 없고, 발표 자료만 볼 수 있어요.</p>':'')+'</div></div>'
  +(b.viewOnly?'</div></div>':'')
- +(b.viewOnly?'':'<div class="field"><span class="lab">이 소개를 보고 나서</span><div class="rx">'+kinds.map(function(k){var on=!!(mine[b.k]&&mine[b.k][k[0]]),n=((db.reactions[b.k]||{})[k[0]])||0;return '<button class="rxb'+(S.bump===k[0]?" bump":"")+'" data-act="rx" data-arg="'+k[0]+'" aria-pressed="'+on+'" aria-label="'+k[1]+' '+n+'명">'+k[1]+'<span class="cnt">'+n+'</span></button>'}).join("")+'</div><span class="small">'+(uname()?esc(uname())+' 이름으로 저장돼요. 한 번 더 누르면 취소돼요.':'')+'</span></div>'
+ +(b.viewOnly?'':rxHtml(b)+(uname()&&presenter(b.k)!==uname()?expectHtml(b,"exd"+b.i):'')
  +'<div class="field"><span class="lab">댓글</span>'
  +(cm.length?'<ul class="clist">'+cm.map(function(x){return '<li><span class="nick">'+esc(x.nick)+'</span> '+esc(x.text)+'</li>'}).join("")+'</ul>':'<p class="small">첫 댓글을 남겨 보세요. 어떤 부분이 궁금해졌나요?</p>')
  +'</div><form class="field" data-form="comment" style="gap:8px"><div class="row" style="align-items:flex-start"><div class="field" style="flex:1 1 130px"><label for="cNick">별칭</label><input id="cNick" type="text" maxlength="10" data-input="nick" value="'+esc(defNick())+'" placeholder="실명 대신 별칭"></div>'
@@ -539,6 +668,7 @@ function vDetail(b){
 function defNick(){return S.draft.nick!=null?S.draft.nick:(isShare()?"":uname())}
 function vBooth(){
  var un=uname(),me=my().me||(V1[un]||V2[un]?un:""),s=step(),t=db.timer;
+ var self=!!me&&me===un;
  var o='<option value="">이름을 고르세요</option>'+[["1부 발표",V1],["2부 발표",V2]].map(function(g){return '<optgroup label="'+g[0]+'">'+ko(g[1]).map(function(n){return '<option'+(n===me?" selected":"")+'>'+n+'</option>'}).join("")+'</optgroup>'}).join("");
  var box='<p class="lede">이름을 고르면 입장권이 나와요. 전체 표는 아래에 있어요.</p>';
  if(me){
@@ -548,7 +678,7 @@ function vBooth(){
   box='<div class="stubs"><div class="stub me'+(s.talk===mp?" now":"")+'"><span class="when">'+mp+'부 시간 · 3번 발표</span><span class="where">'+mine[0]+'</span><span class="what">'+esc(byK[mine[1]].t)+'</span><span class="who">내 부스</span></div>'
   +tour.map(function(k,n){var b=Q.filter(function(x){return x[1]===k})[0];var on=s.talk===op&&s.round===n+1;
     return '<div class="stub'+(on?" now":"")+'"><span class="when">'+op+'부 시간 · '+(n+1)+'회차 관람</span><span class="where">'+b[0]+'</span><span class="what">'+esc(byK[k].t)+'</span><span class="who">발표 '+b[2]+'</span>'
-    +'<label class="small" for="note'+n+'">읽고 싶어진 이유 한 줄</label><textarea id="note'+n+'" maxlength="80" data-note="'+n+'">'+esc(notes[n]||"")+'</textarea></div>'}).join("")+'</div>';
+    +(self?'<label class="small" for="exb'+n+'">이 책에서 기대되는 부분</label><textarea id="exb'+n+'" maxlength="200" data-expect="'+esc(k)+'">'+esc(getExpect(k))+'</textarea>':'')+'</div>'}).join("")+'</div>';
  }
  function sec(part,V,P){
   var nowR=s.talk===part?s.round:0;
@@ -560,13 +690,14 @@ function vBooth(){
  }
  var tl=PHASES.map(function(p){var on=t.i>=p.first&&t.i<=p.last;return '<tr class="'+(on?"on":"")+'"><td>'+esc(p.name)+'</td><td class="num">'+Math.round(p.sec/60)+'분</td></tr>'}).join("");
  return '<div class="view"><div><h1 class="h1">내 부스·시간표</h1><p class="lede">지금 가야 할 곳은 빨간 테두리로 표시돼요.</p></div>'
- +'<div class="ticket"><div class="row"><label class="lab" for="me">내 이름</label><select id="me" data-act-change="me" style="max-width:220px">'+o+'</select></div>'+box+'</div>'
+ +'<div class="ticket">'+(V1[un]||V2[un]?'<div class="row"><span class="lab">내 이름</span><span style="font:400 1.15rem var(--display)">'+esc(un)+'</span></div>':'<div class="row"><label class="lab" for="me">이름</label><select id="me" data-act-change="me" style="max-width:220px">'+o+'</select></div>')+box+'</div>'
+ +'<section style="display:grid;gap:10px"><h2 class="h2">자리 배치도</h2>'+(me?'<div class="legend"><span><b style="color:var(--stamp)">빨간 테두리</b> 내 부스</span><span><b style="color:var(--accent)">파란 테두리</b> 내가 들으러 갈 곳 (회차 표시)</span></div>':'')+'<div class="maps">'+mapSection(1,{me:me})+mapSection(2,{me:me})+'</div></section>'
  +'<section style="display:grid;gap:10px"><h2 class="h2">오늘의 시간표</h2><div class="tablebox"><table><thead><tr><th>활동</th><th class="num">시간</th></tr></thead><tbody>'+tl+'</tbody></table></div><p class="small">한 회차는 소개와 질문 3분, 이동 30초예요.</p></section>'
  +sec(1,V2,P1)+sec(2,V1,P2)+'</div>';
 }
 function postList(){return Object.keys(db.posts).map(function(k){return db.posts[k]}).filter(function(p){return byK[p.b1]&&byK[p.b2]}).sort(function(a,b){return b.at-a.at})}
 function vWrap(){
- if(locked())return vLocked("읽고 싶은 책·소감");
+ if(locked())return vFocus();
  var share=isShare(),d=S.draft,posts=postList();
  function bookOpts(key){return '<option value="">책을 고르세요</option>'+BOOKS.filter(function(b){return !b.viewOnly}).map(function(b){return '<option value="'+esc(b.k)+'"'+(d[key]===b.k?" selected":"")+'>'+esc(b.t)+'</option>'}).join("")}
  var form=share?"":'<form class="panel" data-form="post"><h2 class="h2">읽고 싶은 책과 소감 남기기</h2><div class="formgrid">'
@@ -601,7 +732,7 @@ function vTeacher(){
  +'<div class="row">'+(t.running?'<button class="btn" data-act="pause">일시정지</button>':'<button class="btn" data-act="start">시작</button>')+'<button class="btn ghost" data-act="prev">이전</button><button class="btn ghost" data-act="next">다음</button><button class="btn ghost" data-act="add" data-arg="60">+1분</button><button class="btn ghost" data-act="add" data-arg="-60">-1분</button><button class="btn ghost" data-act="reset">처음으로</button></div>'
  +'<div class="steps">'+STEPS.map(function(s,i){return '<button class="stepb'+(i===t.i?" now":"")+'" data-act="go" data-arg="'+i+'"><span>'+esc(s.title)+'</span><span>'+(s.timed?fmt(s.sec):'글자')+'</span></button>'}).join("")+'</div></section>'
  +'<section class="panel"><h2 class="h2">운영 설정</h2>'
- +'<label class="check"><input type="checkbox" data-set="lock"'+(set.lock?" checked":"")+'><span>소개 시간에는 학생의 탐험·소감 탭 잠그기</span></label>'
+ +'<label class="check"><input type="checkbox" data-set="lock"'+(set.lock?" checked":"")+'><span>소개 시간에는 학생 화면을 발표 자료로 고정하기 (발표자는 내 자료, 듣는 사람은 지금 회차 자료)</span></label>'
  +'<label class="check"><input type="checkbox" data-set="sound"'+(set.sound?" checked":"")+'><span>단계가 바뀔 때 신호음 울리기</span></label>'
  +'<label class="check"><input type="checkbox" data-set="share"'+(isShare()?" checked":"")+'><span>다른 반 공유 모드: 실명, 부스표, 전자칠판을 숨기고 댓글은 승인 후 공개</span></label>'
  +'<form class="field" data-form="newpin"><label for="np">PIN 바꾸기</label><div class="row"><input id="np" type="text" maxlength="12" style="flex:1 1 140px;width:auto"><button class="btn ghost">바꾸기</button></div>'+(S.msg.np?'<span class="ok">'+esc(S.msg.np)+'</span>':'')+'</form>'
@@ -610,12 +741,24 @@ function vTeacher(){
  +'<section class="panel"><h2 class="h2">댓글 관리 <span class="small">승인 대기 '+pending.length+'개</span></h2>'
  +(db.comments.length?'<ul class="clist">'+pending.concat(okc).map(cRow).join("")+'</ul>':'<p class="small">아직 댓글이 없어요.</p>')+'</section>'
  +'<section style="display:grid;gap:10px"><h2 class="h2">반응 모아 보기 <span class="small">선생님만 봐요</span></h2><div class="tablebox"><table><thead><tr><th>책</th><th class="num">읽고 싶어요</th><th class="num">이 책 추천해요</th><th class="num">댓글</th><th class="num">2권 선택</th></tr></thead><tbody>'+stats+'</tbody></table></div></section>'
+ +expectSection()
  +'<section class="panel"><h2 class="h2">책 자료 관리 <span class="small">링크 등록 '+linked+' / '+BOOKS.length+'권</span></h2><p class="small">입력하면 바로 저장돼요. 캔바는 보기 전용 링크를 넣어 주세요.</p><div class="row"><label class="btn ghost sm" for="bulk">표지 여러 장 한번에 올리기</label><input id="bulk" type="file" accept="image/*" multiple hidden data-bulk="1"><span class="small">파일 이름에 책 제목이나 YES24 번호가 들어 있으면 알아서 맞춰요.</span></div>'
  +'<div class="field"><label for="pasteL" class="lab">링크 한꺼번에 붙여 넣기</label><textarea id="pasteL" placeholder="한 줄에 한 명씩: 학생 이름이나 책 제목 + 링크&#10;예) 신지혜 https://www.canva.com/design/.../view"></textarea><div class="row"><button class="btn ghost sm" data-act="pasteLinks">붙여 넣은 링크 저장</button><span class="small">구글 폼 응답 시트에서 이름·링크 칸을 복사해 붙여 넣어도 돼요. 캔바 주소는 캔바 칸에, 나머지는 웹앱 칸에 들어가요.</span></div>'+(S.msg.links?'<p class="'+S.msg.links[0]+'">'+esc(S.msg.links[1])+'</p>':'')+'</div>'+(S.msg.bulk?'<p class="'+S.msg.bulk[0]+'">'+esc(S.msg.bulk[1])+'</p>':'')
  +(S.msg.book?'<p class="err">'+esc(S.msg.book)+'</p>':'')
  +BOOKS.map(function(b){var d=db.books[b.k]||{};function f(key,label,type){var bad=(key==="canva"||key==="web")&&d[key]&&!safeUrl(d[key]);return '<div class="field"><label class="small" for="'+key+b.i+'">'+label+'</label><input id="'+key+b.i+'" type="'+type+'" data-book="'+b.i+'" data-key="'+key+'" value="'+esc(d[key]||"")+'"'+(key==="canva"&&b.cv?' placeholder="비우면 패들렛 링크: '+esc(b.cv)+'"':'')+'>'+(bad?'<span class="err">https://로 시작하는 주소를 넣어 주세요.</span>':'')+'</div>'}
   return '<div class="bookrow">'+coverHtml(b)+'<div class="bookform"><div class="t">'+esc(b.t)+' <span class="small">'+bookTag(b)+(presenter(b.k)?" · "+esc(presenter(b.k)):"")+'</span></div>'+f("canva","캔바 링크","url")+f("web","웹앱 링크","url")+f("intro","책 소개 (비우면 기본 소개)","text")+f("why","이 양식을 고른 이유","text")
   +'<div class="row"><label class="btn ghost sm" for="cov'+b.i+'">표지 올리기</label><input id="cov'+b.i+'" type="file" accept="image/*" hidden data-cover="'+b.i+'">'+(b.y?'<a class="btn ghost sm" href="https://image.yes24.com/goods/'+b.y+'/XL" target="_blank" rel="noopener noreferrer">YES24 표지 열기</a>':'')+(d.cover?'<button class="btn ghost sm" data-act="covDel" data-arg="'+b.i+'">표지 지우기</button>':'')+'</div></div></div>'}).join("")+'</section></div>';
+}
+function expectList(){
+ if(REMOTE&&db.expects)return db.expects;
+ var out=[];Object.keys(db.users||{}).forEach(function(n){var ex=db.users[n].expect||{};Object.keys(ex).forEach(function(k){if(ex[k].t)out.push({name:n,book:k,text:ex[k].t,at:ex[k].at})})});return out;
+}
+function expectSection(){
+ var L=expectList().filter(function(x){return byK[x.book]&&x.text});
+ var rows=BOOKS.map(function(b){var g=L.filter(function(x){return x.book===b.k}).sort(function(a,c){return String(a.name).localeCompare(String(c.name),"ko")});
+  return g.map(function(x,i){return '<tr>'+(i?'':'<td rowspan="'+g.length+'" style="vertical-align:top">'+esc(b.t)+'</td>')+'<td>'+esc(x.name)+'</td><td style="white-space:normal">'+esc(x.text)+'</td></tr>'}).join("")}).join("");
+ return '<section style="display:grid;gap:10px"><h2 class="h2">이 책에서 기대되는 부분 <span class="small">'+L.length+'개'+(REMOTE&&!db.expects?' · 저장소가 아직 이 기록을 보내 주지 않아요':'')+'</span></h2>'
+ +(L.length?'<div class="tablebox"><table><thead><tr><th>책</th><th>이름</th><th>기대되는 부분</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="small">아직 기록이 없어요.</p>')+'</section>';
 }
 function inField(){var a=document.activeElement;return !!a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=="checkbox"&&a.type!=="file"}
 function renderLayer(){
@@ -744,11 +887,11 @@ document.addEventListener("click",function(e){
   case"close":S.open=null;S.msg.comment=null;renderLayer();break;
   case"rx":
    var who=uname();if(!who){S.msg.comment=["err","이름을 적고 들어와야 반응을 남길 수 있어요."];renderLayer();break}
-   var k=BOOKS[S.open].k;db=load();var ux=urec(who);ux.rx=ux.rx||{};ux.rx[k]=ux.rx[k]||{};var on=!ux.rx[k][arg];ux.rx[k][arg]=on;ux.last=Date.now();
+   var k=t.dataset.k||BOOKS[S.open].k;db=load();var ux=urec(who);ux.rx=ux.rx||{};ux.rx[k]=ux.rx[k]||{};var on=!ux.rx[k][arg];ux.rx[k][arg]=on;ux.last=Date.now();
    var rr=db.reactions[k]=db.reactions[k]||{};rr[arg]=Math.max(0,(rr[arg]||0)+(on?1:-1));save();
-   if(REMOTE)(function(k,kind,on,who){api({action:"react",book:k,kind:kind,on:on,name:who,dev:"name:"+who}).catch(function(e){db=load();var u2=urec(who);if(u2.rx&&u2.rx[k])u2.rx[k][kind]=!on;var r2=db.reactions[k]=db.reactions[k]||{};r2[kind]=Math.max(0,(r2[kind]||0)+(on?-1:1));save();S.msg.comment=["err","반응을 저장하지 못했어요. "+netErr(e)];renderLayer()})})(k,arg,on,who);
-   S.bump=on?arg:null;renderLayer();S.bump=null;
-   var nb=document.querySelector('[data-act="rx"][data-arg="'+arg+'"]');if(nb)nb.focus();break;
+   if(REMOTE)(function(k,kind,on,who){api({action:"react",book:k,kind:kind,on:on,name:who,dev:"name:"+who}).catch(function(e){db=load();var u2=urec(who);if(u2.rx&&u2.rx[k])u2.rx[k][kind]=!on;var r2=db.reactions[k]=db.reactions[k]||{};r2[kind]=Math.max(0,(r2[kind]||0)+(on?-1:1));save();S.msg.comment=["err","반응을 저장하지 못했어요. "+netErr(e)];if(S.open!==null)renderLayer();else renderAll()})})(k,arg,on,who);
+   S.bump=on?arg:null;if(S.open!==null)renderLayer();else renderAll();S.bump=null;
+   var nb=document.querySelector('[data-act="rx"][data-arg="'+arg+'"]');if(nb)nb.focus({preventScroll:true});break;
   case"ulogout":var mo=my();delete mo.name;delete mo.me;setMy(mo);S.draft={};S.msg={};S.open=null;S.zoom=null;renderAll();var un=document.getElementById("uName");if(un)un.focus();break;
   case"zoom":S.zoom=+arg;renderLayer();break;
   case"zclose":S.zoom=null;renderLayer();break;
@@ -758,16 +901,18 @@ document.addEventListener("click",function(e){
   case"cOk":if(REMOTE){api({action:"approve",pin:tPin(),id:arg}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});break}db=load();db.comments.forEach(function(c){if(c.id===arg)c.ok=true});save();renderAll();break;
   case"cDel":if(REMOTE){api({action:"delete",pin:tPin(),id:arg}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});break}db=load();db.comments=db.comments.filter(function(c){return c.id!==arg});save();renderAll();break;
   case"covDel":db=load();delete bd(BOOKS[+arg].k).cover;save();renderAll();break;
-  case"wipe":if(!S.wipe){S.wipe=true;renderAll();break}S.wipe=false;if(REMOTE)api({action:"wipe",pin:tPin()}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});db=load();db.comments=[];db.reactions={};db.posts={};db.notes={};db.users={};save();setMy(Object.assign(my(),{rx:{}}));renderAll();break;
+  case"wipe":if(!S.wipe){S.wipe=true;renderAll();break}S.wipe=false;if(REMOTE)api({action:"wipe",pin:tPin()}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});db=load();db.comments=[];db.reactions={};db.posts={};db.notes={};db.users={};db.expects=null;save();setMy(Object.assign(my(),{rx:{}}));renderAll();break;
   case"export":var keep=JSON.parse(JSON.stringify(db));var blob=new Blob([JSON.stringify(keep)],{type:"application/json"});var u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="고전독서박람회-백업.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);break;
  }
 });
 document.addEventListener("input",function(e){
  var t=e.target;
+ if(t.dataset.expect!=null){setExpect(t.dataset.expect,t.value,false);return}
  if(t.dataset.input){if(t.dataset.input==="q"){S.q=t.value;var pos=t.selectionStart;renderAll();var q=document.getElementById("q");if(q){q.focus();q.setSelectionRange(pos,pos)}}else S.draft[t.dataset.input]=t.value}
 });
 document.addEventListener("change",function(e){
  var t=e.target;
+ if(t.dataset.expect!=null){setExpect(t.dataset.expect,t.value,true);return}
  if(t.dataset.actChange==="me"){var m=my();m.me=t.value;setMy(m);renderAll();return}
  if(t.dataset.note!=null){var me=my().me;if(!me)return;db=load();var n=db.notes[me]=db.notes[me]||[];n[+t.dataset.note]=t.value.slice(0,80);save();return}
  if(t.dataset.set){db=load();if(t.dataset.set==="share"){db.settings.mode=t.checked?"share":"class";if(REMOTE)api({action:"mode",pin:tPin(),mode:db.settings.mode}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np="공유 모드를 저장하지 못했어요. "+netErr(e);renderAll()})}else db.settings[t.dataset.set]=t.checked;save();renderAll();return}
@@ -801,7 +946,7 @@ window.addEventListener("hashchange",function(){S.route=(location.hash||"").slic
 document.addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&t.dataset.y)t.remove()},true);
 window.addEventListener("storage",function(e){if(e.key!==KEY)return;db=load();if(inField())S.dirty=true;else renderAll()});
 renderAll();setInterval(tick,250);
-if(REMOTE){pull();setInterval(function(){if(!document.hidden)pull()},8000);document.addEventListener("visibilitychange",function(){if(!document.hidden)pull()})}
+if(REMOTE){pull();setInterval(function(){if(!document.hidden)pull()},5000);document.addEventListener("visibilitychange",function(){if(!document.hidden)pull()})}
 </script>
 </body>
 </html>
