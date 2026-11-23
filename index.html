@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!doctype html>
 <html lang="ko">
 <head>
@@ -267,8 +266,36 @@ var db=null;db=load();if(!STEPS[db.timer.i])db.timer=fresh().timer;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){if(e&&(e.name==="QuotaExceededError"||e.code===22))return false;memoryOnly=true;return true}}
 function my(){try{return JSON.parse(localStorage.getItem(MYKEY))||{}}catch(e){return memMy}}
 function setMy(o){memMy=o;try{localStorage.setItem(MYKEY,JSON.stringify(o))}catch(e){}}
+/* ---------- 구글 시트 연결 ----------
+   Apps Script 웹 앱 주소를 아래 따옴표 안에 넣으면 링크·반응·댓글·소감이 모든 기기에서 함께 기록돼요.
+   비워 두면 지금처럼 이 브라우저에만 저장돼요. */
+var API_URL="AKfycbxpKQIsXVTRq68ZZk8PseyXvhcbhoY4AL6W1Dhxm1CDWr72M1M_BPeq6c9rGc7zijbg";
+var REMOTE=/^https:\/\/script\.google\.com\//.test(API_URL);
+var net={ok:null,sig:"",busy:false};
 var S={teacher:false,open:null,zoom:null,draft:{},msg:{},filter:"all",q:"",dirty:false,lastI:db.timer.i,lastCmt:0,look:"shelf",enter:true,justOpen:false};
-try{S.teacher=sessionStorage.getItem("gojeon-t")==="1"}catch(e){}
+try{S.teacher=sessionStorage.getItem("gojeon-t")==="1";if(REMOTE&&!sessionStorage.getItem("gojeon-pin"))S.teacher=false}catch(e){}
+function devId(){var m=my();if(!m.dev){m.dev=Math.random().toString(36).slice(2)+Date.now().toString(36);setMy(m)}return m.dev}
+function tPin(){try{return sessionStorage.getItem("gojeon-pin")||S.pin||""}catch(e){return S.pin||""}}
+function api(body){
+ return fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)})
+  .then(function(r){return r.json()}).then(function(j){if(!j||!j.ok)throw new Error(j&&j.error||"저장하지 못했어요");return j});
+}
+function netErr(e){return e&&e.message&&!/Failed to fetch|NetworkError|Load failed|JSON/i.test(e.message)?e.message:"인터넷 연결을 확인하고 다시 해 주세요."}
+function applyRemote(d){
+ var sig=JSON.stringify(d);if(sig===net.sig)return;net.sig=sig;
+ db=load();
+ Object.keys(d.books||{}).forEach(function(k){if(!byK[k])return;var cur=bd(k),x=d.books[k];["canva","web","intro","why"].forEach(function(f){cur[f]=x[f]||""})});
+ db.comments=d.comments||[];db.posts=d.posts||{};if(d.reactions)db.reactions=d.reactions;
+ db.settings.mode=d.mode==="share"?"share":"class";
+ save();
+ if(inField())S.dirty=true;else renderAll();
+}
+function pull(){
+ if(!REMOTE||net.busy)return Promise.resolve();
+ net.busy=true;
+ return api({action:"all",pin:S.teacher?tPin():""}).then(function(j){var was=net.ok;net.ok=true;applyRemote(j.data);if(was===false)renderNav()})
+  .catch(function(){var was=net.ok;net.ok=false;if(was!==false)renderNav()}).then(function(){net.busy=false});
+}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function bd(k){return db.books[k]||(db.books[k]={})}
 function isShare(){return db.settings.mode==="share"}
@@ -322,7 +349,10 @@ function route(){
 }
 function renderNav(){
  var cur=route();
- document.getElementById("noStore").hidden=!memoryOnly;
+ var ns=document.getElementById("noStore");
+ if(REMOTE&&net.ok===false){ns.hidden=false;ns.textContent="기록 저장소에 연결하지 못했어요. 인터넷 연결을 확인해 주세요. 연결되면 자동으로 다시 불러와요."}
+ else if(!REMOTE&&memoryOnly){ns.hidden=false;ns.textContent="이 창에서는 저장과 새 탭 열기가 제한돼요. 파일을 내려받아 크롬에서 열어 주세요."}
+ else ns.hidden=true;
  document.getElementById("nav").innerHTML=TABS.filter(function(t){return !isShare()||S.teacher||(t[0]!=="board"&&t[0]!=="booth")}).map(function(t){
   return '<a class="tab'+(t[0]==="teacher"?" quiet":"")+'" href="#'+t[0]+'"'+(t[0]===cur?' aria-current="page"':'')+'>'+t[1]+'</a>'}).join("");
 }
@@ -338,7 +368,7 @@ function vBoard(){
  var main=s.timed
   ?'<div class="btitle">'+esc(s.title)+'</div><div class="btime" id="bTime">'+fmt(remain())+'</div><div class="btodo">'+esc(s.todo)+'</div>'
   :'<div class="btitle sm">'+esc(s.title)+'</div><div class="bmsg">'+esc(s.todo)+'</div>';
- return '<div class="bwrap" id="boardWrap"><div class="bhead"><div class="bphase">'+esc(who)+'</div><div class="bclock" id="bClock"><span>--:--:--</span></div></div>'
+ return '<div class="bwrap" id="boardWrap"><div class="bhead"><div class="bphase">'+esc(who)+'</div></div>'
  +'<div class="bmain">'+main+'<div class="bnext">'+(next?"다음: "+esc(next.title):"마지막 단계예요")+'</div>'+ctl+'</div>'
  +'<div class="strip">'+strip+'</div>'+(S.teacher?'':'<p class="small" style="color:var(--board-muted)">시작과 단계 이동은 선생님 탭에서 로그인하면 이 화면에 나타나요.</p>')+'</div>';
 }
@@ -456,7 +486,7 @@ function vZoom(){
  +'<div class="row"><button class="bbtn" data-act="zprev">이전 글</button><button class="bbtn" data-act="znext">다음 글</button><button class="bbtn main" data-act="zclose">닫기</button></div></div>';
 }
 function vTeacher(){
- if(!S.teacher)return '<div class="view"><form class="panel" data-form="pin" style="max-width:440px"><h1 class="h1">선생님 화면</h1><div class="field"><label for="pin">PIN</label><input id="pin" type="password" autocomplete="off"></div><div class="row"><button class="btn">들어가기</button>'+(S.msg.pin?'<span class="err">'+esc(S.msg.pin)+'</span>':'')+'</div>'+(db.settings.pin==="1234"?'<p class="small">처음 PIN은 1234예요. 들어가서 바꿔 주세요.</p>':'')+'</form></div>';
+ if(!S.teacher)return '<div class="view"><form class="panel" data-form="pin" style="max-width:440px"><h1 class="h1">선생님 화면</h1><div class="field"><label for="pin">PIN</label><input id="pin" type="password" autocomplete="off"></div><div class="row"><button class="btn">들어가기</button>'+(S.msg.pin?'<span class="err">'+esc(S.msg.pin)+'</span>':'')+'</div>'+(!REMOTE&&db.settings.pin==="1234"?'<p class="small">처음 PIN은 1234예요. 들어가서 바꿔 주세요.</p>':'')+'</form></div>';
  var t=db.timer,set=db.settings;
  var pending=db.comments.filter(function(c){return !c.ok}),okc=db.comments.filter(function(c){return c.ok});
  var picks={};postList().forEach(function(p){picks[p.b1]=(picks[p.b1]||0)+1;picks[p.b2]=(picks[p.b2]||0)+1});
@@ -512,6 +542,13 @@ function addComment(){
  if(BAD.test(nick+text))return m("err","친구가 읽고 기분 좋은 말로 바꿔 주세요.");
  if(isShare()&&NAMES.some(function(n){return (nick+text).indexOf(n)>=0}))return m("err","친구 이름은 빼고 적어 주세요.");
  if(Date.now()-S.lastCmt<10000)return m("err","10초 뒤에 다시 남길 수 있어요.");
+ if(REMOTE){
+  m("small","보내는 중이에요…");
+  api({action:"comment",book:b.k,nick:nick,text:text,dev:devId()}).then(function(j){
+   S.lastCmt=Date.now();S.draft.text="";m("ok",j.approved?"댓글을 남겼어요.":"보냈어요. 선생님이 확인하면 보여요.");net.sig="";pull();
+  }).catch(function(e){m("err",netErr(e))});
+  return;
+ }
  db=load();db.comments.push({id:Date.now()+"-"+Math.random().toString(36).slice(2,6),book:b.k,nick:nick,text:text,at:Date.now(),ok:!isShare()});
  save();S.lastCmt=Date.now();S.draft.text="";
  m("ok",isShare()?"보냈어요. 선생님이 확인하면 보여요.":"댓글을 남겼어요.");
@@ -525,6 +562,13 @@ function addPost(){
  if(!reason)return m("err","읽고 싶어진 이유를 적어 주세요.");
  if(!feel)return m("err","프로젝트 소감을 적어 주세요.");
  if(BAD.test(reason+feel))return m("err","친구가 읽고 기분 좋은 말로 바꿔 주세요.");
+ if(REMOTE){
+  m("small","올리는 중이에요…");
+  api({action:"post",name:d.pName,b1:d.pB1,b2:d.pB2,reason:reason,feel:feel,dev:devId(),pin:S.teacher?tPin():""}).then(function(){
+   S.draft={};m("ok","게시했어요.");net.sig="";pull();
+  }).catch(function(e){m("err",netErr(e))});
+  return;
+ }
  db=load();db.posts[d.pName]={name:d.pName,b1:d.pB1,b2:d.pB2,reason:reason,feel:feel,at:Date.now()};save();
  S.draft={};m("ok","게시했어요.");
 }
@@ -551,7 +595,10 @@ function pasteLinks(text){
   var urls=line.match(/https?:\/\/[^\s"'<>]+/g);if(!urls){miss.push(line.trim().slice(0,30));return}
   var b=findBook(line.replace(/https?:\/\/\S+/g,""));if(!b){miss.push(line.trim().slice(0,30));return}
   urls.forEach(function(u){if(/canva\.(com|link)/i.test(u))bd(b.k).canva=u;else bd(b.k).web=u});ok++});
- save();S.msg.links=[miss.length?"err":"ok",ok+"권의 링크를 저장했어요."+(miss.length?" 책을 찾지 못한 줄: "+miss.join(" / "):"")];renderAll();
+ save();
+ if(REMOTE&&ok){var items=BOOKS.filter(function(b){var x=db.books[b.k];return x&&(x.canva||x.web)}).map(function(b){var x=db.books[b.k];return {k:b.k,canva:x.canva||"",web:x.web||""}});
+  api({action:"books",pin:tPin(),items:items}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.links=["err","시트에 저장하지 못했어요. "+netErr(e)];renderAll()})}
+ S.msg.links=[miss.length?"err":"ok",ok+"권의 링크를 저장했어요."+(miss.length?" 책을 찾지 못한 줄: "+miss.join(" / "):"")];renderAll();
 }
 function matchCover(name){var n=String(name).normalize("NFC").replace(/\s/g,"");return BOOKS.filter(function(b){return n.indexOf(String(b.y))>=0||n.indexOf(b.k.replace(/\s/g,""))>=0})[0]}
 function bulkCovers(files){
@@ -581,17 +628,18 @@ document.addEventListener("click",function(e){
    break;
   case"close":S.open=null;S.msg.comment=null;renderLayer();break;
   case"rx":var k=BOOKS[S.open].k,m=my();m.rx=m.rx||{};m.rx[k]=m.rx[k]||{};var on=!m.rx[k][arg];m.rx[k][arg]=on;setMy(m);
-   db=load();var rr=db.reactions[k]=db.reactions[k]||{};rr[arg]=Math.max(0,(rr[arg]||0)+(on?1:-1));save();renderLayer();
+   if(REMOTE){(function(k,kind,on){api({action:"react",book:k,kind:kind,on:on,dev:devId()}).catch(function(e){var mm=my();if(mm.rx&&mm.rx[k])mm.rx[k][kind]=!on;setMy(mm);S.msg.comment=["err","반응을 저장하지 못했어요. "+netErr(e)];renderLayer()})})(k,arg,on);renderLayer()}
+   else{db=load();var rr=db.reactions[k]=db.reactions[k]||{};rr[arg]=Math.max(0,(rr[arg]||0)+(on?1:-1));save();renderLayer()}
    var nb=document.querySelector('[data-act="rx"][data-arg="'+arg+'"]');if(nb)nb.focus();break;
   case"zoom":S.zoom=+arg;renderLayer();break;
   case"zclose":S.zoom=null;renderLayer();break;
   case"zprev":S.zoom=Math.max(0,S.zoom-1);renderLayer();break;
   case"znext":S.zoom=Math.min(postList().length-1,S.zoom+1);renderLayer();break;
-  case"logout":S.teacher=false;try{sessionStorage.removeItem("gojeon-t")}catch(x){}renderAll();break;
-  case"cOk":db=load();db.comments.forEach(function(c){if(c.id===arg)c.ok=true});save();renderAll();break;
-  case"cDel":db=load();db.comments=db.comments.filter(function(c){return c.id!==arg});save();renderAll();break;
+  case"logout":S.teacher=false;S.pin="";net.sig="";try{sessionStorage.removeItem("gojeon-t");sessionStorage.removeItem("gojeon-pin")}catch(x){}renderAll();break;
+  case"cOk":if(REMOTE){api({action:"approve",pin:tPin(),id:arg}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});break}db=load();db.comments.forEach(function(c){if(c.id===arg)c.ok=true});save();renderAll();break;
+  case"cDel":if(REMOTE){api({action:"delete",pin:tPin(),id:arg}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});break}db=load();db.comments=db.comments.filter(function(c){return c.id!==arg});save();renderAll();break;
   case"covDel":db=load();delete bd(BOOKS[+arg].k).cover;save();renderAll();break;
-  case"wipe":if(!S.wipe){S.wipe=true;renderAll();break}S.wipe=false;db=load();db.comments=[];db.reactions={};db.posts={};db.notes={};save();setMy(Object.assign(my(),{rx:{}}));renderAll();break;
+  case"wipe":if(!S.wipe){S.wipe=true;renderAll();break}S.wipe=false;if(REMOTE)api({action:"wipe",pin:tPin()}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np=netErr(e);renderAll()});db=load();db.comments=[];db.reactions={};db.posts={};db.notes={};save();setMy(Object.assign(my(),{rx:{}}));renderAll();break;
   case"export":var keep=JSON.parse(JSON.stringify(db));var blob=new Blob([JSON.stringify(keep)],{type:"application/json"});var u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="고전독서박람회-백업.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);break;
  }
 });
@@ -603,8 +651,10 @@ document.addEventListener("change",function(e){
  var t=e.target;
  if(t.dataset.actChange==="me"){var m=my();m.me=t.value;setMy(m);renderAll();return}
  if(t.dataset.note!=null){var me=my().me;if(!me)return;db=load();var n=db.notes[me]=db.notes[me]||[];n[+t.dataset.note]=t.value.slice(0,80);save();return}
- if(t.dataset.set){db=load();if(t.dataset.set==="share")db.settings.mode=t.checked?"share":"class";else db.settings[t.dataset.set]=t.checked;save();renderAll();return}
- if(t.dataset.book!=null){db=load();bd(BOOKS[+t.dataset.book].k)[t.dataset.key]=t.value.trim();save();renderAll();return}
+ if(t.dataset.set){db=load();if(t.dataset.set==="share"){db.settings.mode=t.checked?"share":"class";if(REMOTE)api({action:"mode",pin:tPin(),mode:db.settings.mode}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np="공유 모드를 저장하지 못했어요. "+netErr(e);renderAll()})}else db.settings[t.dataset.set]=t.checked;save();renderAll();return}
+ if(t.dataset.book!=null){db=load();var bk=BOOKS[+t.dataset.book].k,fk=t.dataset.key,fv=t.value.trim();bd(bk)[fk]=fv;save();
+  if(REMOTE){S.msg.book="저장하는 중이에요…";api({action:"book",pin:tPin(),k:bk,f:fk,v:fv}).then(function(){S.msg.book="";net.sig="";pull();renderAll()}).catch(function(e){S.msg.book=BOOKS[+t.dataset.book].t+" 저장 실패: "+netErr(e);renderAll()})}
+  renderAll();return}
  if(t.dataset.cover!=null&&t.files[0]){fileCover(+t.dataset.cover,t.files[0]);return}
  if(t.dataset.bulk&&t.files.length){bulkCovers(t.files);return}
  if(t.dataset.import&&t.files[0]){var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||!d.timer||!d.settings||!d.books)throw 0;db=d;if(!save())throw 0;S.msg.imp=["ok","가져왔어요."]}catch(x){S.msg.imp=["err","이 앱에서 내보낸 파일만 가져올 수 있어요."]}renderAll()};r.readAsText(t.files[0]);return}
@@ -614,6 +664,11 @@ document.addEventListener("submit",function(e){
  var f=e.target.dataset.form;
  if(f==="comment")addComment();
  else if(f==="post")addPost();
+ else if(f==="pin"&&REMOTE){var pv=document.getElementById("pin").value;S.msg.pin="확인하는 중이에요…";renderAll();
+  api({action:"login",pin:pv}).then(function(){S.teacher=true;S.pin=pv;S.msg.pin="";try{sessionStorage.setItem("gojeon-t","1");sessionStorage.setItem("gojeon-pin",pv)}catch(x){}net.sig="";pull();renderAll()})
+  .catch(function(e){S.msg.pin=netErr(e);renderAll()})}
+ else if(f==="newpin"&&REMOTE){var nv=document.getElementById("np").value.trim();if(nv.length<4){S.msg.np="4자리 이상으로 적어 주세요.";renderAll();return}
+  api({action:"setpin",pin:tPin(),newpin:nv}).then(function(){S.pin=nv;try{sessionStorage.setItem("gojeon-pin",nv)}catch(x){}S.msg.np="PIN을 바꿨어요."}).catch(function(e){S.msg.np=netErr(e)}).then(renderAll)}
  else if(f==="pin"){if(document.getElementById("pin").value===db.settings.pin){S.teacher=true;S.msg.pin="";try{sessionStorage.setItem("gojeon-t","1")}catch(x){}}else S.msg.pin="PIN이 맞지 않아요.";renderAll()}
  else if(f==="newpin"){var v=document.getElementById("np").value.trim();if(v.length>=4){db=load();db.settings.pin=v;save();S.msg.np="PIN을 바꿨어요."}else S.msg.np="4자리 이상으로 적어 주세요.";renderAll()}
 });
@@ -626,8 +681,7 @@ window.addEventListener("hashchange",function(){S.route=(location.hash||"").slic
 document.addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&t.dataset.y)t.remove()},true);
 window.addEventListener("storage",function(e){if(e.key!==KEY)return;db=load();if(inField())S.dirty=true;else renderAll()});
 renderAll();setInterval(tick,250);
+if(REMOTE){pull();setInterval(function(){if(!document.hidden)pull()},8000);document.addEventListener("visibilitychange",function(){if(!document.hidden)pull()})}
 </script>
 </body>
 </html>
-
-</body></html>
