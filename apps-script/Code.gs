@@ -157,6 +157,12 @@ function handle(b) {
         upsert("posts", function (r) { return r.name === pn; }, { name: pn, b1: str(b.b1, 40), b2: str(b.b2, 40), reason: str(b.reason, 100), feel: str(b.feel, 200), at: now });
         break;
       }
+      case "unexpect": {
+        needT();
+        var xn = str(b.name, 20), xb = str(b.book, 40);
+        removeWhere("expects", function (r) { return r.name === xn && r.book === xb; });
+        break;
+      }
       case "unpost": {
         var un = str(b.name, 20);
         if (!un) throw new Error("이름이 필요해요.");
@@ -237,7 +243,7 @@ function allData(isT, name) {
     d.expects.forEach(function (x) { if (x.name === name) me.expect[x.book] = { t: x.text, at: x.at }; });
     out.me = me;
   }
-  if (isT) out.expects = d.expects;
+  out.expects = d.expects.map(function (x) { return { name: x.name, book: x.book, text: x.text, at: x.at }; }); // 기대평은 댓글처럼 모두에게 보여요
   // 뱃지: 기대평을 공백 빼고 BADGE_MIN자 이상 쓴 책 (화면의 BADGE_MIN과 같은 값)
   out.badges = {};
   d.expects.forEach(function (x) {
