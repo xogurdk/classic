@@ -269,7 +269,7 @@ function setMy(o){memMy=o;try{localStorage.setItem(MYKEY,JSON.stringify(o))}catc
 /* ---------- 구글 시트 연결 ----------
    Apps Script 웹 앱 주소를 아래 따옴표 안에 넣으면 링크·반응·댓글·소감이 모든 기기에서 함께 기록돼요.
    비워 두면 지금처럼 이 브라우저에만 저장돼요. */
-var API_URL="AKfycbxpKQIsXVTRq68ZZk8PseyXvhcbhoY4AL6W1Dhxm1CDWr72M1M_BPeq6c9rGc7zijbg";
+var API_URL="https://script.google.com/macros/s/AKfycbxpKQIsXVTRq68ZZk8PseyXvhcbhoY4AL6W1Dhxm1CDWr72M1M_BPeq6c9rGc7zijbg/exec";
 var REMOTE=/^https:\/\/script\.google\.com\//.test(API_URL);
 var net={ok:null,sig:"",busy:false};
 var S={teacher:false,open:null,zoom:null,draft:{},msg:{},filter:"all",q:"",dirty:false,lastI:db.timer.i,lastCmt:0,look:"shelf",enter:true,justOpen:false};
