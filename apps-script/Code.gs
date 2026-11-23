@@ -156,6 +156,12 @@ function handle(b) {
         upsert("posts", function (r) { return r.name === pn; }, { name: pn, b1: str(b.b1, 40), b2: str(b.b2, 40), reason: str(b.reason, 100), feel: str(b.feel, 200), at: now });
         break;
       }
+      case "unpost": {
+        var un = str(b.name, 20);
+        if (!un) throw new Error("이름이 필요해요.");
+        removeWhere("posts", function (r) { return r.name === un; });
+        break;
+      }
       case "book": {
         needT();
         var k = str(b.k, 40), f = String(b.f);

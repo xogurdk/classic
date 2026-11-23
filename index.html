@@ -166,20 +166,24 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 
 /* 배치도 */
 .maps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:18px}
-.mapbox{display:grid;gap:8px;min-width:0}
-.map{--pc:44px;display:grid;grid-template-columns:var(--pc) repeat(3,minmax(0,1fr)) var(--pc);gap:8px;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.mapbox{display:grid;gap:8px;min-width:0;align-content:start}
+.mapwrap{container-type:inline-size;min-width:0}
+.mapwrap .seat .cover{display:none}
+.mapwrap .seat{grid-template-columns:minmax(0,1fr)}
+@container (min-width:860px){.mapwrap .seat .cover{display:block}.mapwrap .seat{grid-template-columns:auto minmax(0,1fr)}}
+.map{--pc:44px;display:grid;grid-template-columns:var(--pc) repeat(5,minmax(0,1fr)) var(--pc);gap:8px;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:12px;min-width:0}
 .m-back{grid-column:1/-1;grid-row:1;display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:2px dashed var(--line);padding-bottom:6px;color:var(--muted);font:400 .98rem var(--display)}
 .m-door{background:var(--soft);color:var(--ink);padding:2px 9px;border-radius:6px;font-size:.88rem}
 .m-board{grid-column:1/-1;grid-row:7;background:#1f4a3a;color:#eaf5ec;text-align:center;border-radius:6px;padding:6px;font:400 1.05rem var(--display);letter-spacing:.3em;margin-top:2px}
-.m-floor{grid-column:3;grid-row:2/5;border:2px dotted var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:.86rem;padding:8px;word-break:keep-all}
+.m-floor{grid-column:3/6;grid-row:2/5;border:2px dotted var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:.86rem;padding:8px;word-break:keep-all}
 .seat{all:unset;box-sizing:border-box;cursor:pointer;position:relative;min-width:0;min-height:92px;background:#f3e6cf;color:#2f2115;border:2px solid #c9a676;border-radius:6px;padding:6px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px;align-items:center;transition:transform .15s}
 .seat:hover{transform:translateY(-2px)}
 .seat:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .seat .cover{width:44px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .s-txt{display:grid;gap:2px;min-width:0}
-.s-code{font:400 .95rem var(--display);color:#9a2d1f}
+.s-code{font:400 .95rem var(--display);color:#9a2d1f;white-space:nowrap}
 .s-t{font:400 1rem/1.2 var(--display);word-break:keep-all;overflow-wrap:anywhere}
-.s-badge{justify-self:start;font-size:.74rem;background:#9a2d1f;color:#fff;border-radius:999px;padding:0 7px}
+.s-badge{justify-self:start;white-space:nowrap;font-size:.74rem;background:#9a2d1f;color:#fff;border-radius:999px;padding:0 7px}
 .seat.mine{box-shadow:0 0 0 3px var(--stamp)}
 .seat.tour{box-shadow:0 0 0 3px var(--accent)}
 .seat.dim{opacity:.35}
@@ -348,7 +352,7 @@ function talk(part,ph){
 talk(1,1);
 st(2,"역할 바꾸기","역할 바꾸기","관람한 책에 반응을 남기고\n자리를 바꿔 2부 자료를 열어요",180);
 talk(2,3);
-st(4,"책 선정·소감","읽고 싶은 책 선정·소감 쓰기","읽고 싶은 책 2권을 고르고\n프로젝트 소감을 남겨요",300);
+st(4,"책 선정·소감","읽고 싶은 책 선정·소감 쓰기","가장 읽고 싶은 책 1권을 고르고\n프로젝트 소감을 남겨요",300);
 st(-1,"발표","발표하기","가장 읽고 싶어진 책과\n그 이유를 나눠요",0);
 st(-1,"마무리","다음 차시 안내","다음 시간에는\n아직 만나지 못한 작품을 살펴봐요",0);
 var PHASES=[];STEPS.forEach(function(s,i){s.timed=s.sec>0;if(s.ph<0)return;var p=PHASES[s.ph]||(PHASES[s.ph]={name:s.phase,sec:0,first:i,last:i});p.sec+=s.sec;p.last=i});
@@ -495,11 +499,16 @@ function renderNav(){
  var n=my().name;
  document.getElementById("meChip").innerHTML=n?'<span>'+esc(n)+'</span><button class="btn ghost sm" data-act="ulogout">이름 바꾸기</button>':'';
 }
+function loginMode(){return S.loginMode||(isShare()?"guest":"class")}
 function vLogin(){
- var m=S.msg.login;
- return '<div class="view"><form class="panel" data-form="login" style="max-width:460px;width:100%;justify-self:center"><h1 class="h1">이름을 적고 들어가요</h1>'
- +'<p class="lede">누른 반응, 부스 메모, 소감, 댓글이 모두 이 이름으로 저장돼요.</p>'
- +'<div class="field"><label for="uName">내 이름</label><input id="uName" type="text" maxlength="10" autocomplete="off" data-input="uName" value="'+esc(S.draft.uName||"")+'" placeholder="예) 김수현"></div>'
+ var m=S.msg.login,g=loginMode()==="guest",d=S.draft;
+ function opts(n,suf,key){var o='<option value="">'+suf+'</option>';for(var i=1;i<=n;i++)o+='<option value="'+i+'"'+(String(d[key])===String(i)?" selected":"")+'>'+i+suf+'</option>';return o}
+ return '<div class="view"><form class="panel" data-form="login" style="max-width:480px;width:100%;justify-self:center"><h1 class="h1">이름을 적고 들어가요</h1>'
+ +'<p class="lede">누른 반응, 기대되는 부분, 소감, 댓글이 모두 이 이름으로 저장돼요.</p>'
+ +'<div class="row" role="group" aria-label="들어가는 방법"><button type="button" class="btn sm '+(g?"ghost":"")+'" data-act="lmode" data-arg="class">우리 반 발표자</button><button type="button" class="btn sm '+(g?"":"ghost")+'" data-act="lmode" data-arg="guest">게스트 (다른 반·학년)</button></div>'
+ +(g?'<div class="row" style="align-items:flex-end"><div class="field" style="flex:1 1 110px"><label for="gGrade">학년</label><select id="gGrade" data-input="gGrade">'+opts(6,"학년","gGrade")+'</select></div>'
+   +'<div class="field" style="flex:1 1 110px"><label for="gClass">반</label><select id="gClass" data-input="gClass">'+opts(12,"반","gClass")+'</select></div></div>':'')
+ +'<div class="field"><label for="uName">'+(g?"이름 (별명도 괜찮아요)":"내 이름")+'</label><input id="uName" type="text" maxlength="8" autocomplete="off" data-input="uName" value="'+esc(d.uName||"")+'" placeholder="예) '+(g?"홍길동":"김수현")+'"></div>'
  +'<div class="row"><button class="btn">들어가기</button>'+(m?'<span class="'+m[0]+'">'+esc(m[1])+'</span>':'')+'</div>'
  +'<p class="small"><a href="#teacher" style="color:var(--accent)">선생님이세요? 선생님 화면으로 가기</a></p></form></div>';
 }
@@ -628,11 +637,12 @@ function shelfHtml(list){
 /* ---------- 자리 배치도 ----------
    ㄷ자 대형, 뚫린 쪽이 교실 뒤. 칠판에 서서 교실 뒤를 바라볼 때
    오른쪽 줄: 1-1(가장 뒤)→1-3, 칠판 쪽 줄: 2-1(오른쪽)→2-3, 왼쪽 줄: 3-1(칠판 쪽)→3-3(후문 쪽).
+   칠판 쪽 3자리는 양옆 줄(3-1, 1-3) 바로 밑이 아니라 그 사이 가운데에 놓여요.
    그림은 위가 교실 뒤, 아래가 칠판이라 화면의 오른쪽이 곧 그 사람의 오른쪽이에요.
    2부는 2구역이 2자리라서 9자리 대형을 그대로 두고 가운데(2-2 자리)를 비우고, 2구역-2를 2-3 자리에 놓아요. */
 var SLOT={
- 1:[null,{r:2,c:4,pc:{r:2,c:5,f:"fl"},d:"h"},{r:3,c:4,pc:{r:3,c:5,f:"fl"},d:"h"},{r:4,c:4,pc:{r:4,c:5,f:"fl"},d:"h"}],
- 2:[null,{r:5,c:4,pc:{r:6,c:4,f:"fu"},d:"v"},{r:5,c:3,pc:{r:6,c:3,f:"fu"},d:"v"},{r:5,c:2,pc:{r:6,c:2,f:"fu"},d:"v"}],
+ 1:[null,{r:2,c:6,pc:{r:2,c:7,f:"fl"},d:"h"},{r:3,c:6,pc:{r:3,c:7,f:"fl"},d:"h"},{r:4,c:6,pc:{r:4,c:7,f:"fl"},d:"h"}],
+ 2:[null,{r:5,c:5,pc:{r:6,c:5,f:"fu"},d:"v"},{r:5,c:4,pc:{r:6,c:4,f:"fu"},d:"v"},{r:5,c:3,pc:{r:6,c:3,f:"fu"},d:"v"}],
  3:[null,{r:4,c:2,pc:{r:4,c:1,f:"fr"},d:"h"},{r:3,c:2,pc:{r:3,c:1,f:"fr"},d:"h"},{r:2,c:2,pc:{r:2,c:1,f:"fr"},d:"h"}]
 };
 function seatsOf(part){
@@ -661,8 +671,8 @@ function mapGrid(part,OPT){
    return '<button class="seat '+sl.d+(OPT.hl===o.k?" hl":mine?" mine":ti>=0?" tour":"")+(dim?" dim":"")+'" style="'+pos+'"'+(OPT.static?' tabindex="-1"':' data-act="open" data-arg="'+b.i+'"')+' aria-label="'+esc(o.full+" "+b.t+(share?"":" · 발표 "+o.who))+'">'+coverHtml(b)+'<span class="s-txt"><span class="s-code">'+o.code+'</span><span class="s-t">'+esc(b.t)+'</span>'+(ls?(ls.length?'<span class="s-ls">→ '+esc(ls.join(", "))+'</span>':'<span class="s-ls free">참관자</span>'):badge)+'</span></button>'
    +'<span class="pc '+sl.pc.f+'" style="'+pcpos+'" title="'+esc(share?"발표자 자리":o.who+" 발표 자리")+'">'+esc(nm)+'</span>';
   }).join("");
-  return '<div class="map'+(OPT.big?" big":"")+'" role="group" aria-label="'+part+'부 자리 배치도"><div class="m-back"><span class="m-door">후문</span><span>교실 뒤 · 열린 쪽</span><span></span></div>'
-  +'<div class="m-floor">청중은 가운데를 돌아다니며 들어요</div>'+cells+'<div class="m-board">칠판</div></div>';
+  return '<div class="mapwrap"><div class="map'+(OPT.big?" big":"")+'" role="group" aria-label="'+part+'부 자리 배치도"><div class="m-back"><span class="m-door">후문</span><span>교실 뒤 · 열린 쪽</span><span></span></div>'
+  +'<div class="m-floor">청중은 가운데를 돌아다니며 들어요</div>'+cells+'<div class="m-board">칠판</div></div></div>';
 }
 function mapSection(part,o){return '<section class="mapbox"><h2 class="h2">'+part+'부 자리 배치도 <span class="small">'+(part===1?"9자리":"8자리 · 가운데 빈자리")+'</span></h2>'+mapGrid(part,o)+'</section>'}
 function mapHtml(list){
@@ -718,7 +728,7 @@ function vDetail(b){
  +'<div class="field" style="flex:4 1 260px"><label for="cText">내용 (100자까지)</label><input id="cText" type="text" maxlength="100" data-input="text" value="'+esc(S.draft.text||"")+'" placeholder="어떤 점이 궁금해졌는지 적어 주세요"></div></div>'
  +'<div class="row"><button class="btn">댓글 남기기</button>'+(S.msg.comment?'<span class="'+S.msg.comment[0]+'">'+esc(S.msg.comment[1])+'</span>':'')+'</div></form></div></div>');
 }
-function defNick(){return S.draft.nick!=null?S.draft.nick:(isShare()?"":uname())}
+function defNick(){var gu=my().guest;return S.draft.nick!=null?S.draft.nick:(gu&&my().name?gu.n:(isShare()?"":uname()))}
 function vBooth(){
  var un=uname(),me=my().me||(V1[un]||V2[un]?un:""),s=step(),t=db.timer;
  var self=!!me&&me===un;
@@ -748,7 +758,7 @@ function vBooth(){
  +'<section style="display:grid;gap:10px"><h2 class="h2">오늘의 시간표</h2><div class="tablebox"><table><thead><tr><th>활동</th><th class="num">시간</th></tr></thead><tbody>'+tl+'</tbody></table></div><p class="small">한 회차는 소개와 질문 3분, 이동 30초예요.</p></section>'
  +sec(1,V2,P1)+sec(2,V1,P2)+'</div>';
 }
-function postList(){return Object.keys(db.posts).map(function(k){return db.posts[k]}).filter(function(p){return byK[p.b1]&&byK[p.b2]}).sort(function(a,b){return b.at-a.at})}
+function postList(){return Object.keys(db.posts).map(function(k){return db.posts[k]}).filter(function(p){return byK[p.b1]}).sort(function(a,b){return b.at-a.at})}
 function vWrap(){
  if(locked())return vFocus();
  var share=isShare(),d=S.draft,posts=postList();
@@ -756,27 +766,26 @@ function vWrap(){
  var form=share?"":'<form class="panel" data-form="post"><h2 class="h2">읽고 싶은 책과 소감 남기기</h2><div class="formgrid">'
  +'<div class="field"><span class="lab">내 이름</span><p style="min-height:44px;display:flex;align-items:center;font:400 1.1rem var(--display)">'+esc(uname())+'</p></div>'
  +'<div class="field"><label for="pB1">가장 읽고 싶은 책</label><select id="pB1" data-input="pB1">'+bookOpts("pB1")+'</select></div>'
- +'<div class="field"><label for="pB2">그다음으로 읽고 싶은 책</label><select id="pB2" data-input="pB2">'+bookOpts("pB2")+'</select></div>'
  +'<div class="field wide"><label for="pReason">읽고 싶어진 이유</label><input id="pReason" type="text" maxlength="100" data-input="pReason" value="'+esc(d.pReason||"")+'" placeholder="어떤 장면이나 말이 궁금해졌나요?"></div>'
  +'<div class="field wide"><label for="pFeel">고전 프로젝트 소감</label><textarea id="pFeel" maxlength="200" data-input="pFeel" placeholder="고전을 읽고 소개하면서 무엇이 달라졌나요?">'+esc(d.pFeel||"")+'</textarea></div></div>'
- +'<div class="row"><button class="btn">게시하기</button>'+(S.msg.post?'<span class="'+S.msg.post[0]+'">'+esc(S.msg.post[1])+'</span>':'')+'<span class="small">다시 올리면 내 글이 새 내용으로 바뀌어요.</span></div></form>';
+ +'<div class="row"><button class="btn">게시하기</button>'+(S.msg.post?'<span class="'+S.msg.post[0]+'">'+esc(S.msg.post[1])+'</span>':'')+'<span class="small">다시 올리면 내 글이 새 내용으로 바뀌어요. 내 글은 소감판에서 지울 수 있어요.</span></div></form>';
  return '<div class="view"><div><h1 class="h1">읽고 싶은 책·소감</h1><p class="lede">글을 누르면 전자칠판에서 크게 볼 수 있어요.</p></div>'+form
  +'<section style="display:grid;gap:10px"><h2 class="h2">소감판 <span class="small">'+posts.length+'개</span></h2>'
- +(posts.length?'<div class="wall">'+posts.map(function(p,i){return '<article class="post"><span class="nick">'+(share?"6학년 친구":esc(p.name))+'</span><span class="picks">'+esc(byK[p.b1].t)+' · '+esc(byK[p.b2].t)+'</span><p>'+esc(p.feel)+'</p><div class="row"><button class="btn ghost sm" data-act="zoom" data-arg="'+i+'">크게 보기</button></div></article>'}).join("")+'</div>'
+ +(posts.length?'<div class="wall">'+posts.map(function(p,i){var own=p.name===uname()||S.teacher,ask=S.delAsk===p.name;return '<article class="post"><span class="nick">'+(share&&p.name!==uname()?"친구":esc(p.name))+(p.name===uname()?' <span class="small">(내 글)</span>':'')+'</span><span class="picks">가장 읽고 싶은 책: '+esc(byK[p.b1].t)+'</span><p>'+esc(p.feel)+'</p><div class="row"><button class="btn ghost sm" data-act="zoom" data-arg="'+i+'">크게 보기</button>'+(own?'<button class="btn ghost sm" data-act="unpost" data-arg="'+esc(p.name)+'" style="'+(ask?"border-color:var(--stamp);color:var(--stamp)":"")+'">'+(ask?"정말 지울까요? 한 번 더 누르기":"지우기")+'</button>':'')+'</div></article>'}).join("")+'</div>'
   :'<p class="lede">아직 올라온 글이 없어요. 첫 소감을 남기면 여기에 카드로 나타나요.</p>')+'</section></div>';
 }
 function vZoom(){
  var posts=postList(),p=posts[S.zoom];if(!p)return "";
  var share=isShare();
- return '<div class="zoom" role="dialog" aria-modal="true" aria-label="소감 크게 보기"><div class="row" style="justify-content:space-between"><span class="zpick" style="color:var(--board-muted)">'+(share?"6학년 친구":esc(p.name))+'</span><span class="small" style="color:var(--board-muted)">'+(S.zoom+1)+' / '+posts.length+'</span></div>'
- +'<div class="zbody"><p class="zfeel">'+esc(p.feel)+'</p><p class="zpick">읽고 싶은 책: '+esc(byK[p.b1].t)+', '+esc(byK[p.b2].t)+'</p><p class="zreason">'+esc(p.reason)+'</p></div>'
+ return '<div class="zoom" role="dialog" aria-modal="true" aria-label="소감 크게 보기"><div class="row" style="justify-content:space-between"><span class="zpick" style="color:var(--board-muted)">'+(share?"친구":esc(p.name))+'</span><span class="small" style="color:var(--board-muted)">'+(S.zoom+1)+' / '+posts.length+'</span></div>'
+ +'<div class="zbody"><p class="zfeel">'+esc(p.feel)+'</p><p class="zpick">가장 읽고 싶은 책: '+esc(byK[p.b1].t)+'</p><p class="zreason">'+esc(p.reason)+'</p></div>'
  +'<div class="row"><button class="bbtn" data-act="zprev">이전 글</button><button class="bbtn" data-act="znext">다음 글</button><button class="bbtn main" data-act="zclose">닫기</button></div></div>';
 }
 function vTeacher(){
  if(!S.teacher)return '<div class="view"><form class="panel" data-form="pin" style="max-width:440px"><h1 class="h1">선생님 화면</h1><div class="field"><label for="pin">PIN</label><input id="pin" type="password" autocomplete="off"></div><div class="row"><button class="btn">들어가기</button>'+(S.msg.pin?'<span class="err">'+esc(S.msg.pin)+'</span>':'')+'</div>'+(!REMOTE&&db.settings.pin==="1234"?'<p class="small">처음 PIN은 1234예요. 들어가서 바꿔 주세요.</p>':'')+'</form></div>';
  var t=db.timer,set=db.settings;
  var pending=db.comments.filter(function(c){return !c.ok}),okc=db.comments.filter(function(c){return c.ok});
- var picks={};postList().forEach(function(p){picks[p.b1]=(picks[p.b1]||0)+1;picks[p.b2]=(picks[p.b2]||0)+1});
+ var picks={};postList().forEach(function(p){picks[p.b1]=(picks[p.b1]||0)+1});
  var linked=BOOKS.filter(function(b){return (canvaOf(b)||safeUrl((db.books[b.k]||{}).web))}).length;
  var stats=BOOKS.filter(function(b){return !b.viewOnly}).map(function(b){var r=db.reactions[b.k]||{};return '<tr><td>'+esc(b.t)+'</td><td class="num">'+(r.want||0)+'</td><td class="num">'+(r.fun||0)+'</td><td class="num">'+db.comments.filter(function(c){return c.book===b.k&&c.ok}).length+'</td><td class="num">'+(picks[b.k]||0)+'</td></tr>'}).join("");
  function cRow(c){var b=byK[c.book];return '<li><span class="nick">'+esc(c.nick)+'</span> <span class="small">'+esc(b?b.t:"")+'</span><br>'+esc(c.text)+'<div class="row" style="margin-top:5px">'+(c.ok?'':'<button class="btn sm" data-act="cOk" data-arg="'+c.id+'">공개</button>')+'<button class="btn ghost sm" data-act="cDel" data-arg="'+c.id+'">삭제</button></div></li>'}
@@ -793,7 +802,7 @@ function vTeacher(){
  +'<div class="row"><button class="btn ghost sm" data-act="wipe">'+(S.wipe?"정말 지워요? 한 번 더 누르면 삭제":"댓글·반응·소감 모두 지우기")+'</button></div></section></div>'
  +'<section class="panel"><h2 class="h2">댓글 관리 <span class="small">승인 대기 '+pending.length+'개</span></h2>'
  +(db.comments.length?'<ul class="clist">'+pending.concat(okc).map(cRow).join("")+'</ul>':'<p class="small">아직 댓글이 없어요.</p>')+'</section>'
- +'<section style="display:grid;gap:10px"><h2 class="h2">반응 모아 보기 <span class="small">선생님만 봐요</span></h2><div class="tablebox"><table><thead><tr><th>책</th><th class="num">읽고 싶어요</th><th class="num">이 책 추천해요</th><th class="num">댓글</th><th class="num">2권 선택</th></tr></thead><tbody>'+stats+'</tbody></table></div></section>'
+ +'<section style="display:grid;gap:10px"><h2 class="h2">반응 모아 보기 <span class="small">선생님만 봐요</span></h2><div class="tablebox"><table><thead><tr><th>책</th><th class="num">읽고 싶어요</th><th class="num">이 책 추천해요</th><th class="num">댓글</th><th class="num">가장 읽고 싶은 책</th></tr></thead><tbody>'+stats+'</tbody></table></div></section>'
  +expectSection()
  +'<section class="panel"><h2 class="h2">책 자료 관리 <span class="small">링크 등록 '+linked+' / '+BOOKS.length+'권</span></h2><p class="small">입력하면 바로 저장돼요. 캔바는 보기 전용 링크를 넣어 주세요.</p><div class="row"><label class="btn ghost sm" for="bulk">표지 여러 장 한번에 올리기</label><input id="bulk" type="file" accept="image/*" multiple hidden data-bulk="1"><span class="small">파일 이름에 책 제목이나 YES24 번호가 들어 있으면 알아서 맞춰요.</span></div>'
  +'<div class="field"><label for="pasteL" class="lab">링크 한꺼번에 붙여 넣기</label><textarea id="pasteL" placeholder="한 줄에 한 명씩: 학생 이름이나 책 제목 + 링크&#10;예) 신지혜 https://www.canva.com/design/.../view"></textarea><div class="row"><button class="btn ghost sm" data-act="pasteLinks">붙여 넣은 링크 저장</button><span class="small">구글 폼 응답 시트에서 이름·링크 칸을 복사해 붙여 넣어도 돼요. 캔바 주소는 캔바 칸에, 나머지는 웹앱 칸에 들어가요.</span></div>'+(S.msg.links?'<p class="'+S.msg.links[0]+'">'+esc(S.msg.links[1])+'</p>':'')+'</div>'+(S.msg.bulk?'<p class="'+S.msg.bulk[0]+'">'+esc(S.msg.bulk[1])+'</p>':'')
@@ -857,29 +866,46 @@ function addPost(){
  var d=S.draft;function m(c,t){S.msg.post=[c,t];renderAll()}
  d.pName=uname();
  if(!d.pName)return m("err","먼저 이름을 적고 들어와 주세요.");
- if(!d.pB1||!d.pB2)return m("err","읽고 싶은 책 2권을 골라 주세요.");
- if(d.pB1===d.pB2)return m("err","서로 다른 책 2권을 골라 주세요.");
+ if(!d.pB1)return m("err","가장 읽고 싶은 책을 골라 주세요.");
  var reason=(d.pReason||"").trim(),feel=(d.pFeel||"").trim();
  if(!reason)return m("err","읽고 싶어진 이유를 적어 주세요.");
  if(!feel)return m("err","프로젝트 소감을 적어 주세요.");
  if(BAD.test(reason+feel))return m("err","친구가 읽고 기분 좋은 말로 바꿔 주세요.");
  if(REMOTE){
   m("small","올리는 중이에요…");
-  api({action:"post",name:d.pName,b1:d.pB1,b2:d.pB2,reason:reason,feel:feel,dev:devId(),pin:S.teacher?tPin():""}).then(function(){
+  api({action:"post",name:d.pName,b1:d.pB1,b2:"",reason:reason,feel:feel,dev:devId(),pin:S.teacher?tPin():""}).then(function(){
    S.draft={};m("ok","게시했어요.");net.sig="";pull();
   }).catch(function(e){m("err",netErr(e))});
   return;
  }
- db=load();db.posts[d.pName]={name:d.pName,b1:d.pB1,b2:d.pB2,reason:reason,feel:feel,at:Date.now()};save();
+ db=load();db.posts[d.pName]={name:d.pName,b1:d.pB1,b2:"",reason:reason,feel:feel,at:Date.now()};save();
  S.draft={};m("ok","게시했어요.");
+}
+function unpost(name){
+ function m(c,t){S.msg.post=[c,t];renderAll()}
+ if(S.delAsk!==name){S.delAsk=name;renderAll();return}
+ S.delAsk="";
+ if(REMOTE){m("small","지우는 중이에요…");
+  api({action:"unpost",name:name,pin:S.teacher?tPin():""}).then(function(){db=load();delete db.posts[name];save();S.zoom=null;m("ok","글을 지웠어요.");net.sig="";pull()})
+   .catch(function(e){m("err",/알 수 없는 요청/.test(e.message||"")?"저장소 코드가 예전 버전이라 지우지 못했어요. 선생님께 알려 주세요.":netErr(e))});return}
+ db=load();delete db.posts[name];save();S.zoom=null;m("ok","글을 지웠어요.");
 }
 function doLogin(){
  var n=String(S.draft.uName||"").normalize("NFC").replace(/\s+/g,"").trim();
  function m(c,t){S.msg.login=[c,t];renderAll();var el=document.getElementById("uName");if(el)el.focus()}
  if(n.length<2)return m("err","이름을 두 글자 이상 적어 주세요.");
  if(BAD.test(n))return m("err","바른 이름을 적어 주세요.");
- if(!isShare()&&!inRoster(n)&&S.loginAsk!==n){S.loginAsk=n;return m("err","우리 반 명단에 없는 이름이에요. 맞으면 한 번 더 눌러 주세요.")}
- var mo=my();mo.name=n;if(V1[n]||V2[n])mo.me=n;else delete mo.me;setMy(mo);
+ var mo=my();
+ if(loginMode()==="guest"){
+  var gr=+S.draft.gGrade,cl=+S.draft.gClass;
+  if(!gr)return m("err","학년을 골라 주세요.");
+  if(!cl)return m("err","반을 골라 주세요.");
+  mo.guest={g:gr,c:cl,n:n};n=gr+"학년 "+cl+"반 "+n;delete mo.me;
+ }else{
+  if(!inRoster(n))return m("err","발표자 명단에 없는 이름이에요. 다른 반·학년이면 '게스트'를 눌러 들어와 주세요.");
+  delete mo.guest;mo.me=n;
+ }
+ mo.name=n;setMy(mo);
  db=load();var u=urec(n);u.last=Date.now();save();
  S.loginAsk="";S.msg.login=null;S.draft={};renderAll();
 }
@@ -952,8 +978,10 @@ document.addEventListener("click",function(e){
    if(REMOTE)(function(k,kind,on,who){api({action:"react",book:k,kind:kind,on:on,name:who,dev:"name:"+who}).catch(function(e){db=load();var u2=urec(who);if(u2.rx&&u2.rx[k])u2.rx[k][kind]=!on;var r2=db.reactions[k]=db.reactions[k]||{};r2[kind]=Math.max(0,(r2[kind]||0)+(on?-1:1));save();S.msg.comment=["err","반응을 저장하지 못했어요. "+netErr(e)];if(S.open!==null)renderLayer();else renderAll()})})(k,arg,on,who);
    S.bump=on?arg:null;if(S.open!==null)renderLayer();else renderAll();S.bump=null;
    var nb=document.querySelector('[data-act="rx"][data-arg="'+arg+'"]');if(nb)nb.focus({preventScroll:true});break;
-  case"ulogout":var mo=my();delete mo.name;delete mo.me;setMy(mo);S.draft={};S.msg={};S.open=null;S.zoom=null;renderAll();var un=document.getElementById("uName");if(un)un.focus();break;
+  case"ulogout":var mo=my();delete mo.name;delete mo.me;delete mo.guest;setMy(mo);S.draft={};S.msg={};S.open=null;S.zoom=null;renderAll();var un=document.getElementById("uName");if(un)un.focus();break;
   case"zoom":S.zoom=+arg;renderLayer();break;
+  case"unpost":unpost(arg);break;
+  case"lmode":S.loginMode=arg;S.msg.login=null;renderAll();break;
   case"zclose":S.zoom=null;renderLayer();break;
   case"zprev":S.zoom=Math.max(0,S.zoom-1);renderLayer();break;
   case"znext":S.zoom=Math.min(postList().length-1,S.zoom+1);renderLayer();break;
