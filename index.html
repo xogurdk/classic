@@ -145,7 +145,7 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 /* 상세·확대 */
 .overlay{position:fixed;inset:0;z-index:20;background:rgba(5,18,22,.72);display:grid;place-items:start center;overflow:auto;padding:24px 16px}
 .dialog{background:var(--paper);border-radius:14px;padding:20px;width:100%;max-width:880px;display:grid;gap:16px;min-width:0}
-.d-top{display:grid;grid-template-columns:190px minmax(0,1fr);gap:20px}
+.d-top{display:grid;grid-template-columns:190px minmax(0,1fr) 130px;gap:20px}
 .d-top .cover{max-width:190px}
 .d-info{display:grid;gap:8px;align-content:start;min-width:0}
 .close{justify-self:end}
@@ -213,7 +213,7 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.86rem;color:var(--muted)}
 .legend b{font-weight:400;font-family:var(--display);color:var(--ink)}
 @media (max-width:600px){.map{--pc:38px;gap:5px;padding:8px}.seat{grid-template-columns:minmax(0,1fr);min-height:84px;padding:5px}.seat .cover{display:none}.s-t{font-size:.86rem}.s-code{font-size:.84rem}.pc{font-size:.7rem}.m-floor{font-size:.76rem}}
-@media (max-width:620px){.d-top{grid-template-columns:minmax(0,1fr)}.d-top .cover{max-width:150px}}
+@media (max-width:620px){.d-top{grid-template-columns:minmax(0,1fr)}.d-top .cover{max-width:150px}.d-badge{grid-template-columns:96px minmax(0,1fr);justify-items:start;text-align:left;align-items:center}.d-badge .bdg{max-width:96px}}
 
 /* 포스터 */
 .poverlay{position:fixed;inset:0;z-index:25;background:rgba(5,14,18,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;overflow:auto;animation:pfade .35s ease}
@@ -231,16 +231,61 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 @keyframes pout{to{opacity:0}}
 @media (prefers-reduced-motion:reduce){.poverlay,.pcap{animation:none}.pflip{transition:none}}
 
+/* 뱃지 */
+.bdg{display:block;width:100%;height:auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.28))}
+.bdg.off{filter:grayscale(1) brightness(.9) contrast(.85);opacity:.42}
+.d-badge,.f-badge{display:grid;gap:6px;justify-items:center;align-content:start;text-align:center;font-size:.85rem;color:var(--muted)}
+.d-badge b,.f-badge b{font:400 .95rem var(--display);color:var(--stamp)}
+.d-badge .bdg{max-width:130px}.f-badge .bdg{max-width:110px}
+.exform .row{justify-content:space-between}
+.excount.ok{color:var(--accent);font-weight:700}
+.hall{display:grid;gap:18px}
+.champ{background:linear-gradient(160deg,#0f1f3d,#1b2f5c);color:#f3ead0;border-radius:16px;padding:20px;display:grid;grid-template-columns:minmax(140px,260px) minmax(0,1fr);gap:20px;align-items:center}
+.champ .bdg.off{opacity:.35}
+.champ h2{font-size:clamp(1.5rem,4vw,2.2rem);color:#ffd76e}
+.bar{height:14px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#ffb74d,#ffd76e);border-radius:999px}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px}
+.bcell{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:4px;justify-items:center;text-align:center;padding:10px 6px;border-radius:12px;background:var(--paper);border:1.5px solid var(--line)}
+.bcell:hover{border-color:var(--accent)}
+.bcell:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.bcell .bdg{max-width:104px;aspect-ratio:1;object-fit:contain}
+.bcell .t{font:400 .98rem/1.2 var(--display)}
+.bcell .st{font-size:.78rem;color:var(--muted)}
+.bcell.got .st{color:var(--accent);font-weight:700}
+.ranks{display:flex;flex-wrap:wrap;gap:8px}
+.rank{background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.92rem}
+.rank b{font-family:var(--display);font-weight:400;color:var(--stamp);margin-left:6px}
+.rank.c{border-color:#d4a72c;background:#fff4d1;color:#5a4300}
+@media (max-width:560px){.champ{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center}.champ>.bdg{max-width:200px}.champ>div{width:100%}}
+/* 뱃지 받기 */
+.aw{position:fixed;inset:0;z-index:40;background:radial-gradient(circle at 50% 42%,rgba(40,60,110,.92),rgba(4,8,20,.96));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;overflow:hidden;color:#fff;text-align:center;animation:pfade .3s ease}
+.aw-rays{position:absolute;left:50%;top:42%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;background:repeating-conic-gradient(rgba(255,215,110,.16) 0 8deg,transparent 8deg 20deg);animation:spin 14s linear infinite;pointer-events:none;mask:radial-gradient(circle,#000 10%,transparent 60%);-webkit-mask:radial-gradient(circle,#000 10%,transparent 60%)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.aw-badge{position:relative;width:min(56vw,300px);animation:awin 1.1s cubic-bezier(.2,1.4,.4,1) both}
+.aw-badge.big{width:min(80vw,460px)}
+.aw-badge img{width:100%;filter:drop-shadow(0 12px 30px rgba(0,0,0,.6)) drop-shadow(0 0 26px rgba(255,215,110,.55))}
+.aw-badge::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.75) 50%,transparent 65%);background-size:250% 100%;mix-blend-mode:overlay;animation:shine 1.6s 1s ease-in-out;opacity:.9;pointer-events:none;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat;background-position:150% 0}
+@keyframes awin{0%{transform:scale(.1) rotateY(540deg);opacity:0}60%{transform:scale(1.15) rotateY(0);opacity:1}80%{transform:scale(.95)}100%{transform:scale(1)}}
+@keyframes shine{from{background-position:150% 0}to{background-position:-50% 0}}
+.aw h2{font-size:clamp(1.6rem,5vw,2.6rem);color:#ffd76e;position:relative;animation:pup .5s .7s ease backwards}
+.aw p{position:relative;animation:pup .5s .85s ease backwards;font-size:1.1rem}
+.aw .row{position:relative;justify-content:center;animation:pup .5s 1s ease backwards}
+.aw .btn.ghost{color:#fff;border-color:#c9d4e8}
+.cf{position:absolute;left:50%;top:42%;width:10px;height:16px;border-radius:2px;background:var(--c);opacity:0;animation:cf 1.6s var(--d) cubic-bezier(.15,.7,.3,1) forwards;pointer-events:none}
+@keyframes cf{0%{opacity:1;transform:translate(-50%,-50%) rotate(0)}100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.aw-rays,.aw-badge,.aw-badge::after,.cf,.aw h2,.aw p,.aw .row{animation:none}.cf{display:none}}
+
 /* 발표 시간 고정 화면 */
 .fbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 14px;background:var(--accent);color:var(--on-accent);border-radius:10px;padding:10px 16px;font:400 1.2rem var(--display)}
 .ftime{font:500 1.7rem var(--mono);font-variant-numeric:tabular-nums}
-.fb-top{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px}
+.fb-top{display:grid;grid-template-columns:150px minmax(0,1fr) 110px;gap:18px}
 .fb-top .cover{max-width:150px}
 .fnext{background:var(--paper);border:3px solid var(--stamp);border-radius:14px;padding:18px;display:grid;gap:8px;text-align:center;justify-items:center}
 .fnext .big{font:400 clamp(2.2rem,8vw,3.6rem)/1.1 var(--display);color:var(--stamp)}
 .fnext .ttl{font:400 clamp(1.4rem,4.5vw,2rem)/1.25 var(--display)}
 .names{font:400 1.15rem var(--display);color:var(--accent)}
-@media (max-width:560px){.fb-top{grid-template-columns:minmax(0,1fr)}.fb-top .cover{max-width:110px}}
+@media (max-width:560px){.fb-top{grid-template-columns:minmax(0,1fr)}.fb-top .cover{max-width:110px}.f-badge{grid-template-columns:90px minmax(0,1fr);justify-items:start;text-align:left;align-items:center}}
 
 /* 입장권 */
 .ticket{background:var(--paper);border:1.5px dashed var(--muted);border-radius:14px;padding:16px;display:grid;gap:12px}
@@ -320,6 +365,26 @@ var YES24={"로빈슨 크루소":98801328,"안네의 일기":135806469,"화씨 4
 var CANVA={"지구 속 여행":"https://canva.link/kd74cav17b3sl62","해저 2만 리":"https://canva.link/qdvuk4cis0svpl1","보물섬":"https://canva.link/p0anx7gg347uf7v","화씨 451":"https://canva.link/h0k6hjoujyghb3i","1984":"https://canva.link/4xeascxj8db0hbc","모모":"https://canva.link/03zi6xjf4rvne0q","오만과 편견":"https://canva.link/dukff8f0nrlt690","키다리 아저씨":"https://canva.link/ycv491c0ljxtyhs","백야":"https://canva.link/66tl423xy6szu2i","로빈슨 크루소":"https://www.canva.com/design/DAHYzWFw1Dg/apbTYRM7RNmV1-RIiepsDQ/edit","15소년 표류기":"https://canva.link/j2jyngrlb8hmhtl","셜록 홈즈":"https://canva.link/6309su09pikaijp","톰 소여의 모험":"https://canva.link/6xprqld8u6j3huz","안네의 일기":"https://canva.link/kzvnlafywko8doh","어린왕자":"https://canva.link/po25xolbi282gna","나의 라임오렌지나무":"https://canva.link/6mn5knhi9qzngut","수레바퀴 아래서":"https://canva.link/yhxz2xav2j2wotv","투명인간":"https://canva.link/f29z0mo22h8n2do"};
 /* 패들렛에 올라온 학생 포스터 (posters 폴더). 백야는 앞면·뒷면 2장 */
 var POSTER={"지구 속 여행":["journey"],"해저 2만 리":["20000"],"보물섬":["treasure"],"화씨 451":["f451"],"1984":["1984"],"모모":["momo"],"오만과 편견":["pride"],"키다리 아저씨":["daddy"],"백야":["whitenights","whitenights-2"],"로빈슨 크루소":["robinson"],"15소년 표류기":["15boys"],"셜록 홈즈":["sherlock"],"톰 소여의 모험":["tomsawyer"],"안네의 일기":["anne"],"어린왕자":["prince"],"나의 라임오렌지나무":["lime"],"수레바퀴 아래서":["wheel"],"투명인간":["invisible"]};
+/* 뱃지: 발표를 듣고 기대평을 공백 빼고 BADGE_MIN자 이상 올리면 그 책의 뱃지. 내 발표 책은 처음부터 받아요. 18개를 모두 모으면 고전 챔피언 */
+var BADGE_MIN=30;
+function badgeSrc(b){return "badges/"+(POSTER[b.k]||["champion"])[0]+".webp"}
+var CHAMP_SRC="badges/champion.webp";
+function chars(t){return String(t||"").replace(/\s/g,"").length}
+function hasBadge(k,name){name=name||uname();if(!name)return false;if(presenter(k)===name)return true;
+ if(name===uname())return chars(getExpect(k))>=BADGE_MIN;var L=allBadges()[name]||[];return L.indexOf(k)>=0}
+function badgeCount(name){return BOOKS.filter(function(b){return hasBadge(b.k,name)}).length}
+function isChamp(name){return badgeCount(name)===BOOKS.length}
+function allBadges(){
+ var out={};
+ if(REMOTE&&db.badgesAll){Object.keys(db.badgesAll).forEach(function(n){out[n]=db.badgesAll[n].slice()})}
+ else Object.keys(db.users||{}).forEach(function(n){var ex=db.users[n].expect||{};out[n]=Object.keys(ex).filter(function(k){return chars(ex[k].t)>=BADGE_MIN})});
+ var me=uname();if(me){out[me]=BOOKS.filter(function(b){return chars(getExpect(b.k))>=BADGE_MIN}).map(function(b){return b.k})}
+ return out;
+}
+function badgeBox(b,cls){
+ var got=hasBadge(b.k),mine=presenter(b.k)===uname()&&!!uname();
+ return '<div class="'+cls+'"><img class="bdg'+(got?"":" off")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+' 뱃지'+(got?"":" (아직 못 받음)")+'"><span>'+(got?'<b>'+(mine?"내 발표 뱃지":"뱃지 획득!")+'</b>':'기대평을 공백 빼고 '+BADGE_MIN+'자 이상 올리면 받아요')+'</span></div>';
+}
 function posters(b){return (POSTER[b.k]||[]).map(function(n){return "posters/"+n+".jpg"})}
 var THEME={1:"모험·상상",2:"사회와 관계",3:"모험·사건",4:"성장·내면"};
 var byK={};BOOKS.forEach(function(b,i){b.i=i;b.y=YES24[b.k];b.cv=CANVA[b.k]||"";byK[b.k]=b});
@@ -375,8 +440,56 @@ function myRx(){var n=uname();return n&&db.users&&db.users[n]?db.users[n].rx||{}
 function getExpect(k){var u=db.users&&db.users[uname()];return u&&u.expect&&u.expect[k]?u.expect[k].t||"":""}
 function setExpect(k,text,push){var n=uname();if(!n)return;db=load();var u=urec(n);u.expect=u.expect||{};u.expect[k]={t:String(text).slice(0,200),at:nowMs()};save();
  if(push&&REMOTE)api({action:"expect",name:n,book:k,text:u.expect[k].t}).catch(function(){})}
+function exDraft(k){var d=S.draft["ex:"+k];return d!=null?d:getExpect(k)}
+function exCount(k){var n=chars(exDraft(k));return '<span class="small excount'+(n>=BADGE_MIN?" ok":"")+'" data-excount="'+esc(k)+'">공백 빼고 '+n+' / '+BADGE_MIN+'자'+(n>=BADGE_MIN?" ✓":"")+'</span>'}
 function expectHtml(b,id){
- return '<div class="field"><label class="lab" for="'+id+'">이 책에서 기대되는 부분</label><textarea id="'+id+'" maxlength="200" data-expect="'+esc(b.k)+'" placeholder="소개를 듣고 어떤 장면이나 내용이 기대되나요?">'+esc(getExpect(b.k))+'</textarea><span class="small">고전 탐험하기와 내 부스·시간표에 함께 기록돼요.</span></div>';
+ var m=S.msg["ex:"+b.k],saved=getExpect(b.k);
+ return '<form class="field exform" data-form="expect" data-k="'+esc(b.k)+'"><label class="lab" for="'+id+'">기대평 · 이 책에서 기대되는 부분</label>'
+ +'<textarea id="'+id+'" maxlength="200" data-exdraft="'+esc(b.k)+'" placeholder="두 문장 정도로 적어 보세요. 예) 어떤 장면이 궁금해졌나요? 왜 읽고 싶어졌나요?">'+esc(exDraft(b.k))+'</textarea>'
+ +'<div class="row">'+exCount(b.k)+'<button class="btn sm">'+(saved?"기대평 고치기":"기대평 올리기")+'</button></div>'
+ +(m?'<span class="'+m[0]+'">'+esc(m[1])+'</span>':'')
+ +'<span class="small">공백 빼고 '+BADGE_MIN+'자 이상 올리면 이 책의 뱃지를 받아요. 고전 탐험하기와 내 부스·시간표에 함께 기록돼요.</span></form>';
+}
+function submitExpect(k){
+ var text=String(exDraft(k)).trim(),key="ex:"+k;
+ function done(c,t){S.msg[key]=[c,t];if(S.open!==null)renderLayer();else renderAll()}
+ if(!uname())return done("err","이름을 적고 들어와야 올릴 수 있어요.");
+ if(!text)return done("err","기대평을 적어 주세요.");
+ if(BAD.test(text))return done("err","친구가 읽고 기분 좋은 말로 바꿔 주세요.");
+ var had=hasBadge(k),wasChamp=isChamp(uname());
+ setExpect(k,text,true);delete S.draft[key];
+ if(!had&&hasBadge(k)){S.msg[key]=["ok","기대평을 올렸어요."];showAward(k,!wasChamp&&isChamp(uname()));if(S.open!==null)renderLayer();else{renderAll()}return}
+ done("ok",chars(text)>=BADGE_MIN?"기대평을 고쳤어요.":"올렸어요. 공백 빼고 "+BADGE_MIN+"자 이상이면 뱃지를 받아요 (지금 "+chars(text)+"자).");
+}
+/* 뱃지 받기 화면 */
+function showAward(k,champ){S.award={k:k,champ:!!champ,stage:k?"book":"champ"};chime(champ);}
+function chime(big){try{unlockAudio();if(!audio)return;var f=big?[523,659,784,1047,1319]:[659,784,1047];f.forEach(function(fr,n){var o=audio.createOscillator(),g=audio.createGain();o.type="triangle";o.frequency.value=fr;o.connect(g);g.connect(audio.destination);var at=audio.currentTime+n*.12;g.gain.setValueAtTime(.18,at);g.gain.exponentialRampToValueAtTime(.001,at+.5);o.start(at);o.stop(at+.52)})}catch(e){}}
+function vAward(){
+ var a=S.award,champ=a.stage==="champ",b=champ?null:byK[a.k],src=champ?CHAMP_SRC:badgeSrc(b),n=badgeCount(uname());
+ var cols=["#ffd76e","#ff8a80","#80deea","#a5d6a7","#ce93d8","#fff","#ffb74d"],cf="";
+ for(var i=0;i<(champ?60:36);i++){var ang=Math.random()*Math.PI*2,dist=(champ?260:180)+Math.random()*260;cf+='<i class="cf" style="--c:'+cols[i%cols.length]+';--x:'+Math.round(Math.cos(ang)*dist)+'px;--y:'+Math.round(Math.sin(ang)*dist)+'px;--r:'+Math.round(Math.random()*720-360)+'deg;--d:'+(0.45+Math.random()*.35).toFixed(2)+'s"></i>'}
+ return '<div class="aw" role="dialog" aria-modal="true" aria-label="뱃지 획득"><div class="aw-rays"></div>'+cf
+ +'<div class="aw-badge'+(champ?" big":"")+'" style="--m:url('+src+')"><img src="'+src+'" alt="'+(champ?"고전 챔피언":esc(b.t))+' 뱃지"></div>'
+ +(champ?'<h2>고전 챔피언이 되었어요!</h2><p>고전 '+BOOKS.length+'권의 뱃지를 모두 모았어요. 명예의 전당에 이름이 올라가요.</p>'
+  :'<h2>'+esc(b.t)+' 뱃지 획득!</h2><p>기대평을 잘 남겼어요. 지금까지 '+n+' / '+BOOKS.length+'개</p>')
+ +'<div class="row">'+(a.champ&&!champ?'<button class="btn" data-act="awnext">다음 →</button>':'<button class="btn" data-act="awhall">명예의 전당 보기</button><button class="btn ghost" data-act="awclose">계속하기</button>')+'</div></div>';
+}
+/* 고전 명예의 전당 */
+function vHall(){
+ var me=uname(),n=badgeCount(me),ch=isChamp(me),share=isShare();
+ var cells=BOOKS.map(function(b){var got=hasBadge(b.k),mine=presenter(b.k)===me;
+  return '<button class="bcell'+(got?" got":"")+'" data-act="open" data-arg="'+b.i+'"><img class="bdg'+(got?"":" off")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+' 뱃지'+(got?"":" (아직 못 받음)")+'" loading="lazy"><span class="t">'+esc(b.t)+'</span><span class="st">'+(got?(mine?"내 발표 뱃지":"획득"):"기대평 쓰고 받기")+'</span></button>'}).join("");
+ var all=allBadges(),names=Object.keys(all);
+ Object.keys(V1).concat(Object.keys(V2)).forEach(function(x){if(names.indexOf(x)<0)names.push(x)});
+ var list=names.map(function(x){return{n:x,c:badgeCount(x)}}).filter(function(x){return x.c>0}).sort(function(a,b){return b.c-a.c||a.n.localeCompare(b.n,"ko")});
+ var champs=list.filter(function(x){return x.c===BOOKS.length});
+ return '<div class="view hall"><div><h1 class="h1">고전 명예의 전당</h1><p class="lede">친구의 발표를 듣고 고전 탐험하기에서 기대평을 공백 빼고 '+BADGE_MIN+'자 이상(두 문장 정도) 올리면 그 책의 뱃지를 받아요. 내 발표 책 뱃지는 처음부터 받아요.</p></div>'
+ +'<section class="champ"><img class="bdg'+(ch?"":" off")+'" src="'+CHAMP_SRC+'" alt="고전 챔피언 뱃지'+(ch?"":" (아직 못 받음)")+'"><div style="display:grid;gap:10px"><h2>'+(ch?"고전 챔피언!":"고전 챔피언에 도전!")+'</h2><p>'+esc(me)+' · 뱃지 '+n+' / '+BOOKS.length+'개</p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+BOOKS.length+'" aria-valuenow="'+n+'"><i style="width:'+Math.round(n/BOOKS.length*100)+'%"></i></div><p class="small" style="color:#cfd8ea">'+(ch?"18개 뱃지를 모두 모았어요. 정말 멋져요!":"앞으로 "+(BOOKS.length-n)+"개 남았어요. 흑백 뱃지를 눌러 기대평을 써 보세요.")+'</p></div></section>'
+ +'<section style="display:grid;gap:10px"><h2 class="h2">내 뱃지</h2><div class="bgrid">'+cells+'</div></section>'
+ +(share?'':'<section style="display:grid;gap:10px"><h2 class="h2">고전 챔피언</h2>'+(champs.length?'<div class="ranks">'+champs.map(function(x){return '<span class="rank c">'+esc(x.n)+'</span>'}).join("")+'</div>':'<p class="small">아직 고전 챔피언이 없어요. 첫 번째 챔피언이 되어 보세요!</p>')
+  +'<h2 class="h2">뱃지 모으기 현황</h2>'+(list.length?'<div class="ranks">'+list.map(function(x){return '<span class="rank'+(x.n===me?" c":"")+'">'+esc(x.n)+'<b>'+x.c+'</b></span>'}).join("")+'</div>':'<p class="small">아직 기록이 없어요.</p>')
+  +(REMOTE&&!db.badgesAll?'<p class="small">친구들 현황은 저장소 코드를 새 버전으로 배포하면 보여요.</p>':'')+'</section>')
+ +'</div>';
 }
 function rxHtml(b){
  var mine=myRx(),kinds=[["want","읽고 싶어요"],["fun","이 책 추천해요"]];
@@ -406,6 +519,7 @@ function applyRemote(d){
  var un=uname();
  if(d.me&&un){var u=urec(un);u.rx=d.me.rx||{};u.expect=u.expect||{};var ex=d.me.expect||{};Object.keys(ex).forEach(function(k){var a=u.expect[k];if(!a||(+ex[k].at||0)>=(+a.at||0))u.expect[k]=ex[k]})}
  if(d.expects)db.expects=d.expects;
+ if(d.badges)db.badgesAll=d.badges;
  Object.keys(d.books||{}).forEach(function(k){if(!byK[k])return;var cur=bd(k),x=d.books[k];["canva","web","intro","why"].forEach(function(f){cur[f]=x[f]||""})});
  db.comments=d.comments||[];db.posts=d.posts||{};if(d.reactions)db.reactions=d.reactions;
  db.settings.mode=d.mode==="share"?"share":"class";
@@ -481,7 +595,7 @@ function coverHtml(b){
 function bookTag(b){return b.viewOnly?b.part+"부 · 자료 열람":b.part+"부 · "+b.no+"모둠"}
 
 /* ---------- 화면 ---------- */
-var TABS=[["board","전자칠판"],["explore","고전 탐험하기"],["booth","내 부스·시간표"],["wrap","읽고 싶은 책·소감"],["teacher","선생님"]];
+var TABS=[["board","전자칠판"],["explore","고전 탐험하기"],["booth","내 부스·시간표"],["wrap","읽고 싶은 책·소감"],["hall","명예의 전당"],["teacher","선생님"]];
 function route(){
  var h=S.route||(location.hash||"").slice(1);
  if(TABS.map(function(t){return t[0]}).indexOf(h)<0)h=isShare()?"explore":"board";
@@ -553,7 +667,7 @@ function bookPanel(b,o){
  return '<section class="panel"><div class="fb-top">'+coverHtml(b)+'<div class="d-info"><span class="small">'+o.label+'</span><h2 class="h1">'+esc(b.t)+'</h2><p class="small">'+esc(b.a)+' · '+esc(b.p)+'</p>'
  +(o.who?'<p>'+o.code+' 부스 · 발표 <b>'+esc(o.who)+'</b></p>':'')
  +'<div class="row">'+(c?'<a class="btn" href="'+esc(c)+'" target="_blank" rel="noopener noreferrer">'+(o.mine?"내 발표 자료 열기":"발표 자료 보기")+'</a>':'<button class="btn off" disabled>링크 등록 전이에요</button>')+(w?'<a class="btn ghost" href="'+esc(w)+'" target="_blank" rel="noopener noreferrer">웹앱 열기</a>':'')+(posters(b).length?'<button class="btn ghost" data-act="poster" data-arg="'+b.i+'">포스터 보기</button>':'')+'</div>'
- +(o.extra||'')+'</div></div>'+(o.review?rxHtml(b)+expectHtml(b,"exf"+b.i):'')+'</section>';
+ +(o.extra||'')+'</div>'+badgeBox(b,"f-badge")+'</div>'+(o.review?rxHtml(b)+expectHtml(b,"exf"+b.i):'')+'</section>';
 }
 /* 소개 시간: 발표자는 내 발표 자료, 듣는 사람은 지금 회차 발표 자료만 보여요. 3분이 지나면 다음 부스 안내 */
 function vFocus(){
@@ -719,8 +833,8 @@ function vDetail(b){
  +'<div class="d-top">'+coverHtml(b)+'<div class="d-info"><span class="small">'+bookTag(b)+(!share&&pr?" · 소개 "+esc(pr)+" ("+booth(b.k)+")":"")+'</span><h2 class="h1">'+esc(b.t)+'</h2>'
  +'<p class="small">'+esc(b.a)+(b.c?" · "+esc(b.c):"")+" · "+esc(b.p)+'</p>'
  +'<p>'+esc(d.intro||b.h)+'</p>'+(d.why?'<p class="small">이 양식을 고른 이유: '+esc(d.why)+'</p>':'')
- +'<div class="row">'+link+'</div><p class="small">자료는 새 탭에서 열려요. 다 보면 그 탭을 닫고 돌아오면 돼요.</p>'+(b.viewOnly?'<p class="small">이 책은 박람회 부스에는 없고, 발표 자료만 볼 수 있어요.</p>':'')+'</div></div>'
- +(b.viewOnly?'</div></div>':'')
+ +'<div class="row">'+link+'</div><p class="small">자료는 새 탭에서 열려요. 다 보면 그 탭을 닫고 돌아오면 돼요.</p>'+(b.viewOnly?'<p class="small">이 책은 박람회 부스에는 없고, 발표 자료만 볼 수 있어요.</p>':'')+'</div>'+badgeBox(b,"d-badge")+'</div>'
+ +(b.viewOnly?(uname()?expectHtml(b,"exd"+b.i):'')+'</div></div>':'')
  +(b.viewOnly?'':rxHtml(b)+(uname()&&presenter(b.k)!==uname()?expectHtml(b,"exd"+b.i):'')
  +'<div class="field"><span class="lab">댓글</span>'
  +(cm.length?'<ul class="clist">'+cm.map(function(x){return '<li><span class="nick">'+esc(x.nick)+'</span> '+esc(x.text)+'</li>'}).join("")+'</ul>':'<p class="small">첫 댓글을 남겨 보세요. 어떤 부분이 궁금해졌나요?</p>')
@@ -741,7 +855,7 @@ function vBooth(){
   box='<div class="stubs"><div class="stub me'+(s.talk===mp?" now":"")+'"><span class="when">'+mp+'부 시간 · 3번 발표</span><span class="where">'+mine[0]+'</span><span class="what">'+esc(byK[mine[1]].t)+'</span><span class="who">내 부스</span></div>'
   +tour.map(function(k,n){var b=Q.filter(function(x){return x[1]===k})[0];var on=s.talk===op&&s.round===n+1;
     return '<div class="stub'+(on?" now":"")+'"><span class="when">'+op+'부 시간 · '+(n+1)+'회차 관람</span><span class="where">'+b[0]+'</span><span class="what">'+esc(byK[k].t)+'</span><span class="who">발표 '+b[2]+'</span>'
-    +(self?'<label class="small" for="exb'+n+'">이 책에서 기대되는 부분</label><textarea id="exb'+n+'" maxlength="200" data-expect="'+esc(k)+'">'+esc(getExpect(k))+'</textarea>':'')+'</div>'}).join("")+'</div>';
+    +(self?expectHtml(byK[k],"exb"+n):'')+'</div>'}).join("")+'</div>';
  }
  function sec(part,V,P){
   var nowR=s.talk===part?s.round:0;
@@ -825,14 +939,14 @@ function expectSection(){
 function inField(){var a=document.activeElement;return !!a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=="checkbox"&&a.type!=="file"}
 function renderLayer(){
  var l=document.getElementById("layer"),top=(l.querySelector(".overlay")||{}).scrollTop||0;
- l.innerHTML=S.zoom!==null?vZoom():S.poster?vPoster():S.open!==null?vDetail(BOOKS[S.open]):"";
+ l.innerHTML=S.award?vAward():S.zoom!==null?vZoom():S.poster?vPoster():S.open!==null?vDetail(BOOKS[S.open]):"";
  var o=l.querySelector(".overlay");if(o)o.scrollTop=top;
 }
 function renderAll(){
  var a=document.activeElement,fk=a&&a.dataset?{act:a.dataset.act,arg:a.dataset.arg,id:a.id}:null,sy=window.scrollY;
  renderNav();
- var r=route(),f={board:vBoard,explore:vExplore,booth:vBooth,wrap:vWrap,teacher:vTeacher}[r];
- var gate=needLogin(r);if(gate){S.open=null;S.zoom=null;S.poster=null}
+ var r=route(),f={board:vBoard,explore:vExplore,booth:vBooth,wrap:vWrap,hall:vHall,teacher:vTeacher}[r];
+ var gate=needLogin(r);if(gate){S.open=null;S.zoom=null;S.poster=null;S.award=null}
  document.getElementById("app").innerHTML=gate?vLogin():f();
  if(locked()&&S.open!==null)S.open=null;
  renderLayer();
@@ -981,6 +1095,9 @@ document.addEventListener("click",function(e){
   case"ulogout":var mo=my();delete mo.name;delete mo.me;delete mo.guest;setMy(mo);S.draft={};S.msg={};S.open=null;S.zoom=null;renderAll();var un=document.getElementById("uName");if(un)un.focus();break;
   case"zoom":S.zoom=+arg;renderLayer();break;
   case"unpost":unpost(arg);break;
+  case"awnext":S.award.stage="champ";chime(true);renderLayer();break;
+  case"awclose":S.award=null;renderLayer();break;
+  case"awhall":S.award=null;S.open=null;S.poster=null;goTab("hall");break;
   case"lmode":S.loginMode=arg;S.msg.login=null;renderAll();break;
   case"zclose":S.zoom=null;renderLayer();break;
   case"zprev":S.zoom=Math.max(0,S.zoom-1);renderLayer();break;
@@ -995,12 +1112,11 @@ document.addEventListener("click",function(e){
 });
 document.addEventListener("input",function(e){
  var t=e.target;
- if(t.dataset.expect!=null){setExpect(t.dataset.expect,t.value,false);return}
+ if(t.dataset.exdraft!=null){var ek=t.dataset.exdraft;S.draft["ex:"+ek]=t.value;[].forEach.call(document.querySelectorAll('[data-excount]'),function(x){if(x.dataset.excount===ek)x.outerHTML=exCount(ek)});return}
  if(t.dataset.input){if(t.dataset.input==="q"){S.q=t.value;var pos=t.selectionStart;renderAll();var q=document.getElementById("q");if(q){q.focus();q.setSelectionRange(pos,pos)}}else S.draft[t.dataset.input]=t.value}
 });
 document.addEventListener("change",function(e){
  var t=e.target;
- if(t.dataset.expect!=null){setExpect(t.dataset.expect,t.value,true);return}
  if(t.dataset.actChange==="me"){var m=my();m.me=t.value;setMy(m);renderAll();return}
  if(t.dataset.note!=null){var me=my().me;if(!me)return;db=load();var n=db.notes[me]=db.notes[me]||[];n[+t.dataset.note]=t.value.slice(0,80);save();return}
  if(t.dataset.set){db=load();if(t.dataset.set==="share"){db.settings.mode=t.checked?"share":"class";if(REMOTE)api({action:"mode",pin:tPin(),mode:db.settings.mode}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np="공유 모드를 저장하지 못했어요. "+netErr(e);renderAll()})}else db.settings[t.dataset.set]=t.checked;save();renderAll();return}
@@ -1015,6 +1131,7 @@ document.addEventListener("submit",function(e){
  e.preventDefault();
  var f=e.target.dataset.form;
  if(f==="login"){doLogin();return}
+ if(f==="expect"){submitExpect(e.target.dataset.k);return}
  if(f==="comment")addComment();
  else if(f==="post")addPost();
  else if(f==="pin"&&REMOTE){var pv=document.getElementById("pin").value;S.msg.pin="확인하는 중이에요…";renderAll();
@@ -1027,6 +1144,7 @@ document.addEventListener("submit",function(e){
 });
 document.addEventListener("keydown",function(e){
  if(S.zoom!==null){if(e.key==="Escape"){S.zoom=null;renderLayer()}if(e.key==="ArrowLeft"){S.zoom=Math.max(0,S.zoom-1);renderLayer()}if(e.key==="ArrowRight"){S.zoom=Math.min(postList().length-1,S.zoom+1);renderLayer()}return}
+ if(S.award&&e.key==="Escape"){S.award=null;renderLayer();return}
  if(S.poster&&e.key==="Escape"){S.poster=null;renderLayer();return}
  if(S.open!==null&&e.key==="Escape"){S.open=null;renderLayer()}
 });
