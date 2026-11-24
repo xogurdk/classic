@@ -141,7 +141,7 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .dialog.opening{animation:bookOpen .3s ease;transform-origin:left center}
 @keyframes bookOpen{from{transform:perspective(1200px) rotateY(-24deg) scale(.94);opacity:0}}
 @media (any-hover:none){.pop{display:none}}
-@media (prefers-reduced-motion:reduce){.enter .spine,.dialog.opening{animation:none}.pop{transform:none}}
+@media (prefers-reduced-motion:reduce){.enter .spine{animation:none}}
 /* 상세·확대 */
 .overlay{position:fixed;inset:0;z-index:20;background:rgba(5,18,22,.72);display:grid;place-items:start center;overflow:auto;padding:24px 16px}
 .dialog{background:var(--paper);border-radius:14px;padding:20px;width:100%;max-width:880px;display:grid;gap:16px;min-width:0}
@@ -229,7 +229,6 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .pcap .btn.ghost{color:#f1f7f6;border-color:#9fb8bb}
 .poverlay.leaving{animation:pout .28s ease forwards}
 @keyframes pout{to{opacity:0}}
-@media (prefers-reduced-motion:reduce){.poverlay,.pcap{animation:none}.pflip{transition:none}}
 
 /* 뱃지 */
 .bdg{display:block;width:100%;height:auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.28))}
@@ -264,7 +263,6 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .bcell .bdg.off.flip{animation:bflipIn .6s cubic-bezier(.3,.7,.3,1) forwards}
 .bcell .bdg.off.unflip{animation:bflipOut .5s ease forwards}
 .bcell:focus-visible .bdg.off{filter:grayscale(0) brightness(1) contrast(1) drop-shadow(0 4px 8px rgba(0,0,0,.28));opacity:1}
-@media (prefers-reduced-motion:reduce){.bcell .bdg.off.flip{animation:none;filter:none;opacity:1}.bcell .bdg.off.unflip{animation:none}}
 .bcell .t{font:400 .98rem/1.2 var(--display)}
 .bcell .st{font-size:.78rem;color:var(--muted)}
 .bcell.got .st{color:var(--accent);font-weight:700}
@@ -292,7 +290,6 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .shortbox h2{word-break:keep-all}
 .poverlay:has(.shortbox){z-index:30;background:rgba(5,14,18,.6)}
 @keyframes wiggle{0%{transform:scale(.8);opacity:0}40%{transform:scale(1.03) rotate(-2deg);opacity:1}60%{transform:rotate(2deg)}80%{transform:rotate(-1deg)}100%{transform:none}}
-@media (prefers-reduced-motion:reduce){.shortbox{animation:none}}
 /* 뱃지 받기 */
 .aw{position:fixed;inset:0;z-index:40;background:radial-gradient(circle at 50% 42%,rgba(40,60,110,.92),rgba(4,8,20,.96));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;overflow:hidden;color:#fff;text-align:center;animation:pfade .3s ease}
 .aw-rays{position:absolute;left:50%;top:42%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;background:repeating-conic-gradient(rgba(255,215,110,.16) 0 8deg,transparent 8deg 20deg);animation:spin 14s linear infinite;pointer-events:none;mask:radial-gradient(circle,#000 10%,transparent 60%);-webkit-mask:radial-gradient(circle,#000 10%,transparent 60%)}
@@ -309,7 +306,8 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .aw .btn.ghost{color:#fff;border-color:#c9d4e8}
 .cf{position:absolute;left:50%;top:42%;width:10px;height:16px;border-radius:2px;background:var(--c);opacity:0;animation:cf 1.6s var(--d) cubic-bezier(.15,.7,.3,1) forwards;pointer-events:none}
 @keyframes cf{0%{opacity:1;transform:translate(-50%,-50%) rotate(0)}100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(var(--r))}}
-@media (prefers-reduced-motion:reduce){.aw-rays,.aw-badge,.aw-badge::after,.cf,.aw h2,.aw p,.aw .row{animation:none}.cf{display:none}}
+/* 움직임 줄이기 설정에서는 계속 도는 빛줄기만 멈춰요 */
+@media (prefers-reduced-motion:reduce){.aw-rays{animation:none}}
 
 /* 발표 시간 고정 화면 */
 .fbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 14px;background:var(--accent);color:var(--on-accent);border-radius:10px;padding:10px 16px;font:400 1.2rem var(--display)}
@@ -364,7 +362,6 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .bookform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
 .bookform .t{grid-column:1/-1;font:400 1.08rem var(--display)}
 @media (max-width:640px){.bookform{grid-template-columns:minmax(0,1fr)}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
@@ -891,7 +888,6 @@ function vPoster(){
 }
 function animPoster(from){
  var el=document.querySelector("#layer .pflip");if(!el||!from||!el.animate)return;
- if(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches)return;
  var to=el.getBoundingClientRect();if(!to.width)return;
  var dx=(from.left+from.width/2)-(to.left+to.width/2),dy=(from.top+from.height/2)-(to.top+to.height/2),sc=Math.max(.08,Math.min(from.width/to.width,from.height/to.height));
  el.animate([{transform:"translate("+dx+"px,"+dy+"px) scale("+sc+") rotateY(-35deg) rotateZ(-4deg)",opacity:.5},{transform:"translate(0,0) scale(1.03) rotateY(4deg)",opacity:1,offset:.75},{transform:"none",opacity:1}],{duration:720,easing:"cubic-bezier(.16,1,.3,1)"});
@@ -1130,14 +1126,14 @@ document.addEventListener("click",function(e){
   case"pasteLinks":var ta=document.getElementById("pasteL");if(ta)pasteLinks(ta.value);break;
   case"open":
    var from=t.getBoundingClientRect(),bi=+arg;
-   var calm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
+   var calm=false;
    if(t.classList.contains("spine")&&!calm){t.classList.add("pulling");setTimeout(function(){openBook(bi,t.getBoundingClientRect());t.classList.remove("pulling")},280)}else openBook(bi,from);
    break;
   case"poster":S.poster={i:+arg,side:0};S.open=null;renderLayer();animPoster(t.getBoundingClientRect());break;
   case"pflip":S.poster.side=S.poster.side?0:1;var pf=document.querySelector("#layer .pflip");if(pf)pf.classList.toggle("back",!!S.poster.side);var pb=document.querySelector('#layer .pcap [data-act="pflip"]');if(pb)pb.textContent=S.poster.side?"앞면 보기":"뒷면 보기";break;
   case"pnext":var pi=S.poster.i;if(locked()){S.poster=null;renderLayer();break}
    var ov=document.querySelector("#layer .poverlay");var go=function(){S.poster=null;S.open=pi;S.justOpen=true;renderLayer();S.justOpen=false;var c=document.querySelector("#layer .close");if(c)c.focus()};
-   if(ov&&!(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches)){ov.classList.add("leaving");setTimeout(go,240)}else go();break;
+   if(ov){ov.classList.add("leaving");setTimeout(go,240)}else go();break;
   case"pclose":S.poster=null;renderLayer();break;
   case"pclose-bg":if(e.target.closest("[data-stop]"))return;S.poster=null;renderLayer();break;
   case"close":S.open=null;S.msg.comment=null;renderLayer();break;
