@@ -129,7 +129,7 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .pop{position:absolute;left:0;bottom:6px;width:172px;z-index:3;pointer-events:none;opacity:0;visibility:hidden;transform:perspective(700px) rotateY(-68deg) translateX(-8px);transform-origin:left center;transition:transform .28s ease,opacity .18s ease,visibility 0s linear .28s}
 .pop .cover{box-shadow:0 12px 26px rgba(0,0,0,.55)}
 .pr .pop{left:auto;right:0;transform-origin:right center;transform:perspective(700px) rotateY(68deg) translateX(8px)}
-@media (hover:hover){
+@media (any-hover:hover){
  .spine:hover{transform:translateY(-14px);z-index:4}
  .spine:hover .pop{opacity:1;visibility:visible;transform:none;transition:transform .28s ease,opacity .18s ease}
 }
@@ -140,7 +140,7 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 @keyframes shelve{from{transform:translateY(-34px) rotate(3deg);opacity:0}}
 .dialog.opening{animation:bookOpen .3s ease;transform-origin:left center}
 @keyframes bookOpen{from{transform:perspective(1200px) rotateY(-24deg) scale(.94);opacity:0}}
-@media (hover:none){.pop{display:none}}
+@media (any-hover:none){.pop{display:none}}
 @media (prefers-reduced-motion:reduce){.enter .spine,.dialog.opening{animation:none}.pop{transform:none}}
 /* 상세·확대 */
 .overlay{position:fixed;inset:0;z-index:20;background:rgba(5,18,22,.72);display:grid;place-items:start center;overflow:auto;padding:24px 16px}
@@ -261,10 +261,10 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
  45%{transform:rotateY(-90deg);filter:grayscale(0) brightness(1) contrast(1) drop-shadow(0 4px 8px rgba(0,0,0,.28));opacity:1}
  45.01%{transform:rotateY(90deg);filter:grayscale(1) brightness(.9) contrast(.85) drop-shadow(0 4px 8px rgba(0,0,0,.28));opacity:.7}
  100%{transform:rotateY(0);filter:grayscale(1) brightness(.9) contrast(.85) drop-shadow(0 4px 8px rgba(0,0,0,.28));opacity:.42}}
-@media (hover:hover){.bcell:hover .bdg.off{animation:bflipIn .6s cubic-bezier(.3,.7,.3,1) forwards}}
+.bcell .bdg.off.flip{animation:bflipIn .6s cubic-bezier(.3,.7,.3,1) forwards}
 .bcell .bdg.off.unflip{animation:bflipOut .5s ease forwards}
 .bcell:focus-visible .bdg.off{filter:grayscale(0) brightness(1) contrast(1) drop-shadow(0 4px 8px rgba(0,0,0,.28));opacity:1}
-@media (prefers-reduced-motion:reduce){.bcell:hover .bdg.off{animation:none;filter:none;opacity:1}.bcell .bdg.off.unflip{animation:none}}
+@media (prefers-reduced-motion:reduce){.bcell .bdg.off.flip{animation:none;filter:none;opacity:1}.bcell .bdg.off.unflip{animation:none}}
 .bcell .t{font:400 .98rem/1.2 var(--display)}
 .bcell .st{font-size:.78rem;color:var(--muted)}
 .bcell.got .st{color:var(--accent);font-weight:700}
@@ -1157,13 +1157,19 @@ document.addEventListener("keydown",function(e){
  if(S.poster&&e.key==="Escape"){S.poster=null;renderLayer();return}
  if(S.open!==null&&e.key==="Escape"){S.open=null;renderLayer()}
 });
-document.addEventListener("mouseout",function(e){
+/* 못 받은 뱃지 뒤집기: 마우스·펜을 올리면 컬러로, 떼면 흑백으로 (터치스크린 노트북·전자칠판에서도 동작) */
+document.addEventListener("pointerover",function(e){
+ if(e.pointerType==="touch")return;
  var c=e.target.closest&&e.target.closest(".bcell");if(!c||c.contains(e.relatedTarget))return;
  var im=c.querySelector(".bdg.off");if(!im)return;
- im.classList.remove("unflip");void im.offsetWidth;im.classList.add("unflip");
+ im.classList.remove("unflip");im.classList.add("flip");
+});
+document.addEventListener("pointerout",function(e){
+ var c=e.target.closest&&e.target.closest(".bcell");if(!c||c.contains(e.relatedTarget))return;
+ var im=c.querySelector(".bdg.off.flip");if(!im)return;
+ im.classList.remove("flip");void im.offsetWidth;im.classList.add("unflip");
  im.addEventListener("animationend",function h(){im.classList.remove("unflip");im.removeEventListener("animationend",h)});
 });
-document.addEventListener("mouseover",function(e){var c=e.target.closest&&e.target.closest(".bcell");if(!c)return;var im=c.querySelector(".bdg.off.unflip");if(im&&!c.contains(e.relatedTarget))im.classList.remove("unflip")});
 document.addEventListener("focusout",function(){setTimeout(function(){if(S.dirty&&!inField())renderAll()},0)});
 window.addEventListener("hashchange",function(){S.route=(location.hash||"").slice(1);window.scrollTo(0,0);S.open=null;S.enter=true;renderAll()});
 document.addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&t.dataset.y)t.remove()},true);
