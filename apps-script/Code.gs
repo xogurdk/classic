@@ -24,7 +24,7 @@ var SHEETS = {
 var TAB = { books: "박람회_책자료", comments: "박람회_댓글", reactions: "박람회_반응", posts: "박람회_소감", expects: "박람회_기대되는부분" };
 var NUM = { at: 1 }, BOOL = { ok: 1 };
 var BOOK_FIELDS = { canva: 1, web: 1, intro: 1, why: 1 };
-var BADGE_MIN = 30;
+var BADGE_MIN = 40;
 
 function doGet() {
   return ContentService.createTextOutput("고전독서 박람회 저장소가 동작 중이에요.");

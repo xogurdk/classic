@@ -287,6 +287,12 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .rank b{font-family:var(--display);font-weight:400;color:var(--stamp);margin-left:6px}
 .rank.c{border-color:#d4a72c;background:#fff4d1;color:#5a4300}
 @media (max-width:560px){.champ{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center}.champ>.bdg{max-width:200px}.champ>div{width:100%}}
+.shortbox{max-width:420px;text-align:center;justify-items:center;animation:wiggle .5s ease}
+.short-ico{font-size:3rem;line-height:1}
+.shortbox h2{word-break:keep-all}
+.poverlay:has(.shortbox){z-index:30;background:rgba(5,14,18,.6)}
+@keyframes wiggle{0%{transform:scale(.8);opacity:0}40%{transform:scale(1.03) rotate(-2deg);opacity:1}60%{transform:rotate(2deg)}80%{transform:rotate(-1deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.shortbox{animation:none}}
 /* 뱃지 받기 */
 .aw{position:fixed;inset:0;z-index:40;background:radial-gradient(circle at 50% 42%,rgba(40,60,110,.92),rgba(4,8,20,.96));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;overflow:hidden;color:#fff;text-align:center;animation:pfade .3s ease}
 .aw-rays{position:absolute;left:50%;top:42%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;background:repeating-conic-gradient(rgba(255,215,110,.16) 0 8deg,transparent 8deg 20deg);animation:spin 14s linear infinite;pointer-events:none;mask:radial-gradient(circle,#000 10%,transparent 60%);-webkit-mask:radial-gradient(circle,#000 10%,transparent 60%)}
@@ -395,7 +401,7 @@ var CANVA={"지구 속 여행":"https://canva.link/kd74cav17b3sl62","해저 2만
 /* 패들렛에 올라온 학생 포스터 (posters 폴더). 백야는 앞면·뒷면 2장 */
 var POSTER={"지구 속 여행":["journey"],"해저 2만 리":["20000"],"보물섬":["treasure"],"화씨 451":["f451"],"1984":["1984"],"모모":["momo"],"오만과 편견":["pride"],"키다리 아저씨":["daddy"],"백야":["whitenights","whitenights-2"],"로빈슨 크루소":["robinson"],"15소년 표류기":["15boys"],"셜록 홈즈":["sherlock"],"톰 소여의 모험":["tomsawyer"],"안네의 일기":["anne"],"어린왕자":["prince"],"나의 라임오렌지나무":["lime"],"수레바퀴 아래서":["wheel"],"투명인간":["invisible"]};
 /* 뱃지: 발표를 듣고 기대평을 공백 빼고 BADGE_MIN자 이상 올리면 그 책의 뱃지. 내 발표 책은 처음부터 받아요. 18개를 모두 모으면 고전 챔피언 */
-var BADGE_MIN=30;
+var BADGE_MIN=40; /* 학생 화면에는 숫자를 보여 주지 않아요 */
 function badgeSrc(b){return "badges/"+(POSTER[b.k]||["champion"])[0]+".webp"}
 var CHAMP_SRC="badges/champion.webp";
 function chars(t){return String(t||"").replace(/\s/g,"").length}
@@ -412,7 +418,7 @@ function allBadges(){
 }
 function badgeBox(b,cls){
  var got=hasBadge(b.k),mine=presenter(b.k)===uname()&&!!uname();
- return '<div class="'+cls+'"><img class="bdg'+(got?"":" off")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+' 뱃지'+(got?"":" (아직 못 받음)")+'"><span>'+(got?'<b>'+(mine?"내 발표 뱃지":"뱃지 획득!")+'</b>':'기대평을 공백 빼고 '+BADGE_MIN+'자 이상 올리면 받아요')+'</span></div>';
+ return '<div class="'+cls+'"><img class="bdg'+(got?"":" off")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+' 뱃지'+(got?"":" (아직 못 받음)")+'"><span>'+(got?'<b>'+(mine?"내 발표 뱃지":"뱃지 획득!")+'</b>':'기대평을 정성껏 쓰면 받아요')+'</span></div>';
 }
 function posters(b){return (POSTER[b.k]||[]).map(function(n){return "posters/"+n+".jpg"})}
 var THEME={1:"모험·상상",2:"사회와 관계",3:"모험·사건",4:"성장·내면"};
@@ -470,14 +476,13 @@ function getExpect(k){var u=db.users&&db.users[uname()];return u&&u.expect&&u.ex
 function setExpect(k,text,push){var n=uname();if(!n)return;db=load();var u=urec(n);u.expect=u.expect||{};u.expect[k]={t:String(text).slice(0,200),at:nowMs()};save();
  if(push&&REMOTE)api({action:"expect",name:n,book:k,text:u.expect[k].t}).catch(function(){})}
 function exDraft(k){var d=S.draft["ex:"+k];return d!=null?d:getExpect(k)}
-function exCount(k){var n=chars(exDraft(k));return '<span class="small excount'+(n>=BADGE_MIN?" ok":"")+'" data-excount="'+esc(k)+'">공백 빼고 '+n+' / '+BADGE_MIN+'자'+(n>=BADGE_MIN?" ✓":"")+'</span>'}
 function expectHtml(b,id){
  var m=S.msg["ex:"+b.k],saved=getExpect(b.k);
  return '<form class="field exform" data-form="expect" data-k="'+esc(b.k)+'"><label class="lab" for="'+id+'">기대평 · 이 책에서 기대되는 부분</label>'
  +'<textarea id="'+id+'" maxlength="200" data-exdraft="'+esc(b.k)+'" placeholder="두 문장 정도로 적어 보세요. 예) 어떤 장면이 궁금해졌나요? 왜 읽고 싶어졌나요?">'+esc(exDraft(b.k))+'</textarea>'
- +'<div class="row">'+exCount(b.k)+'<span class="row">'+(saved?'<button type="button" class="btn ghost sm" data-act="exMine" data-k="'+esc(b.k)+'">'+(S.exDelAsk===uname()+"|"+b.k?"정말 지울까요?":"지우기")+'</button>':'')+'<button class="btn sm">'+(saved?"기대평 고치기":"기대평 올리기")+'</button></span></div>'
+ +'<div class="row" style="justify-content:flex-end"><span class="row">'+(saved?'<button type="button" class="btn ghost sm" data-act="exMine" data-k="'+esc(b.k)+'">'+(S.exDelAsk===uname()+"|"+b.k?"정말 지울까요?":"지우기")+'</button>':'')+'<button class="btn sm">'+(saved?"기대평 고치기":"기대평 올리기")+'</button></span></div>'
  +(m?'<span class="'+m[0]+'">'+esc(m[1])+'</span>':'')
- +'<span class="small">공백 빼고 '+BADGE_MIN+'자 이상 올리면 이 책의 뱃지를 받아요. 고전 탐험하기와 내 부스·시간표에 함께 기록돼요.</span></form>';
+ +'<span class="small">궁금한 장면과 읽고 싶은 까닭을 두세 문장으로 정성껏 쓰면 이 책의 뱃지를 받아요. 고전 탐험하기와 내 부스·시간표에 함께 기록돼요.</span></form>';
 }
 /* 기대평 = 댓글: 책마다 모두의 기대평이 작성자와 함께 남아요 */
 function expectsFor(k){
@@ -500,16 +505,24 @@ function delExpect(name,k){
  if(db.expects)db.expects=db.expects.filter(function(x){return !(x.name===name&&x.book===k)});save();after();
  if(REMOTE)api({action:"unexpect",pin:tPin(),name:name,book:k}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np="기대평을 지우지 못했어요. "+netErr(e);renderAll()});
 }
+/* 기대평이 짧을 때 띄우는 창 */
+function vShort(){
+ return '<div class="poverlay" data-act="shortbg" role="alertdialog" aria-modal="true" aria-labelledby="shortT"><div class="dialog shortbox" data-stop="1"><div class="short-ico" aria-hidden="true">✍️</div><h2 class="h1" id="shortT">조금 더 길게 적어 주세요</h2><p>어떤 장면이 궁금한지, 왜 읽고 싶어졌는지 한두 문장 더 써 볼까요? 정성껏 쓴 기대평에 뱃지를 줘요.</p><div class="row" style="justify-content:center"><button class="btn" data-act="shortok">더 쓰러 가기</button></div></div></div>';
+}
+function closeShort(){var k=S.short&&S.short.k;S.short=null;renderLayer();
+ var ta=[].filter.call(document.querySelectorAll("textarea[data-exdraft]"),function(x){return x.dataset.exdraft===k})[0];
+ if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)}}
 function submitExpect(k){
  var text=String(exDraft(k)).trim(),key="ex:"+k;
  function done(c,t){S.msg[key]=[c,t];if(S.open!==null)renderLayer();else renderAll()}
  if(!uname())return done("err","이름을 적고 들어와야 올릴 수 있어요.");
  if(!text)return done("err","기대평을 적어 주세요.");
  if(BAD.test(text))return done("err","친구가 읽고 기분 좋은 말로 바꿔 주세요.");
+ if(chars(text)<BADGE_MIN){S.short={k:k};if(S.open!==null)renderLayer();else renderAll();var sb=document.querySelector('#layer [data-act="shortok"]');if(sb)sb.focus();return}
  var had=hasBadge(k),wasChamp=isChamp(uname());
  setExpect(k,text,true);delete S.draft[key];
  if(!had&&hasBadge(k)){S.msg[key]=["ok","기대평을 올렸어요."];showAward(k,!wasChamp&&isChamp(uname()));if(S.open!==null)renderLayer();else{renderAll()}return}
- done("ok",chars(text)>=BADGE_MIN?"기대평을 고쳤어요.":"올렸어요. 공백 빼고 "+BADGE_MIN+"자 이상이면 뱃지를 받아요 (지금 "+chars(text)+"자).");
+ done("ok","기대평을 고쳤어요.");
 }
 /* 뱃지 받기 화면 */
 function showAward(k,champ){S.award={k:k,champ:!!champ,stage:k?"book":"champ"};chime(champ);}
@@ -533,7 +546,7 @@ function vHall(){
  Object.keys(V1).concat(Object.keys(V2)).forEach(function(x){if(names.indexOf(x)<0)names.push(x)});
  var list=names.map(function(x){return{n:x,c:badgeCount(x)}}).filter(function(x){return x.c>0}).sort(function(a,b){return b.c-a.c||a.n.localeCompare(b.n,"ko")});
  var champs=list.filter(function(x){return x.c===BOOKS.length});
- return '<div class="view hall"><div><h1 class="h1">고전 명예의 전당</h1><p class="lede">친구의 발표를 듣고 고전 탐험하기에서 기대평을 공백 빼고 '+BADGE_MIN+'자 이상(두 문장 정도) 올리면 그 책의 뱃지를 받아요. 내 발표 책 뱃지는 처음부터 받아요.</p></div>'
+ return '<div class="view hall"><div><h1 class="h1">고전 명예의 전당</h1><p class="lede">친구의 발표를 듣고 고전 탐험하기에서 기대평을 정성껏(두세 문장) 올리면 그 책의 뱃지를 받아요. 내 발표 책 뱃지는 처음부터 받아요.</p></div>'
  +'<section class="champ"><img class="bdg'+(ch?"":" off")+'" src="'+CHAMP_SRC+'" alt="고전 챔피언 뱃지'+(ch?"":" (아직 못 받음)")+'"><div style="display:grid;gap:10px"><h2>'+(ch?"고전 챔피언!":"고전 챔피언에 도전!")+'</h2><p>'+esc(me)+' · 뱃지 '+n+' / '+BOOKS.length+'개</p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+BOOKS.length+'" aria-valuenow="'+n+'"><i style="width:'+Math.round(n/BOOKS.length*100)+'%"></i></div><p class="small" style="color:#cfd8ea">'+(ch?"18개 뱃지를 모두 모았어요. 정말 멋져요!":"앞으로 "+(BOOKS.length-n)+"개 남았어요. 흑백 뱃지를 눌러 기대평을 써 보세요.")+'</p></div></section>'
  +'<section style="display:grid;gap:10px"><h2 class="h2">내 뱃지</h2><div class="bgrid">'+cells+'</div></section>'
  +(share?'':'<section style="display:grid;gap:10px"><h2 class="h2">고전 챔피언</h2>'+(champs.length?'<div class="ranks">'+champs.map(function(x){return '<span class="rank c">'+esc(x.n)+'</span>'}).join("")+'</div>':'<p class="small">아직 고전 챔피언이 없어요. 첫 번째 챔피언이 되어 보세요!</p>')
@@ -999,7 +1012,8 @@ function expectSection(){
 function inField(){var a=document.activeElement;return !!a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=="checkbox"&&a.type!=="file"}
 function renderLayer(){
  var l=document.getElementById("layer"),top=(l.querySelector(".overlay")||{}).scrollTop||0;
- l.innerHTML=S.award?vAward():S.zoom!==null?vZoom():S.poster?vPoster():S.open!==null?vDetail(BOOKS[S.open]):"";
+ var base=S.zoom!==null?vZoom():S.poster?vPoster():S.open!==null?vDetail(BOOKS[S.open]):"";
+ l.innerHTML=S.award?vAward():(base+(S.short?vShort():""));
  var o=l.querySelector(".overlay");if(o)o.scrollTop=top;
 }
 function renderAll(){
@@ -1137,6 +1151,8 @@ document.addEventListener("click",function(e){
   case"ulogout":var mo=my();delete mo.name;delete mo.me;delete mo.guest;setMy(mo);S.draft={};S.msg={};S.open=null;S.zoom=null;renderAll();var un=document.getElementById("uName");if(un)un.focus();break;
   case"zoom":S.zoom=+arg;renderLayer();break;
   case"unpost":unpost(arg);break;
+  case"shortok":closeShort();break;
+  case"shortbg":if(e.target.closest("[data-stop]"))return;closeShort();break;
   case"hsort":S.hallSort=arg;renderAll();break;
   case"hfilt":S.hallFilt=arg;renderAll();break;
   case"exDel":case"exMine":var who2=act==="exMine"?uname():arg,ek2=t.dataset.k,key2=who2+"|"+ek2;
@@ -1157,7 +1173,7 @@ document.addEventListener("click",function(e){
 });
 document.addEventListener("input",function(e){
  var t=e.target;
- if(t.dataset.exdraft!=null){var ek=t.dataset.exdraft;S.draft["ex:"+ek]=t.value;[].forEach.call(document.querySelectorAll('[data-excount]'),function(x){if(x.dataset.excount===ek)x.outerHTML=exCount(ek)});return}
+ if(t.dataset.exdraft!=null){S.draft["ex:"+t.dataset.exdraft]=t.value;return}
  if(t.dataset.input){if(t.dataset.input==="q"){S.q=t.value;var pos=t.selectionStart;renderAll();var q=document.getElementById("q");if(q){q.focus();q.setSelectionRange(pos,pos)}}else S.draft[t.dataset.input]=t.value}
 });
 document.addEventListener("change",function(e){
@@ -1190,6 +1206,7 @@ document.addEventListener("submit",function(e){
 document.addEventListener("keydown",function(e){
  if(S.zoom!==null){if(e.key==="Escape"){S.zoom=null;renderLayer()}if(e.key==="ArrowLeft"){S.zoom=Math.max(0,S.zoom-1);renderLayer()}if(e.key==="ArrowRight"){S.zoom=Math.min(postList().length-1,S.zoom+1);renderLayer()}return}
  if(S.award&&e.key==="Escape"){S.award=null;renderLayer();return}
+ if(S.short&&e.key==="Escape"){closeShort();return}
  if(S.poster&&e.key==="Escape"){S.poster=null;renderLayer();return}
  if(S.open!==null&&e.key==="Escape"){S.open=null;renderLayer()}
 });
