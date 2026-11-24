@@ -269,6 +269,20 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .bcell .st{font-size:.78rem;color:var(--muted)}
 .bcell.got .st{color:var(--accent);font-weight:700}
 .ranks{display:flex;flex-wrap:wrap;gap:8px}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.pcard{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;min-width:0}
+.pcard.me{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.pcard.ch{border-color:#d4a72c;background:linear-gradient(170deg,#fff6db,var(--paper) 60%)}
+.pc-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pc-name{font:400 1.1rem var(--display);display:flex;align-items:center;gap:6px;min-width:0;overflow-wrap:anywhere}
+.pc-name img{width:28px;flex:none}
+.pc-n{font:500 .95rem var(--mono);color:var(--stamp);white-space:nowrap}
+.bar.thin{height:6px;background:var(--soft)}
+.minis{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px}
+.mini{width:100%;aspect-ratio:1;object-fit:contain;display:block}
+.mini.off{filter:grayscale(1);opacity:.22}
+.hctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hctl select{max-width:240px;min-height:36px;padding:4px 8px}
 .rank{background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.92rem}
 .rank b{font-family:var(--display);font-weight:400;color:var(--stamp);margin-left:6px}
 .rank.c{border-color:#d4a72c;background:#fff4d1;color:#5a4300}
@@ -523,9 +537,27 @@ function vHall(){
  +'<section class="champ"><img class="bdg'+(ch?"":" off")+'" src="'+CHAMP_SRC+'" alt="고전 챔피언 뱃지'+(ch?"":" (아직 못 받음)")+'"><div style="display:grid;gap:10px"><h2>'+(ch?"고전 챔피언!":"고전 챔피언에 도전!")+'</h2><p>'+esc(me)+' · 뱃지 '+n+' / '+BOOKS.length+'개</p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+BOOKS.length+'" aria-valuenow="'+n+'"><i style="width:'+Math.round(n/BOOKS.length*100)+'%"></i></div><p class="small" style="color:#cfd8ea">'+(ch?"18개 뱃지를 모두 모았어요. 정말 멋져요!":"앞으로 "+(BOOKS.length-n)+"개 남았어요. 흑백 뱃지를 눌러 기대평을 써 보세요.")+'</p></div></section>'
  +'<section style="display:grid;gap:10px"><h2 class="h2">내 뱃지</h2><div class="bgrid">'+cells+'</div></section>'
  +(share?'':'<section style="display:grid;gap:10px"><h2 class="h2">고전 챔피언</h2>'+(champs.length?'<div class="ranks">'+champs.map(function(x){return '<span class="rank c">'+esc(x.n)+'</span>'}).join("")+'</div>':'<p class="small">아직 고전 챔피언이 없어요. 첫 번째 챔피언이 되어 보세요!</p>')
-  +'<h2 class="h2">뱃지 모으기 현황</h2>'+(list.length?'<div class="ranks">'+list.map(function(x){return '<span class="rank'+(x.n===me?" c":"")+'">'+esc(x.n)+'<b>'+x.c+'</b></span>'}).join("")+'</div>':'<p class="small">아직 기록이 없어요.</p>')
+  +friendsHtml(list,me)
   +(REMOTE&&!db.badgesAll?'<p class="small">친구들 현황은 저장소 코드를 새 버전으로 배포하면 보여요.</p>':'')+'</section>')
  +'</div>';
+}
+/* 모두의 뱃지: 학생마다 어떤 뱃지를 땄는지 한눈에 */
+function isGuestName(n){return /^\d학년 \d+반 /.test(n)}
+function friendsHtml(list,me){
+ var f=S.hallFilt||"all",srt=S.hallSort||"count",bk=S.hallBook||"";
+ var L=list.filter(function(x){return f==="all"||(f==="guest"?isGuestName(x.n):!isGuestName(x.n))});
+ if(bk)L=L.filter(function(x){return hasBadge(bk,x.n)});
+ if(srt==="name")L=L.slice().sort(function(a,b){return a.n.localeCompare(b.n,"ko")});
+ function chip(act,v,cur,l){return '<button class="btn sm '+(cur===v?"":"ghost")+'" data-act="'+act+'" data-arg="'+v+'">'+l+'</button>'}
+ var cards=L.map(function(x){var c=x.c===BOOKS.length;
+  return '<article class="pcard'+(x.n===me?" me":"")+(c?" ch":"")+'"><div class="pc-head"><span class="pc-name">'+(c?'<img src="'+CHAMP_SRC+'" alt="고전 챔피언">':'')+esc(x.n)+(x.n===me?' <span class="small">(나)</span>':'')+'</span><span class="pc-n">'+x.c+' / '+BOOKS.length+'</span></div>'
+  +'<div class="bar thin"><i style="width:'+Math.round(x.c/BOOKS.length*100)+'%"></i></div>'
+  +'<div class="minis">'+BOOKS.map(function(b){var g=hasBadge(b.k,x.n);return '<img class="mini'+(g?"":" off")+(bk===b.k?" sel":"")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+(g?" 획득":" 아직")+'" title="'+esc(b.t)+(g?" · 획득":" · 아직")+'" loading="lazy">'}).join("")+'</div></article>'}).join("");
+ return '<h2 class="h2">모두의 뱃지 <span class="small">'+L.length+'명'+(bk?' · '+esc(byK[bk].t)+' 뱃지를 딴 친구':'')+'</span></h2>'
+ +'<div class="hctl">'+chip("hsort","count",srt,"많이 모은 순")+chip("hsort","name",srt,"이름순")
+ +'<span style="width:8px"></span>'+chip("hfilt","all",f,"전체")+chip("hfilt","class",f,"우리 반")+chip("hfilt","guest",f,"게스트")
+ +'<select aria-label="뱃지로 찾기" data-hbook="1"><option value="">뱃지로 찾기: 모든 뱃지</option>'+BOOKS.map(function(b){return '<option value="'+esc(b.k)+'"'+(bk===b.k?" selected":"")+'>'+esc(b.t)+'</option>'}).join("")+'</select></div>'
+ +(cards?'<div class="pcards">'+cards+'</div>':'<p class="small">'+(bk?'아직 이 뱃지를 딴 친구가 없어요.':'아직 기록이 없어요.')+'</p>');
 }
 function rxHtml(b){
  var mine=myRx(),kinds=[["want","읽고 싶어요"],["fun","이 책 추천해요"]];
@@ -1031,6 +1063,7 @@ function doLogin(){
  mo.name=n;setMy(mo);
  db=load();var u=urec(n);u.last=Date.now();save();
  S.loginAsk="";S.msg.login=null;S.draft={};renderAll();
+ if(REMOTE){net.sig="";pull()}
 }
 function readCover(i,file){
  return new Promise(function(done){
@@ -1104,6 +1137,8 @@ document.addEventListener("click",function(e){
   case"ulogout":var mo=my();delete mo.name;delete mo.me;delete mo.guest;setMy(mo);S.draft={};S.msg={};S.open=null;S.zoom=null;renderAll();var un=document.getElementById("uName");if(un)un.focus();break;
   case"zoom":S.zoom=+arg;renderLayer();break;
   case"unpost":unpost(arg);break;
+  case"hsort":S.hallSort=arg;renderAll();break;
+  case"hfilt":S.hallFilt=arg;renderAll();break;
   case"exDel":case"exMine":var who2=act==="exMine"?uname():arg,ek2=t.dataset.k,key2=who2+"|"+ek2;
    if(S.exDelAsk!==key2){S.exDelAsk=key2;if(S.open!==null)renderLayer();else renderAll();break}
    S.exDelAsk="";delExpect(who2,ek2);break;
@@ -1127,6 +1162,7 @@ document.addEventListener("input",function(e){
 });
 document.addEventListener("change",function(e){
  var t=e.target;
+ if(t.dataset.hbook){S.hallBook=t.value;renderAll();var sel=document.querySelector("[data-hbook]");if(sel)sel.focus();return}
  if(t.dataset.actChange==="me"){var m=my();m.me=t.value;setMy(m);renderAll();return}
  if(t.dataset.note!=null){var me=my().me;if(!me)return;db=load();var n=db.notes[me]=db.notes[me]||[];n[+t.dataset.note]=t.value.slice(0,80);save();return}
  if(t.dataset.set){db=load();if(t.dataset.set==="share"){db.settings.mode=t.checked?"share":"class";if(REMOTE)api({action:"mode",pin:tPin(),mode:db.settings.mode}).then(function(){net.sig="";pull()}).catch(function(e){S.msg.np="공유 모드를 저장하지 못했어요. "+netErr(e);renderAll()})}else db.settings[t.dataset.set]=t.checked;save();renderAll();return}
