@@ -802,7 +802,7 @@ function coverHtml(b){
 function bookTag(b){return b.viewOnly?b.part+"부 · 자료 열람":b.part+"부 · "+b.no+"모둠"}
 
 /* ---------- 화면 ---------- */
-var TABS=[["board","전자칠판"],["explore","고전 탐험하기"],["booth","내 부스·시간표"],["wrap","다음 독자 되기"],["hall","명예의 전당"],["teacher","선생님"]];
+var TABS=[["board","전자칠판"],["explore","고전 탐험하기"],["wrap","다음 독자 되기"],["hall","명예의 전당"],["booth","내 부스·시간표"],["teacher","선생님"]];
 function route(){
  var h=S.route||(location.hash||"").slice(1);
  if(TABS.map(function(t){return t[0]}).indexOf(h)<0)h=isShare()?"explore":"board";
