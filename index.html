@@ -389,7 +389,7 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 @media (max-width:820px){.stubs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:440px){.stubs{grid-template-columns:minmax(0,1fr)}}
 
-/* 소감판 */
+/* 다음 독자 게시판 */
 .formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .wide{grid-column:1/-1}
 @media (max-width:700px){.formgrid{grid-template-columns:minmax(0,1fr)}}
@@ -460,7 +460,7 @@ function chars(t){return String(t||"").replace(/\s/g,"").length}
 function hasBadge(k,name){name=name||uname();if(!name)return false;if(presenter(k)===name)return true;
  if(name===uname())return chars(getExpect(k))>=BADGE_MIN;var L=allBadges()[name]||[];return L.indexOf(k)>=0}
 function badgeCount(name){return BOOKS.filter(function(b){return hasBadge(b.k,name)}).length}
-/* 고전 챔피언: 뱃지 18개 + '읽고 싶은 책·소감'까지 남겨야 해요 */
+/* 고전 챔피언: 뱃지 18개 + '다음 독자 되기'까지 마쳐야 해요 */
 function hasPost(name){var p=db.posts&&db.posts[name];return !!(p&&byK[p.b1])}
 function allBadges18(name){return badgeCount(name)===BOOKS.length}
 function isChamp(name){return allBadges18(name)&&hasPost(name)}
@@ -493,7 +493,7 @@ function booth(k){var r=P1.concat(P2).filter(function(x){return x[1]===k})[0];re
 var STEPS=[];
 function st(ph,phase,title,todo,sec,o){STEPS.push(Object.assign({ph:ph,phase:phase,title:title,todo:todo,sec:sec},o||{}))}
 st(-1,"동기유발","동기유발","고전은 어떻게 몇백 년을 건너\n지금 우리에게 왔을까요?",0);
-st(-1,"학습 문제","학습 문제","나만의 고전을\n알맞은 매체로 소개해 봅시다",0);
+st(-1,"학습 목표","학습 목표","고전도서 박람회로\n나만의 고전을 소개해 봅시다",0);
 st(-1,"활동 안내","활동 안내","활동1. 나만의 고전 소개하기\n활동2. 다음 독자 되기",0);
 st(0,"자료 준비","자료 준비","1부 발표자는 부스에서 자료를 열고\n2부 학생은 1회차 부스로 가요",180);
 function talk(part,ph){
@@ -507,8 +507,8 @@ function talk(part,ph){
 talk(1,1);
 st(2,"역할 바꾸기","역할 바꾸기","관람한 책에 반응을 남기고\n자리를 바꿔 2부 자료를 열어요",180);
 talk(2,3);
-st(4,"책 선정·소감","읽고 싶은 책 선정·소감 쓰기","가장 읽고 싶은 책 1권을 고르고\n프로젝트 소감을 남겨요",300);
-st(-1,"발표","발표하기","가장 읽고 싶어진 책과\n그 이유를 나눠요",0);
+st(4,"다음 독자 되기","다음 독자 되기","나의 다음 고전을 고르고\n박람회를 마친 소감을 남겨요",300);
+st(-1,"발표","발표하기","나의 다음 고전과\n그 책을 고른 까닭을 나눠요",0);
 st(-1,"마무리","다음 차시 안내","다음 시간에는\n아직 만나지 못한 작품을 살펴봐요",0);
 var PHASES=[];STEPS.forEach(function(s,i){s.timed=s.sec>0;if(s.ph<0)return;var p=PHASES[s.ph]||(PHASES[s.ph]={name:s.phase,sec:0,first:i,last:i});p.sec+=s.sec;p.last=i});
 var TOTAL=STEPS.reduce(function(a,s){return a+s.sec},0);
@@ -590,7 +590,7 @@ function vAward(){
  return '<div class="aw" data-k="'+esc(a.k)+'" role="dialog" aria-modal="true" aria-label="뱃지 획득"><div class="aw-rays"></div>'+cf
  +'<div class="aw-badge'+(champ?" big":"")+'" style="--m:url('+src+')"><img src="'+src+'" alt="'+(champ?"고전 챔피언":esc(b.t))+' 뱃지"></div>'
  +(champ?'<h2>고전 챔피언이 되었어요!</h2><p>고전 '+BOOKS.length+'권의 뱃지를 모두 모았어요. 명예의 전당에 이름이 올라가요.</p>'
-  :'<h2>'+esc(b.t)+' 뱃지 획득!</h2><p>기대평을 잘 남겼어요. 지금까지 '+n+' / '+BOOKS.length+'개</p>'+(a.need?'<p style="color:#ffe7a3">뱃지 18개를 모두 모았어요! 이제 \'읽고 싶은 책·소감\'을 남기면 고전 챔피언이 돼요.</p>':''))
+  :'<h2>'+esc(b.t)+' 뱃지 획득!</h2><p>기대평을 잘 남겼어요. 지금까지 '+n+' / '+BOOKS.length+'개</p>'+(a.need?'<p style="color:#ffe7a3">뱃지 18개를 모두 모았어요! 이제 \'다음 독자 되기\'까지 마치면 고전 챔피언이 돼요.</p>':''))
  +'<div class="row">'+(a.champ?'<button class="btn" data-act="awnext">다음 →</button>':a.need?'<button class="btn" data-act="awwrap">소감 쓰러 가기</button><button class="btn ghost" data-act="awclose">계속하기</button>':'<button class="btn" data-act="awhall">명예의 전당 보기</button><button class="btn ghost" data-act="awclose">계속하기</button>')+'</div></div>';
 }
 /* ---------- 고전 챔피언 세리머니 ---------- */
@@ -599,7 +599,7 @@ function cerHtml(src){
  return '<div class="cer" id="cer" role="dialog" aria-modal="true" aria-label="고전 챔피언 세리머니"><canvas class="cer-fx"></canvas><div class="cer-flash"></div>'
  +'<div class="cer-head"><div class="cer-kicker">CLASSIC CHAMPION</div><h2 class="cer-title">별 18개를 채워요</h2></div>'
  +'<div class="cer-stage">'+st+'<div class="cer-badge"><span class="cer-wave"></span><span class="cer-wave w2"></span><img src="'+src+'" alt="고전 챔피언 뱃지"></div></div>'
- +'<div class="cer-count" aria-live="polite"><b>0</b> / 18</div><p class="cer-msg"></p><div class="cer-btns"></div></div>';
+ +'<p class="cer-msg" aria-live="polite"></p><div class="cer-btns"></div></div>';
 }
 function cerAudio(){
  var ac=null;try{ac=window.__cerAC||(window.__cerAC=new (window.AudioContext||window.webkitAudioContext)());ac.resume()}catch(e){}
@@ -648,12 +648,12 @@ function runCer(root,o){
  var fx=cerFx(root.querySelector(".cer-fx"),root),A=cerAudio(),timers=[];
  function at(ms,f){timers.push(setTimeout(function(){if(document.body.contains(root))f()},ms))}
  var start=600,step=o.step||170;
- [].forEach.call(stars,function(s,i){at(start+i*step,function(){s.classList.add("on","cer-pop");cnt.textContent=i+1;A.tick(i);
+ [].forEach.call(stars,function(s,i){at(start+i*step,function(){s.classList.add("on","cer-pop");if(cnt)cnt.textContent=i+1;A.tick(i);
   var r=s.getBoundingClientRect(),rr=root.getBoundingClientRect();fx.spark(r.left+r.width/2-rr.left,r.top+r.height/2-rr.top)})});
  var t=start+stars.length*step+180;
  at(t,function(){root.classList.add("full","reveal");title.textContent="고전 챔피언이 되었어요!";A.boom();fx.show(function(){A.pop()})});
  at(t+350,function(){A.fanfare()});
- at(t+700,function(){msg.textContent=o.msg||"뱃지 18개와 읽고 싶은 책 소감까지 모두 해냈어요!"});
+ at(t+700,function(){msg.textContent=o.msg||"뱃지 18개를 모으고 다음 독자까지 되었어요!"});
  at(t+1150,function(){root.classList.add("pulse","done");btns.innerHTML=o.buttons||"";var b=btns.querySelector("button,a");if(b)b.focus({preventScroll:true});if(o.onDone)o.onDone()});
  return{stop:function(){timers.forEach(clearTimeout);fx.stop()}};
 }
@@ -668,10 +668,10 @@ function vHall(){
  Object.keys(V1).concat(Object.keys(V2)).forEach(function(x){if(names.indexOf(x)<0)names.push(x)});
  var list=names.map(function(x){return{n:x,c:badgeCount(x)}}).filter(function(x){return x.c>0}).sort(function(a,b){return b.c-a.c||a.n.localeCompare(b.n,"ko")});
  var champs=list.filter(function(x){return isChamp(x.n)});
- return '<div class="view hall"><div><h1 class="h1">고전 명예의 전당</h1><p class="lede">친구의 발표를 듣고 고전 탐험하기에서 기대평을 정성껏(두세 문장) 올리면 그 책의 뱃지를 받아요. 내 발표 책 뱃지는 처음부터 받아요. 뱃지 18개를 모두 모으고 “읽고 싶은 책·소감”까지 남기면 고전 챔피언이 돼요.</p></div>'
+ return '<div class="view hall"><div><h1 class="h1">고전 명예의 전당</h1><p class="lede">친구의 발표를 듣고 고전 탐험하기에서 기대평을 정성껏(두세 문장) 올리면 그 책의 뱃지를 받아요. 내 발표 책 뱃지는 처음부터 받아요. 뱃지 18개를 모두 모으고 “다음 독자 되기”까지 마치면 고전 챔피언이 돼요.</p></div>'
  +'<section class="champ"><img class="bdg'+(ch?"":" off")+'" src="'+CHAMP_SRC+'" alt="고전 챔피언 뱃지'+(ch?"":" (아직 못 받음)")+'"><div style="display:grid;gap:10px"><h2>'+(ch?"고전 챔피언!":n===BOOKS.length?"마지막 한 걸음!":"고전 챔피언에 도전!")+'</h2><p>'+esc(me)+' · 뱃지 '+n+' / '+BOOKS.length+'개</p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+BOOKS.length+'" aria-valuenow="'+n+'"><i style="width:'+Math.round(n/BOOKS.length*100)+'%"></i></div>'
- +'<ul class="chk"><li class="'+(n===BOOKS.length?"ok":"")+'">뱃지 18개 모으기 ('+n+' / '+BOOKS.length+')</li><li class="'+(hasPost(me)?"ok":"")+'">읽고 싶은 책·소감 남기기</li></ul>'
- +'<div class="row">'+(ch?'<button class="btn" data-act="cerReplay">세리머니 다시 보기</button>':(!hasPost(me)?'<a class="btn ghost" href="#wrap">읽고 싶은 책·소감 쓰러 가기</a>':''))+'</div></div></section>'
+ +'<ul class="chk"><li class="'+(n===BOOKS.length?"ok":"")+'">뱃지 18개 모으기 ('+n+' / '+BOOKS.length+')</li><li class="'+(hasPost(me)?"ok":"")+'">다음 독자 되기</li></ul>'
+ +'<div class="row">'+(ch?'<button class="btn" data-act="cerReplay">세리머니 다시 보기</button>':(!hasPost(me)?'<a class="btn ghost" href="#wrap">다음 독자 되러 가기</a>':''))+'</div></div></section>'
  +'<section style="display:grid;gap:10px"><h2 class="h2">내 뱃지</h2>'+cells+'</section>'
  +(share?'':'<section style="display:grid;gap:10px"><h2 class="h2">고전 챔피언</h2>'+(champs.length?'<div class="ranks">'+champs.map(function(x){return '<span class="rank c">'+esc(x.n)+'</span>'}).join("")+'</div>':'<p class="small">아직 고전 챔피언이 없어요. 첫 번째 챔피언이 되어 보세요!</p>')
   +friendsHtml(list,me)
@@ -802,7 +802,7 @@ function coverHtml(b){
 function bookTag(b){return b.viewOnly?b.part+"부 · 자료 열람":b.part+"부 · "+b.no+"모둠"}
 
 /* ---------- 화면 ---------- */
-var TABS=[["board","전자칠판"],["explore","고전 탐험하기"],["booth","내 부스·시간표"],["wrap","읽고 싶은 책·소감"],["hall","명예의 전당"],["teacher","선생님"]];
+var TABS=[["board","전자칠판"],["explore","고전 탐험하기"],["booth","내 부스·시간표"],["wrap","다음 독자 되기"],["hall","명예의 전당"],["teacher","선생님"]];
 function route(){
  var h=S.route||(location.hash||"").slice(1);
  if(TABS.map(function(t){return t[0]}).indexOf(h)<0)h=isShare()?"explore":"board";
@@ -825,7 +825,7 @@ function vLogin(){
  var m=S.msg.login,g=loginMode()==="guest",d=S.draft;
  function opts(n,suf,key){var o='<option value="">'+suf+'</option>';for(var i=1;i<=n;i++)o+='<option value="'+i+'"'+(String(d[key])===String(i)?" selected":"")+'>'+i+suf+'</option>';return o}
  return '<div class="view"><form class="panel" data-form="login" style="max-width:480px;width:100%;justify-self:center"><h1 class="h1">이름을 적고 들어가요</h1>'
- +'<p class="lede">누른 반응, 기대되는 부분, 소감, 댓글이 모두 이 이름으로 저장돼요.</p>'
+ +'<p class="lede">기대평, 반응, 다음 독자 글이 모두 이 이름으로 저장돼요.</p>'
  +'<div class="row" role="group" aria-label="들어가는 방법"><button type="button" class="btn sm '+(g?"ghost":"")+'" data-act="lmode" data-arg="class">우리 반 발표자</button><button type="button" class="btn sm '+(g?"":"ghost")+'" data-act="lmode" data-arg="guest">게스트 (다른 반·학년)</button></div>'
  +(g?'<div class="row" style="align-items:flex-end"><div class="field" style="flex:1 1 110px"><label for="gGrade">학년</label><select id="gGrade" data-input="gGrade">'+opts(6,"학년","gGrade")+'</select></div>'
    +'<div class="field" style="flex:1 1 110px"><label for="gClass">반</label><select id="gClass" data-input="gClass">'+opts(12,"반","gClass")+'</select></div></div>':'')
@@ -895,7 +895,7 @@ function vFocus(){
   }else if(part===1){
    var k1=V1[me][0],r1=rowOf(2,k1);
    body='<div class="fnext"><span class="small">1부 발표가 모두 끝났어요. 수고했어요!</span><span class="ttl">이제 2부 소개를 들으러 가요 · 1회차</span><span class="big">'+seatCode(r1[0])+'</span><span class="ttl">'+esc(byK[k1].t)+'</span><span class="small">발표 '+esc(r1[2])+'</span></div>'+mapSection(2,{me:me,hl:k1,static:true});
-  }else body='<div class="fnext"><span class="ttl">2부 발표가 모두 끝났어요. 수고했어요!</span><span class="small">선생님 안내에 따라 읽고 싶은 책을 고르고 소감을 써요</span></div>';
+  }else body='<div class="fnext"><span class="ttl">2부 발표가 모두 끝났어요. 수고했어요!</span><span class="small">선생님 안내에 따라 다음 독자 되기 활동을 하고 소감을 써요</span></div>';
  }else{
   var k=role.tour[r-1],row=rowOf(part,k),b=byK[k];
   if(!over){
@@ -1079,22 +1079,22 @@ function vWrap(){
  if(locked())return vFocus();
  var share=isShare(),d=S.draft,posts=postList();
  function bookOpts(key){return '<option value="">책을 고르세요</option>'+BOOKS.filter(function(b){return !b.viewOnly}).map(function(b){return '<option value="'+esc(b.k)+'"'+(d[key]===b.k?" selected":"")+'>'+esc(b.t)+'</option>'}).join("")}
- var form=share?"":'<form class="panel" data-form="post"><h2 class="h2">읽고 싶은 책과 소감 남기기</h2><div class="formgrid">'
+ var form=share?"":'<form class="panel" data-form="post"><h2 class="h2">나의 다음 고전 고르기</h2><div class="formgrid">'
  +'<div class="field"><span class="lab">내 이름</span><p style="min-height:44px;display:flex;align-items:center;font:400 1.1rem var(--display)">'+esc(uname())+'</p></div>'
- +'<div class="field"><label for="pB1">가장 읽고 싶은 책</label><select id="pB1" data-input="pB1">'+bookOpts("pB1")+'</select></div>'
- +'<div class="field wide"><label for="pReason">읽고 싶어진 이유</label><input id="pReason" type="text" maxlength="100" data-input="pReason" value="'+esc(d.pReason||"")+'" placeholder="어떤 장면이나 말이 궁금해졌나요?"></div>'
- +'<div class="field wide"><label for="pFeel">고전 프로젝트 소감</label><textarea id="pFeel" maxlength="200" data-input="pFeel" placeholder="고전을 읽고 소개하면서 무엇이 달라졌나요?">'+esc(d.pFeel||"")+'</textarea></div></div>'
- +'<div class="row"><button class="btn">게시하기</button>'+(S.msg.post?'<span class="'+S.msg.post[0]+'">'+esc(S.msg.post[1])+'</span>':'')+'<span class="small">다시 올리면 내 글이 새 내용으로 바뀌어요. 내 글은 소감판에서 지울 수 있어요.</span></div></form>';
- return '<div class="view"><div><h1 class="h1">읽고 싶은 책·소감</h1><p class="lede">글을 누르면 전자칠판에서 크게 볼 수 있어요.</p></div>'+form
- +'<section style="display:grid;gap:10px"><h2 class="h2">소감판 <span class="small">'+posts.length+'개</span></h2>'
- +(posts.length?'<div class="wall">'+posts.map(function(p,i){var own=p.name===uname()||S.teacher,ask=S.delAsk===p.name;return '<article class="post"><span class="nick">'+(share&&p.name!==uname()?"친구":esc(p.name))+(p.name===uname()?' <span class="small">(내 글)</span>':'')+'</span><span class="picks">가장 읽고 싶은 책: '+esc(byK[p.b1].t)+'</span><p>'+esc(p.feel)+'</p><div class="row"><button class="btn ghost sm" data-act="zoom" data-arg="'+i+'">크게 보기</button>'+(own?'<button class="btn ghost sm" data-act="unpost" data-arg="'+esc(p.name)+'" style="'+(ask?"border-color:var(--stamp);color:var(--stamp)":"")+'">'+(ask?"정말 지울까요? 한 번 더 누르기":"지우기")+'</button>':'')+'</div></article>'}).join("")+'</div>'
-  :'<p class="lede">아직 올라온 글이 없어요. 첫 소감을 남기면 여기에 카드로 나타나요.</p>')+'</section></div>';
+ +'<div class="field"><label for="pB1">나의 다음 고전</label><select id="pB1" data-input="pB1">'+bookOpts("pB1")+'</select></div>'
+ +'<div class="field wide"><label for="pReason">이 책을 고른 까닭</label><input id="pReason" type="text" maxlength="100" data-input="pReason" value="'+esc(d.pReason||"")+'" placeholder="어떤 장면이나 말이 궁금해졌나요?"></div>'
+ +'<div class="field wide"><label for="pFeel">박람회를 마치며</label><textarea id="pFeel" maxlength="200" data-input="pFeel" placeholder="고전을 읽고 소개하면서 무엇이 달라졌나요?">'+esc(d.pFeel||"")+'</textarea></div></div>'
+ +'<div class="row"><button class="btn">게시하기</button>'+(S.msg.post?'<span class="'+S.msg.post[0]+'">'+esc(S.msg.post[1])+'</span>':'')+'<span class="small">다시 올리면 내 글이 새 내용으로 바뀌어요. 내 글은 다음 독자 게시판에서 지울 수 있어요.</span></div></form>';
+ return '<div class="view"><div><h1 class="h1">다음 독자 되기</h1><p class="lede">글을 누르면 전자칠판에서 크게 볼 수 있어요.</p></div>'+form
+ +'<section style="display:grid;gap:10px"><h2 class="h2">다음 독자 게시판 <span class="small">'+posts.length+'개</span></h2>'
+ +(posts.length?'<div class="wall">'+posts.map(function(p,i){var own=p.name===uname()||S.teacher,ask=S.delAsk===p.name;return '<article class="post"><span class="nick">'+(share&&p.name!==uname()?"친구":esc(p.name))+(p.name===uname()?' <span class="small">(내 글)</span>':'')+'</span><span class="picks">나의 다음 고전: '+esc(byK[p.b1].t)+'</span><p>'+esc(p.feel)+'</p><div class="row"><button class="btn ghost sm" data-act="zoom" data-arg="'+i+'">크게 보기</button>'+(own?'<button class="btn ghost sm" data-act="unpost" data-arg="'+esc(p.name)+'" style="'+(ask?"border-color:var(--stamp);color:var(--stamp)":"")+'">'+(ask?"정말 지울까요? 한 번 더 누르기":"지우기")+'</button>':'')+'</div></article>'}).join("")+'</div>'
+  :'<p class="lede">아직 올라온 글이 없어요. 첫 글을 남기면 여기에 카드로 나타나요.</p>')+'</section></div>';
 }
 function vZoom(){
  var posts=postList(),p=posts[S.zoom];if(!p)return "";
  var share=isShare();
- return '<div class="zoom" role="dialog" aria-modal="true" aria-label="소감 크게 보기"><div class="row" style="justify-content:space-between"><span class="zpick" style="color:var(--board-muted)">'+(share?"친구":esc(p.name))+'</span><span class="small" style="color:var(--board-muted)">'+(S.zoom+1)+' / '+posts.length+'</span></div>'
- +'<div class="zbody"><p class="zfeel">'+esc(p.feel)+'</p><p class="zpick">가장 읽고 싶은 책: '+esc(byK[p.b1].t)+'</p><p class="zreason">'+esc(p.reason)+'</p></div>'
+ return '<div class="zoom" role="dialog" aria-modal="true" aria-label="글 크게 보기"><div class="row" style="justify-content:space-between"><span class="zpick" style="color:var(--board-muted)">'+(share?"친구":esc(p.name))+'</span><span class="small" style="color:var(--board-muted)">'+(S.zoom+1)+' / '+posts.length+'</span></div>'
+ +'<div class="zbody"><p class="zfeel">'+esc(p.feel)+'</p><p class="zpick">나의 다음 고전: '+esc(byK[p.b1].t)+'</p><p class="zreason">'+esc(p.reason)+'</p></div>'
  +'<div class="row"><button class="bbtn" data-act="zprev">이전 글</button><button class="bbtn" data-act="znext">다음 글</button><button class="bbtn main" data-act="zclose">닫기</button></div></div>';
 }
 function vTeacher(){
@@ -1113,8 +1113,8 @@ function vTeacher(){
  +'<label class="check"><input type="checkbox" data-set="share"'+(isShare()?" checked":"")+'><span>다른 반 공유 모드: 실명, 부스표, 전자칠판을 숨겨요 (기대평 작성자는 “○학년 친구”로 보여요)</span></label>'
  +'<form class="field" data-form="newpin"><label for="np">PIN 바꾸기</label><div class="row"><input id="np" type="text" maxlength="12" style="flex:1 1 140px;width:auto"><button class="btn ghost">바꾸기</button></div>'+(S.msg.np?'<span class="ok">'+esc(S.msg.np)+'</span>':'')+'</form>'
  +'<div class="field"><span class="lab">자료 옮기기·백업</span><div class="row"><button class="btn ghost sm" data-act="export">내보내기</button><label class="btn ghost sm" for="imp">가져오기</label><input id="imp" type="file" accept="application/json" hidden data-import="1"></div>'+(S.msg.imp?'<span class="'+S.msg.imp[0]+'">'+esc(S.msg.imp[1])+'</span>':'')+'</div>'
- +'<div class="row"><button class="btn ghost sm" data-act="wipe">'+(S.wipe?"정말 지워요? 한 번 더 누르면 삭제":"기대평·반응·소감 모두 지우기")+'</button></div></section></div>'
- +'<section style="display:grid;gap:10px"><h2 class="h2">반응 모아 보기 <span class="small">선생님만 봐요</span></h2><div class="tablebox"><table><thead><tr><th>책</th><th class="num">읽고 싶어요</th><th class="num">이 책 추천해요</th><th class="num">기대평</th><th class="num">가장 읽고 싶은 책</th></tr></thead><tbody>'+stats+'</tbody></table></div></section>'
+ +'<div class="row"><button class="btn ghost sm" data-act="wipe">'+(S.wipe?"정말 지워요? 한 번 더 누르면 삭제":"기대평·반응·다음 독자 글 모두 지우기")+'</button></div></section></div>'
+ +'<section style="display:grid;gap:10px"><h2 class="h2">반응 모아 보기 <span class="small">선생님만 봐요</span></h2><div class="tablebox"><table><thead><tr><th>책</th><th class="num">읽고 싶어요</th><th class="num">이 책 추천해요</th><th class="num">기대평</th><th class="num">다음 고전으로 고름</th></tr></thead><tbody>'+stats+'</tbody></table></div></section>'
  +expectSection()
  +'<section class="panel"><h2 class="h2">책 자료 관리 <span class="small">링크 등록 '+linked+' / '+BOOKS.length+'권</span></h2><p class="small">입력하면 바로 저장돼요. 캔바는 보기 전용 링크를 넣어 주세요.</p><div class="row"><label class="btn ghost sm" for="bulk">표지 여러 장 한번에 올리기</label><input id="bulk" type="file" accept="image/*" multiple hidden data-bulk="1"><span class="small">파일 이름에 책 제목이나 YES24 번호가 들어 있으면 알아서 맞춰요.</span></div>'
  +'<div class="field"><label for="pasteL" class="lab">링크 한꺼번에 붙여 넣기</label><textarea id="pasteL" placeholder="한 줄에 한 명씩: 학생 이름이나 책 제목 + 링크&#10;예) 신지혜 https://www.canva.com/design/.../view"></textarea><div class="row"><button class="btn ghost sm" data-act="pasteLinks">붙여 넣은 링크 저장</button><span class="small">구글 폼 응답 시트에서 이름·링크 칸을 복사해 붙여 넣어도 돼요. 캔바 주소는 캔바 칸에, 나머지는 웹앱 칸에 들어가요.</span></div>'+(S.msg.links?'<p class="'+S.msg.links[0]+'">'+esc(S.msg.links[1])+'</p>':'')+'</div>'+(S.msg.bulk?'<p class="'+S.msg.bulk[0]+'">'+esc(S.msg.bulk[1])+'</p>':'')
@@ -1146,7 +1146,7 @@ function renderLayer(){
  var o=l.querySelector(".overlay");if(o)o.scrollTop=top;
  var cer=l.querySelector("#cer");
  if(cer&&!cer.dataset.run){cer.dataset.run="1";if(S.cerRun)S.cerRun.stop();
-  S.cerRun=runCer(cer,{msg:"뱃지 18개를 모두 모으고 읽고 싶은 책 소감까지 남겼어요. 명예의 전당에 이름이 올라가요!",buttons:'<button class="btn" data-act="awhall">명예의 전당 보기</button><button class="btn ghost" data-act="awclose">닫기</button>'})}
+  S.cerRun=runCer(cer,{msg:"뱃지 18개를 모두 모으고 다음 독자까지 되었어요. 명예의 전당에 이름이 올라가요!",buttons:'<button class="btn" data-act="awhall">명예의 전당 보기</button><button class="btn ghost" data-act="awclose">닫기</button>'})}
 }
 function renderAll(){
  var a=document.activeElement,fk=a&&a.dataset?{act:a.dataset.act,arg:a.dataset.arg,id:a.id}:null,sy=window.scrollY;
@@ -1168,10 +1168,10 @@ function addPost(){
  d.pName=uname();var wasChamp=isChamp(d.pName);
  function champCheck(){if(!wasChamp&&isChamp(uname()))S.award={stage:"champ"}}
  if(!d.pName)return m("err","먼저 이름을 적고 들어와 주세요.");
- if(!d.pB1)return m("err","가장 읽고 싶은 책을 골라 주세요.");
+ if(!d.pB1)return m("err","나의 다음 고전을 골라 주세요.");
  var reason=(d.pReason||"").trim(),feel=(d.pFeel||"").trim();
- if(!reason)return m("err","읽고 싶어진 이유를 적어 주세요.");
- if(!feel)return m("err","프로젝트 소감을 적어 주세요.");
+ if(!reason)return m("err","이 책을 고른 까닭을 적어 주세요.");
+ if(!feel)return m("err","박람회를 마친 소감을 적어 주세요.");
  if(BAD.test(reason+feel))return m("err","친구가 읽고 기분 좋은 말로 바꿔 주세요.");
  if(REMOTE){
   m("small","올리는 중이에요…");
