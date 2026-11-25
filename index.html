@@ -91,7 +91,7 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .bright{display:grid;gap:clamp(6px,1vh,12px);min-width:0;text-align:left}
 .bmaptitle{font:400 clamp(1.1rem,1.9vw,1.9rem) var(--display);color:var(--board-hot)}
 .bchips{display:flex;flex-wrap:wrap;gap:6px}
-.bchip{background:var(--board-2);border-radius:8px;padding:2px 10px;font-size:clamp(.85rem,1.2vw,1.2rem)}
+.bchip{background:var(--board-2);border-radius:8px;padding:3px 12px;font-size:clamp(1rem,min(1.7vw,2.6vh),1.75rem)}
 .bchip b{font-weight:400;font-family:var(--display);color:var(--board-hot);margin-left:6px}
 @media (max-width:900px){.bsplit{grid-template-columns:minmax(0,1fr)}}
 
@@ -203,10 +203,13 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 @keyframes hl{to{box-shadow:0 0 0 7px var(--stamp)}}
 .map.big{--pc:clamp(40px,4vw,62px);gap:clamp(5px,.8vw,10px)}
 .map.big .cover{display:none}
-.map.big .seat{grid-template-columns:minmax(0,1fr);min-height:clamp(70px,10vh,120px);align-content:center}
-.map.big .s-code{font-size:clamp(.9rem,1.3vw,1.3rem)}
-.map.big .s-t{font-size:clamp(.95rem,1.4vw,1.45rem)}
-.map.big .s-ls{font-size:clamp(1rem,1.55vw,1.6rem)}
+.map.big .seat{grid-template-columns:minmax(0,1fr);min-height:clamp(60px,9vh,120px);align-content:center;padding:4px 6px;gap:2px}
+.map.big .s-code{font-size:clamp(.85rem,1.05vw,1.15rem)}
+.map.big .s-t{font-size:clamp(.8rem,min(1.1vw,1.8vh),1.2rem);opacity:.85;line-height:1.15}
+/* 회차마다 그 부스로 가는 학생 이름: 멀리서도 보이게 크게 */
+.map.big .s-ls{font-size:clamp(1.2rem,min(2.3vw,3.7vh),2.5rem);line-height:1.15;color:#0b4f5c;word-break:keep-all}
+.map.big .s-ls.free{font-size:clamp(1rem,1.5vw,1.5rem)}
+.map.big .s-ls .arr{font-size:.6em;opacity:.7;margin-right:2px}
 .map.big .pc{font-size:clamp(.75rem,1.05vw,1.05rem)}
 .map.big .m-floor{font-size:clamp(.8rem,1.1vw,1.1rem)}
 @media (prefers-reduced-motion:reduce){.seat.hl{animation:none}}
@@ -989,7 +992,7 @@ function mapGrid(part,OPT){
    var ls=OPT.round?listenersAt(part,o.k,OPT.round):null;
    var badge=mine?'<span class="s-badge">내 부스</span>':ti>=0?'<span class="s-badge" style="background:var(--accent);color:var(--on-accent)">내 '+(ti+1)+'회차</span>':'';
    var nm=share?"발표":o.who.slice(1);
-   return '<button class="seat '+sl.d+(OPT.hl===o.k?" hl":mine?" mine":ti>=0?" tour":"")+(dim?" dim":"")+'" style="'+pos+'"'+(OPT.static?' tabindex="-1"':' data-act="open" data-arg="'+b.i+'"')+' aria-label="'+esc(o.full+" "+b.t+(share?"":" · 발표 "+o.who))+'">'+coverHtml(b)+'<span class="s-txt"><span class="s-code">'+o.code+'</span><span class="s-t">'+esc(b.t)+'</span>'+(ls?(ls.length?'<span class="s-ls">→ '+esc(ls.join(", "))+'</span>':'<span class="s-ls free">참관자</span>'):badge)+'</span></button>'
+   return '<button class="seat '+sl.d+(OPT.hl===o.k?" hl":mine?" mine":ti>=0?" tour":"")+(dim?" dim":"")+'" style="'+pos+'"'+(OPT.static?' tabindex="-1"':' data-act="open" data-arg="'+b.i+'"')+' aria-label="'+esc(o.full+" "+b.t+(share?"":" · 발표 "+o.who))+'">'+coverHtml(b)+'<span class="s-txt"><span class="s-code">'+o.code+'</span><span class="s-t">'+esc(b.t)+'</span>'+(ls?(ls.length?'<span class="s-ls"><span class="arr" aria-hidden="true">→</span>'+esc(ls.join(", "))+'</span>':'<span class="s-ls free">참관자</span>'):badge)+'</span></button>'
    +'<span class="pc '+sl.pc.f+'" style="'+pcpos+'" title="'+esc(share?"발표자 자리":o.who+" 발표 자리")+'">'+esc(nm)+'</span>';
   }).join("");
   return '<div class="mapwrap"><div class="map'+(OPT.big?" big":"")+'" role="group" aria-label="'+part+'부 자리 배치도"><div class="m-back"><span class="m-door">후문</span><span>교실 뒤 · 열린 쪽</span><span></span></div>'
