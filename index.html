@@ -10,14 +10,14 @@
   --bg:#e9eff0;--paper:#fbfdfc;--ink:#14272b;--muted:#51666b;--line:#c3d0d2;--soft:#dcebec;
   --accent:#0b5c6b;--on-accent:#fff;--stamp:#b3261e;--notice:#fff2c9;--notice-ink:#574300;
   --board:#0d1f24;--board-2:#183239;--board-ink:#f1f7f6;--board-muted:#9fb8bb;--board-hot:#ffb74d;--board-over:#ff8a80;
-  --wood:#a06b3c;--wood-2:#6e4526;
+  --wood:#a06b3c;--wood-2:#6e4526;--today:#fff5c7;--today-line:#ecc94b;--today-ink:#7a5a00;
   --display:"Do Hyeon","Gowun Dodum","Noto Sans KR",sans-serif;
   --body:"Gowun Dodum","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#10191c;--paper:#1a262a;--ink:#e6f0f0;--muted:#a0b3b6;--line:#34464b;--soft:#24363b;
-  --accent:#6cc5d4;--on-accent:#06262c;--stamp:#ff9d94;--notice:#3b3210;--notice-ink:#f5e2a0;color-scheme:dark}}
+  --accent:#6cc5d4;--on-accent:#06262c;--stamp:#ff9d94;--notice:#3b3210;--notice-ink:#f5e2a0;--today:#3a3312;--today-line:#a88a1f;--today-ink:#f5dc86;color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body)}
@@ -266,6 +266,12 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .bcell .t{font:400 .98rem/1.2 var(--display)}
 .bcell .st{font-size:.78rem;color:var(--muted)}
 .bcell.got .st{color:var(--accent);font-weight:700}
+/* 공개수업 날 직접 듣는 작품 */
+.bcell.today{background:var(--today);border-color:var(--today-line)}
+.bcell.today{position:relative}
+.bcell .day{position:absolute;top:5px;left:50%;transform:translateX(-50%);white-space:nowrap;z-index:1;font:400 .78rem var(--display);color:var(--today-ink);background:var(--today-line);background:color-mix(in srgb,var(--today-line) 35%,transparent);border-radius:999px;padding:1px 8px}
+.todaynote{display:flex;align-items:center;gap:8px;font-size:.92rem;color:var(--muted)}
+.todaynote i{display:inline-block;width:18px;height:18px;border-radius:5px;background:var(--today);border:1.5px solid var(--today-line)}
 .ranks{display:flex;flex-wrap:wrap;gap:8px}
 .pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
 .pcard{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;min-width:0}
@@ -537,15 +543,16 @@ function vAward(){
 /* 고전 명예의 전당 */
 function vHall(){
  var me=uname(),n=badgeCount(me),ch=isChamp(me),share=isShare();
- var cells=BOOKS.map(function(b){var got=hasBadge(b.k),mine=presenter(b.k)===me;
-  return '<button class="bcell'+(got?" got":"")+'" data-act="open" data-arg="'+b.i+'"><img class="bdg'+(got?"":" off")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+' 뱃지'+(got?"":" (아직 못 받음)")+'" loading="lazy"><span class="t">'+esc(b.t)+'</span><span class="st">'+(got?(mine?"내 발표 뱃지":"획득"):"기대평 쓰고 받기")+'</span></button>'}).join("");
+ var tour=V1[me]||V2[me]||[];
+ var cells=BOOKS.map(function(b){var got=hasBadge(b.k),mine=presenter(b.k)===me,ti=tour.indexOf(b.k);
+  return '<button class="bcell'+(got?" got":"")+(ti>=0?" today":"")+'" data-act="open" data-arg="'+b.i+'">'+(ti>=0?'<span class="day">공개수업 '+(ti+1)+'회차</span>':'')+'<img class="bdg'+(got?"":" off")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+' 뱃지'+(got?"":" (아직 못 받음)")+'" loading="lazy"><span class="t">'+esc(b.t)+'</span><span class="st">'+(got?(mine?"내 발표 뱃지":"획득"):"기대평 쓰고 받기")+'</span></button>'}).join("");
  var all=allBadges(),names=Object.keys(all);
  Object.keys(V1).concat(Object.keys(V2)).forEach(function(x){if(names.indexOf(x)<0)names.push(x)});
  var list=names.map(function(x){return{n:x,c:badgeCount(x)}}).filter(function(x){return x.c>0}).sort(function(a,b){return b.c-a.c||a.n.localeCompare(b.n,"ko")});
  var champs=list.filter(function(x){return x.c===BOOKS.length});
  return '<div class="view hall"><div><h1 class="h1">고전 명예의 전당</h1><p class="lede">친구의 발표를 듣고 고전 탐험하기에서 기대평을 정성껏(두세 문장) 올리면 그 책의 뱃지를 받아요. 내 발표 책 뱃지는 처음부터 받아요.</p></div>'
  +'<section class="champ"><img class="bdg'+(ch?"":" off")+'" src="'+CHAMP_SRC+'" alt="고전 챔피언 뱃지'+(ch?"":" (아직 못 받음)")+'"><div style="display:grid;gap:10px"><h2>'+(ch?"고전 챔피언!":"고전 챔피언에 도전!")+'</h2><p>'+esc(me)+' · 뱃지 '+n+' / '+BOOKS.length+'개</p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+BOOKS.length+'" aria-valuenow="'+n+'"><i style="width:'+Math.round(n/BOOKS.length*100)+'%"></i></div><p class="small" style="color:#cfd8ea">'+(ch?"18개 뱃지를 모두 모았어요. 정말 멋져요!":"앞으로 "+(BOOKS.length-n)+"개 남았어요. 흑백 뱃지를 눌러 기대평을 써 보세요.")+'</p></div></section>'
- +'<section style="display:grid;gap:10px"><h2 class="h2">내 뱃지</h2><div class="bgrid">'+cells+'</div></section>'
+ +'<section style="display:grid;gap:10px"><h2 class="h2">내 뱃지</h2>'+(tour.length?'<p class="todaynote"><i aria-hidden="true"></i>노랗게 표시된 3권은 공개수업 날 직접 듣는 작품이에요.</p>':'')+'<div class="bgrid">'+cells+'</div></section>'
  +(share?'':'<section style="display:grid;gap:10px"><h2 class="h2">고전 챔피언</h2>'+(champs.length?'<div class="ranks">'+champs.map(function(x){return '<span class="rank c">'+esc(x.n)+'</span>'}).join("")+'</div>':'<p class="small">아직 고전 챔피언이 없어요. 첫 번째 챔피언이 되어 보세요!</p>')
   +friendsHtml(list,me)
   +(REMOTE&&!db.badgesAll?'<p class="small">친구들 현황은 저장소 코드를 새 버전으로 배포하면 보여요.</p>':'')+'</section>')
