@@ -282,7 +282,12 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .pc-name img{width:28px;flex:none}
 .pc-n{font:500 .95rem var(--mono);color:var(--stamp);white-space:nowrap}
 .bar.thin{height:6px;background:var(--soft)}
-.minis{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px}
+.minis{display:grid;grid-template-columns:auto repeat(9,minmax(0,1fr));gap:4px;align-items:center}
+.mlab{font:400 .75rem var(--display);color:var(--muted);padding-right:2px;white-space:nowrap}
+.partgrp{display:grid;gap:8px}
+.partgrp .bgrid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.partgrp .bcell .bdg{max-width:92px}
+.partttl{font:400 1.12rem var(--display);display:flex;align-items:baseline;gap:8px;border-left:4px solid var(--accent);padding-left:8px}
 .mini{width:100%;aspect-ratio:1;object-fit:contain;display:block}
 .mini.off{filter:grayscale(1);opacity:.22}
 .hctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -544,15 +549,16 @@ function vAward(){
 function vHall(){
  var me=uname(),n=badgeCount(me),ch=isChamp(me),share=isShare();
  var tour=V1[me]||V2[me]||[];
- var cells=BOOKS.map(function(b){var got=hasBadge(b.k),mine=presenter(b.k)===me,ti=tour.indexOf(b.k);
-  return '<button class="bcell'+(got?" got":"")+(ti>=0?" today":"")+'" data-act="open" data-arg="'+b.i+'">'+(ti>=0?'<span class="day">공개수업 '+(ti+1)+'회차</span>':'')+'<img class="bdg'+(got?"":" off")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+' 뱃지'+(got?"":" (아직 못 받음)")+'" loading="lazy"><span class="t">'+esc(b.t)+'</span><span class="st">'+(got?(mine?"내 발표 뱃지":"획득"):"기대평 쓰고 받기")+'</span></button>'}).join("");
+ var cellOf=function(b){var got=hasBadge(b.k),mine=presenter(b.k)===me,ti=tour.indexOf(b.k);
+  return '<button class="bcell'+(got?" got":"")+(ti>=0?" today":"")+'" data-act="open" data-arg="'+b.i+'">'+(ti>=0?'<span class="day">공개수업 '+(ti+1)+'회차</span>':'')+'<img class="bdg'+(got?"":" off")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+' 뱃지'+(got?"":" (아직 못 받음)")+'" loading="lazy"><span class="t">'+esc(b.t)+'</span><span class="st">'+(got?(mine?"내 발표 뱃지":"획득"):"기대평 쓰고 받기")+'</span></button>'};
+ var cells=[1,2].map(function(pt){var bs=BOOKS.filter(function(b){return b.part===pt}),gn=bs.filter(function(b){return hasBadge(b.k)}).length;return '<div class="partgrp"><h3 class="partttl">'+pt+'부 작품 <span class="small">'+gn+' / '+bs.length+'개</span></h3><div class="bgrid">'+bs.map(cellOf).join("")+'</div></div>'}).join("");
  var all=allBadges(),names=Object.keys(all);
  Object.keys(V1).concat(Object.keys(V2)).forEach(function(x){if(names.indexOf(x)<0)names.push(x)});
  var list=names.map(function(x){return{n:x,c:badgeCount(x)}}).filter(function(x){return x.c>0}).sort(function(a,b){return b.c-a.c||a.n.localeCompare(b.n,"ko")});
  var champs=list.filter(function(x){return x.c===BOOKS.length});
  return '<div class="view hall"><div><h1 class="h1">고전 명예의 전당</h1><p class="lede">친구의 발표를 듣고 고전 탐험하기에서 기대평을 정성껏(두세 문장) 올리면 그 책의 뱃지를 받아요. 내 발표 책 뱃지는 처음부터 받아요.</p></div>'
  +'<section class="champ"><img class="bdg'+(ch?"":" off")+'" src="'+CHAMP_SRC+'" alt="고전 챔피언 뱃지'+(ch?"":" (아직 못 받음)")+'"><div style="display:grid;gap:10px"><h2>'+(ch?"고전 챔피언!":"고전 챔피언에 도전!")+'</h2><p>'+esc(me)+' · 뱃지 '+n+' / '+BOOKS.length+'개</p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+BOOKS.length+'" aria-valuenow="'+n+'"><i style="width:'+Math.round(n/BOOKS.length*100)+'%"></i></div><p class="small" style="color:#cfd8ea">'+(ch?"18개 뱃지를 모두 모았어요. 정말 멋져요!":"앞으로 "+(BOOKS.length-n)+"개 남았어요. 흑백 뱃지를 눌러 기대평을 써 보세요.")+'</p></div></section>'
- +'<section style="display:grid;gap:10px"><h2 class="h2">내 뱃지</h2>'+(tour.length?'<p class="todaynote"><i aria-hidden="true"></i>노랗게 표시된 3권은 공개수업 날 직접 듣는 작품이에요.</p>':'')+'<div class="bgrid">'+cells+'</div></section>'
+ +'<section style="display:grid;gap:10px"><h2 class="h2">내 뱃지</h2>'+cells+'</section>'
  +(share?'':'<section style="display:grid;gap:10px"><h2 class="h2">고전 챔피언</h2>'+(champs.length?'<div class="ranks">'+champs.map(function(x){return '<span class="rank c">'+esc(x.n)+'</span>'}).join("")+'</div>':'<p class="small">아직 고전 챔피언이 없어요. 첫 번째 챔피언이 되어 보세요!</p>')
   +friendsHtml(list,me)
   +(REMOTE&&!db.badgesAll?'<p class="small">친구들 현황은 저장소 코드를 새 버전으로 배포하면 보여요.</p>':'')+'</section>')
@@ -562,19 +568,21 @@ function vHall(){
 function isGuestName(n){return /^\d학년 \d+반 /.test(n)}
 function friendsHtml(list,me){
  var f=S.hallFilt||"all",srt=S.hallSort||"count",bk=S.hallBook||"";
- var L=list.filter(function(x){return f==="all"||(f==="guest"?isGuestName(x.n):!isGuestName(x.n))});
+ function grp(n){return V1[n]?1:V2[n]?2:isGuestName(n)?"guest":"other"}
+ var L=list.filter(function(x){var g=grp(x.n);return f==="all"||(f==="guest"?g==="guest"||g==="other":String(g)===f)});
  if(bk)L=L.filter(function(x){return hasBadge(bk,x.n)});
  if(srt==="name")L=L.slice().sort(function(a,b){return a.n.localeCompare(b.n,"ko")});
  function chip(act,v,cur,l){return '<button class="btn sm '+(cur===v?"":"ghost")+'" data-act="'+act+'" data-arg="'+v+'">'+l+'</button>'}
- var cards=L.map(function(x){var c=x.c===BOOKS.length;
+ var card=function(x){var c=x.c===BOOKS.length;
   return '<article class="pcard'+(x.n===me?" me":"")+(c?" ch":"")+'"><div class="pc-head"><span class="pc-name">'+(c?'<img src="'+CHAMP_SRC+'" alt="고전 챔피언">':'')+esc(x.n)+(x.n===me?' <span class="small">(나)</span>':'')+'</span><span class="pc-n">'+x.c+' / '+BOOKS.length+'</span></div>'
   +'<div class="bar thin"><i style="width:'+Math.round(x.c/BOOKS.length*100)+'%"></i></div>'
-  +'<div class="minis">'+BOOKS.map(function(b){var g=hasBadge(b.k,x.n);return '<img class="mini'+(g?"":" off")+(bk===b.k?" sel":"")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+(g?" 획득":" 아직")+'" title="'+esc(b.t)+(g?" · 획득":" · 아직")+'" loading="lazy">'}).join("")+'</div></article>'}).join("");
+  +'<div class="minis">'+[1,2].map(function(pt){return '<span class="mlab">'+pt+'부</span>'+BOOKS.filter(function(b){return b.part===pt}).map(function(b){var g=hasBadge(b.k,x.n);return '<img class="mini'+(g?"":" off")+(bk===b.k?" sel":"")+'" src="'+badgeSrc(b)+'" alt="'+esc(b.t)+(g?" 획득":" 아직")+'" title="'+esc(b.t)+(g?" · 획득":" · 아직")+'" loading="lazy">'}).join("")}).join("")+'</div></article>'};
+ var groups=[[1,"1부 발표자"],[2,"2부 발표자"],["guest","게스트"]].map(function(g){var M=L.filter(function(x){var q=grp(x.n);return g[0]==="guest"?q==="guest"||q==="other":q===g[0]});return M.length?'<div class="partgrp"><h3 class="partttl">'+g[1]+' <span class="small">'+M.length+'명</span></h3><div class="pcards">'+M.map(card).join("")+'</div></div>':''}).join("");
  return '<h2 class="h2">모두의 뱃지 <span class="small">'+L.length+'명'+(bk?' · '+esc(byK[bk].t)+' 뱃지를 딴 친구':'')+'</span></h2>'
  +'<div class="hctl">'+chip("hsort","count",srt,"많이 모은 순")+chip("hsort","name",srt,"이름순")
- +'<span style="width:8px"></span>'+chip("hfilt","all",f,"전체")+chip("hfilt","class",f,"우리 반")+chip("hfilt","guest",f,"게스트")
+ +'<span style="width:8px"></span>'+chip("hfilt","all",f,"전체")+chip("hfilt","1",f,"1부")+chip("hfilt","2",f,"2부")+chip("hfilt","guest",f,"게스트")
  +'<select aria-label="뱃지로 찾기" data-hbook="1"><option value="">뱃지로 찾기: 모든 뱃지</option>'+BOOKS.map(function(b){return '<option value="'+esc(b.k)+'"'+(bk===b.k?" selected":"")+'>'+esc(b.t)+'</option>'}).join("")+'</select></div>'
- +(cards?'<div class="pcards">'+cards+'</div>':'<p class="small">'+(bk?'아직 이 뱃지를 딴 친구가 없어요.':'아직 기록이 없어요.')+'</p>');
+ +(groups?groups:'<p class="small">'+(bk?'아직 이 뱃지를 딴 친구가 없어요.':'아직 기록이 없어요.')+'</p>');
 }
 function rxHtml(b){
  var mine=myRx(),kinds=[["want","읽고 싶어요"],["fun","이 책 추천해요"]];
