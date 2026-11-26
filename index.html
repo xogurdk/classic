@@ -1095,15 +1095,18 @@ function vWrap(){
  if(locked())return vFocus();
  var share=isShare(),d=S.draft,posts=postList();
  function bookOpts(key){return '<option value="">책을 고르세요</option>'+BOOKS.map(function(b){return '<option value="'+esc(b.k)+'"'+(d[key]===b.k?" selected":"")+'>'+esc(b.t)+'</option>'}).join("")}
- var form=share?"":'<form class="panel" data-form="post"><h2 class="h2">나의 다음 고전 고르기</h2><div class="formgrid">'
+ var mine=db.posts[uname()],ed=!!S.editPost&&!!mine;
+ var form=share?"":'<form class="panel" data-form="post" id="postForm"><h2 class="h2">'+(ed?"내 글 고치기":"나의 다음 고전 고르기")+'</h2>'
+ +(mine&&!ed?'<div class="row notice" style="justify-content:space-between"><span>이미 올린 글이 있어요. 아래 게시판의 내 글에서 고칠 수 있어요.</span><button type="button" class="btn sm" data-act="editpost">내 글 고치기</button></div>':'')
+ +'<div class="formgrid">'
  +'<div class="field"><span class="lab">내 이름</span><p style="min-height:44px;display:flex;align-items:center;font:400 1.1rem var(--display)">'+esc(uname())+'</p></div>'
  +'<div class="field"><label for="pB1">나의 다음 고전</label><select id="pB1" data-input="pB1">'+bookOpts("pB1")+'</select></div>'
  +'<div class="field wide"><label for="pReason">이 책을 고른 까닭</label><input id="pReason" type="text" maxlength="100" data-input="pReason" value="'+esc(d.pReason||"")+'" placeholder="어떤 장면이나 말이 궁금해졌나요?"></div>'
  +'<div class="field wide"><label for="pFeel">박람회를 마치며</label><textarea id="pFeel" maxlength="200" data-input="pFeel" placeholder="고전을 읽고 소개하면서 무엇이 달라졌나요?">'+esc(d.pFeel||"")+'</textarea></div></div>'
- +'<div class="row"><button class="btn">게시하기</button>'+(S.msg.post?'<span class="'+S.msg.post[0]+'">'+esc(S.msg.post[1])+'</span>':'')+'<span class="small">다시 올리면 내 글이 새 내용으로 바뀌어요. 내 글은 다음 독자 게시판에서 지울 수 있어요.</span></div></form>';
+ +'<div class="row"><button class="btn">'+(ed?"고친 내용 올리기":"게시하기")+'</button>'+(ed?'<button type="button" class="btn ghost" data-act="editcancel">고치기 취소</button>':'')+(S.msg.post?'<span class="'+S.msg.post[0]+'">'+esc(S.msg.post[1])+'</span>':'')+'<span class="small">'+(ed?'올리면 내 글이 고친 내용으로 바뀌어요.':'내 글은 다음 독자 게시판에서 고치거나 지울 수 있어요.')+'</span></div></form>';
  return '<div class="view"><div><h1 class="h1">다음 독자 되기</h1><p class="lede">글을 누르면 전자칠판에서 크게 볼 수 있어요.</p></div>'+form
  +'<section style="display:grid;gap:10px"><h2 class="h2">다음 독자 게시판 <span class="small">'+posts.length+'개</span></h2>'
- +(posts.length?'<div class="wall">'+posts.map(function(p,i){var own=p.name===uname()||S.teacher,ask=S.delAsk===p.name;return '<article class="post"><span class="nick">'+(share&&p.name!==uname()?"친구":esc(p.name))+(p.name===uname()?' <span class="small">(내 글)</span>':'')+'</span><span class="picks">나의 다음 고전: '+esc(byK[p.b1].t)+'</span><p>'+esc(p.feel)+'</p><div class="row"><button class="btn ghost sm" data-act="zoom" data-arg="'+i+'">크게 보기</button>'+(own?'<button class="btn ghost sm" data-act="unpost" data-arg="'+esc(p.name)+'" style="'+(ask?"border-color:var(--stamp);color:var(--stamp)":"")+'">'+(ask?"정말 지울까요? 한 번 더 누르기":"지우기")+'</button>':'')+'</div></article>'}).join("")+'</div>'
+ +(posts.length?'<div class="wall">'+posts.map(function(p,i){var own=p.name===uname()||S.teacher,ask=S.delAsk===p.name;return '<article class="post"><span class="nick">'+(share&&p.name!==uname()?"친구":esc(p.name))+(p.name===uname()?' <span class="small">(내 글)</span>':'')+'</span><span class="picks">나의 다음 고전: '+esc(byK[p.b1].t)+'</span><p>'+esc(p.feel)+'</p><div class="row"><button class="btn ghost sm" data-act="zoom" data-arg="'+i+'">크게 보기</button>'+(p.name===uname()?'<button class="btn ghost sm" data-act="editpost">고치기</button>':'')+(own?'<button class="btn ghost sm" data-act="unpost" data-arg="'+esc(p.name)+'" style="'+(ask?"border-color:var(--stamp);color:var(--stamp)":"")+'">'+(ask?"정말 지울까요? 한 번 더 누르기":"지우기")+'</button>':'')+'</div></article>'}).join("")+'</div>'
   :'<p class="lede">아직 올라온 글이 없어요. 첫 글을 남기면 여기에 카드로 나타나요.</p>')+'</section></div>';
 }
 function vZoom(){
@@ -1193,12 +1196,12 @@ function addPost(){
   m("small","올리는 중이에요…");
   api({action:"post",name:d.pName,b1:d.pB1,b2:"",reason:reason,feel:feel,dev:devId(),pin:S.teacher?tPin():""}).then(function(){
    db=load();db.posts[d.pName]={name:d.pName,b1:d.pB1,b2:"",reason:reason,feel:feel,at:Date.now()};save();champCheck();
-   S.draft={};m("ok","게시했어요.");net.sig="";pull();
+   var wasEd=S.editPost;S.editPost=false;S.draft={};m("ok",wasEd?"고쳤어요.":"게시했어요.");net.sig="";pull();
   }).catch(function(e){m("err",netErr(e))});
   return;
  }
  db=load();db.posts[d.pName]={name:d.pName,b1:d.pB1,b2:"",reason:reason,feel:feel,at:Date.now()};save();champCheck();
- S.draft={};m("ok","게시했어요.");
+ var wasEd=S.editPost;S.editPost=false;S.draft={};m("ok",wasEd?"고쳤어요.":"게시했어요.");
 }
 function unpost(name){
  function m(c,t){S.msg.post=[c,t];renderAll()}
@@ -1301,6 +1304,9 @@ document.addEventListener("click",function(e){
   case"ulogout":var mo=my();delete mo.name;delete mo.me;delete mo.guest;setMy(mo);S.draft={};S.msg={};S.open=null;S.zoom=null;renderAll();var un=document.getElementById("uName");if(un)un.focus();break;
   case"zoom":S.zoom=+arg;renderLayer();break;
   case"unpost":unpost(arg);break;
+  case"editpost":var mp=db.posts[uname()];if(!mp)break;S.editPost=true;S.draft.pB1=mp.b1;S.draft.pReason=mp.reason||"";S.draft.pFeel=mp.feel||"";S.msg.post=null;renderAll();
+   var pf=document.getElementById("postForm");if(pf)pf.scrollIntoView({behavior:"smooth",block:"start"});var pr=document.getElementById("pReason");if(pr)pr.focus({preventScroll:true});break;
+  case"editcancel":S.editPost=false;S.draft={};S.msg.post=null;renderAll();break;
   case"shortok":closeShort();break;
   case"shortbg":if(e.target.closest("[data-stop]"))return;closeShort();break;
   case"hsort":S.hallSort=arg;renderAll();break;
