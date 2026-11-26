@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>고전독서 박람회</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600&text=%E6%BA%AB%E6%95%85%E8%80%8C%E7%9F%A5%E6%96%B0%E5%8F%AF%E4%BB%A5%E7%88%B2%E5%B8%AB%E7%9F%A3&display=swap">
 <style>
 :root{
   --bg:#e9eff0;--paper:#fbfdfc;--ink:#14272b;--muted:#51666b;--line:#c3d0d2;--soft:#dcebec;
@@ -76,6 +77,12 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .bmsg{font:400 clamp(2.2rem,5.6vw,5.4rem)/1.3 var(--display);white-space:pre-line;word-break:keep-all;overflow-wrap:break-word;text-wrap:balance;max-width:min(100%,20em)}
 .btodo{font-size:clamp(1.3rem,2.8vw,2.5rem);line-height:1.35;white-space:pre-line;word-break:keep-all;overflow-wrap:break-word;text-wrap:balance;max-width:min(100%,24em)}
 .bnext{font-size:clamp(1rem,1.6vw,1.35rem);color:var(--board-muted);margin-top:6px}
+/* 마무리 격언 */
+.bquote{display:grid;gap:clamp(6px,1.8vh,20px);justify-items:center;text-align:center;width:100%;max-width:1400px}
+.bq-han{font:600 clamp(2rem,min(6vw,9vh),6.4rem)/1.2 "Noto Serif KR","Noto Serif CJK KR","Batang",serif;letter-spacing:.14em;color:var(--board-hot);margin:0;white-space:nowrap}
+.bq-read{font-size:clamp(.95rem,min(1.6vw,2.4vh),1.5rem);color:var(--board-muted);letter-spacing:.05em}
+.bq-ko{font:400 clamp(1.5rem,min(3.6vw,5.6vh),3.8rem)/1.3 var(--display);word-break:keep-all}
+.bq-ai{font-size:clamp(1rem,min(1.9vw,3vh),1.9rem);line-height:1.4;color:var(--board-ink);border-top:1px solid var(--board-2);padding-top:clamp(8px,1.6vh,18px);word-break:keep-all;opacity:.9}
 .strip{display:flex;gap:3px}
 .seg{min-width:0;padding-top:8px;border-top:8px solid var(--board-2);font-size:clamp(.72rem,1.15vw,1rem);color:var(--board-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .seg.done{border-top-color:var(--board-muted)}
@@ -512,6 +519,7 @@ st(2,"역할 바꾸기","역할 바꾸기","관람한 책에 반응을 남기고
 talk(2,3);
 st(4,"다음 독자 되기","다음 독자 되기","나의 다음 고전을 고르고\n박람회를 마친 소감을 남겨요",300);
 st(-1,"발표","발표하기","나의 다음 고전과\n그 책을 고른 까닭을 나눠요",0);
+st(-1,"마무리 격언","마무리 격언","온고이지신 가이위사의",0,{quote:true});
 st(-1,"마무리","다음 차시 안내","다음 시간에는\n아직 만나지 못한 작품을 살펴봐요",0);
 var PHASES=[];STEPS.forEach(function(s,i){s.timed=s.sec>0;if(s.ph<0)return;var p=PHASES[s.ph]||(PHASES[s.ph]={name:s.phase,sec:0,first:i,last:i});p.sec+=s.sec;p.last=i});
 var TOTAL=STEPS.reduce(function(a,s){return a+s.sec},0);
@@ -845,7 +853,9 @@ function vBoard(){
   +'<button class="bbtn" data-act="prev">이전 단계</button><button class="bbtn'+(s.timed?'':' main')+'" data-act="next">다음 단계</button>'
   +(s.timed?'<button class="bbtn" data-act="add" data-arg="60">+1분</button><button class="bbtn" data-act="add" data-arg="-60">-1분</button>':'')
   +'<button class="bbtn" data-act="fs">전체 화면</button></div>'+(REMOTE?'<p data-sync class="'+(S.sync&&S.sync.ok===false?"err":"small")+'" style="color:'+(S.sync&&S.sync.ok===false?"var(--board-over)":"var(--board-muted)")+'">'+esc(syncText())+'</p>':''):'';
- var main=s.timed
+ var main=s.quote
+  ?'<div class="bquote"><p class="bq-han" lang="zh-Hant">溫故而知新<br>可以爲師矣</p><p class="bq-read">온고이지신 가이위사의 · 『논어』 위정편</p><p class="bq-ko">옛것을 익혀 새것을 알면<br>누군가의 스승이 될 수 있다</p><p class="bq-ai">AI는 옛것을 모아 주지만,<br>새것을 아는 건 직접 읽은 나<br>새것을 만드는 건 질문하는 나</p></div>'
+  :s.timed
   ?'<div class="btitle">'+esc(s.title)+'</div><div class="btime" id="bTime">'+fmt(remain())+'</div><div class="btodo">'+esc(s.todo)+'</div>'
   :'<div class="btitle sm">'+esc(s.title)+'</div><div class="bmsg">'+esc(s.todo)+'</div>';
  var nx='<div class="bnext">'+(next?"다음: "+esc(next.title):"마지막 단계예요")+'</div>';
