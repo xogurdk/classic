@@ -854,7 +854,7 @@ function vBoard(){
   +(s.timed?'<button class="bbtn" data-act="add" data-arg="60">+1분</button><button class="bbtn" data-act="add" data-arg="-60">-1분</button>':'')
   +'<button class="bbtn" data-act="fs">전체 화면</button></div>'+(REMOTE?'<p data-sync class="'+(S.sync&&S.sync.ok===false?"err":"small")+'" style="color:'+(S.sync&&S.sync.ok===false?"var(--board-over)":"var(--board-muted)")+'">'+esc(syncText())+'</p>':''):'';
  var main=s.quote
-  ?'<div class="bquote"><p class="bq-han" lang="zh-Hant">溫故而知新<br>可以爲師矣</p><p class="bq-read">온고이지신 가이위사의 · 『논어』 위정편</p><p class="bq-ko">옛것을 익혀 새것을 알면<br>누군가의 스승이 될 수 있다</p><p class="bq-ai">AI는 옛것을 모아 주지만,<br>새것을 아는 건 직접 읽은 나</p></div>'
+  ?'<div class="bquote"><p class="bq-han" lang="zh-Hant">溫故而知新<br>可以爲師矣</p><p class="bq-read">온고이지신 가이위사의 · 『논어』 위정편</p><p class="bq-ko">옛것을 익혀 새것을 알면<br>누군가의 스승이 될 수 있다</p><p class="bq-ai">AI는 옛것을 모아 주지만,<br>새것을 아는 건 직접 읽은 나<br>새것을 만드는 건 질문하는 나</p></div>'
   :s.timed
   ?'<div class="btitle">'+esc(s.title)+'</div><div class="btime" id="bTime">'+fmt(remain())+'</div><div class="btodo">'+esc(s.todo)+'</div>'
   :'<div class="btitle sm">'+esc(s.title)+'</div><div class="bmsg">'+esc(s.todo)+'</div>';
