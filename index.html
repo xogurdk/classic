@@ -179,10 +179,10 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .mapwrap .seat{grid-template-columns:minmax(0,1fr)}
 @container (min-width:860px){.mapwrap .seat .cover{display:block}.mapwrap .seat{grid-template-columns:auto minmax(0,1fr)}}
 .map{--pc:44px;display:grid;grid-template-columns:var(--pc) repeat(5,minmax(0,1fr)) var(--pc);gap:8px;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:12px;min-width:0}
-.m-back{grid-column:1/-1;grid-row:1;display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:2px dashed var(--line);padding-bottom:6px;color:var(--muted);font:400 .98rem var(--display)}
+.m-back{grid-column:1/-1;grid-row:7;display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:2px dashed var(--line);padding-top:6px;color:var(--muted);font:400 .98rem var(--display)}
 .m-door{background:var(--soft);color:var(--ink);padding:2px 9px;border-radius:6px;font-size:.88rem}
-.m-board{grid-column:1/-1;grid-row:7;background:#1f4a3a;color:#eaf5ec;text-align:center;border-radius:6px;padding:6px;font:400 1.05rem var(--display);letter-spacing:.3em;margin-top:2px}
-.m-floor{grid-column:3/6;grid-row:2/5;border:2px dotted var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:.86rem;padding:8px;word-break:keep-all}
+.m-board{grid-column:1/-1;grid-row:1;background:#1f4a3a;color:#eaf5ec;text-align:center;border-radius:6px;padding:6px;font:400 1.05rem var(--display);letter-spacing:.3em;margin-bottom:2px}
+.m-floor{grid-column:3/6;grid-row:4/7;border:2px dotted var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:.86rem;padding:8px;word-break:keep-all}
 .seat{all:unset;box-sizing:border-box;cursor:pointer;position:relative;min-width:0;min-height:92px;background:#f3e6cf;color:#2f2115;border:2px solid #c9a676;border-radius:6px;padding:6px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px;align-items:center;transition:transform .15s}
 .seat:hover{transform:translateY(-2px)}
 .seat:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -201,6 +201,7 @@ td.nowcol,th.nowcol{background:var(--notice);color:var(--notice-ink)}
 .pc.fl::after{left:-13px;border-right-color:var(--accent)}
 .pc.fr::after{right:-13px;border-left-color:var(--accent)}
 .pc.fu::after{top:-13px;border-bottom-color:var(--accent)}
+.pc.fd::after{bottom:-13px;border-top-color:var(--accent)}
 .pc.off{border-style:dashed;border-color:var(--line)}
 .pc.off::after{display:none}
 .map{color:var(--ink)}
@@ -972,12 +973,14 @@ function shelfHtml(list){
    ㄷ자 대형, 뚫린 쪽이 교실 뒤. 칠판에 서서 교실 뒤를 바라볼 때
    오른쪽 줄: 1-1(가장 뒤)→1-3, 칠판 쪽 줄: 2-1(오른쪽)→2-3, 왼쪽 줄: 3-1(칠판 쪽)→3-3(후문 쪽).
    칠판 쪽 3자리는 양옆 줄(3-1, 1-3) 바로 밑이 아니라 그 사이 가운데에 놓여요.
-   그림은 위가 교실 뒤, 아래가 칠판이라 화면의 오른쪽이 곧 그 사람의 오른쪽이에요.
+   그림은 학생 눈높이(교실 뒤에서 칠판을 바라본 모습)로 그려요: 위가 칠판, 아래가 교실 뒤.
+   그래서 화면 왼쪽 줄이 1구역(1-3이 칠판 쪽, 1-1이 뒤), 칠판 쪽 줄이 왼쪽부터 2-1·2-2·2-3,
+   오른쪽 줄이 3구역(3-1이 칠판 쪽, 3-3이 후문 쪽)이에요.
    2부는 2구역이 2자리라서 9자리 대형을 그대로 두고 가운데(2-2 자리)를 비우고, 2구역-2를 2-3 자리에 놓아요. */
 var SLOT={
- 1:[null,{r:2,c:6,pc:{r:2,c:7,f:"fl"},d:"h"},{r:3,c:6,pc:{r:3,c:7,f:"fl"},d:"h"},{r:4,c:6,pc:{r:4,c:7,f:"fl"},d:"h"}],
- 2:[null,{r:5,c:5,pc:{r:6,c:5,f:"fu"},d:"v"},{r:5,c:4,pc:{r:6,c:4,f:"fu"},d:"v"},{r:5,c:3,pc:{r:6,c:3,f:"fu"},d:"v"}],
- 3:[null,{r:4,c:2,pc:{r:4,c:1,f:"fr"},d:"h"},{r:3,c:2,pc:{r:3,c:1,f:"fr"},d:"h"},{r:2,c:2,pc:{r:2,c:1,f:"fr"},d:"h"}]
+ 1:[null,{r:6,c:2,pc:{r:6,c:1,f:"fr"},d:"h"},{r:5,c:2,pc:{r:5,c:1,f:"fr"},d:"h"},{r:4,c:2,pc:{r:4,c:1,f:"fr"},d:"h"}],
+ 2:[null,{r:3,c:3,pc:{r:2,c:3,f:"fd"},d:"v"},{r:3,c:4,pc:{r:2,c:4,f:"fd"},d:"v"},{r:3,c:5,pc:{r:2,c:5,f:"fd"},d:"v"}],
+ 3:[null,{r:4,c:6,pc:{r:4,c:7,f:"fl"},d:"h"},{r:5,c:6,pc:{r:5,c:7,f:"fl"},d:"h"},{r:6,c:6,pc:{r:6,c:7,f:"fl"},d:"h"}]
 };
 function seatsOf(part){
  var P=part===1?P1:P2,out=[];
@@ -1005,7 +1008,7 @@ function mapGrid(part,OPT){
    return '<button class="seat '+sl.d+(OPT.hl===o.k?" hl":mine?" mine":ti>=0?" tour":"")+(dim?" dim":"")+'" style="'+pos+'"'+(OPT.static?' tabindex="-1"':' data-act="open" data-arg="'+b.i+'"')+' aria-label="'+esc(o.full+" "+b.t+(share?"":" · 발표 "+o.who))+'">'+coverHtml(b)+'<span class="s-txt"><span class="s-code">'+o.code+'</span><span class="s-t">'+esc(b.t)+'</span>'+(ls?(ls.length?'<span class="s-ls"><span class="arr" aria-hidden="true">→</span>'+esc(ls.join(", "))+'</span>':'<span class="s-ls free">참관자</span>'):badge)+'</span></button>'
    +'<span class="pc '+sl.pc.f+'" style="'+pcpos+'" title="'+esc(share?"발표자 자리":o.who+" 발표 자리")+'">'+esc(nm)+'</span>';
   }).join("");
-  return '<div class="mapwrap"><div class="map'+(OPT.big?" big":"")+'" role="group" aria-label="'+part+'부 자리 배치도"><div class="m-back"><span class="m-door">후문</span><span>교실 뒤 · 열린 쪽</span><span></span></div>'
+  return '<div class="mapwrap"><div class="map'+(OPT.big?" big":"")+'" role="group" aria-label="'+part+'부 자리 배치도"><div class="m-back"><span></span><span>교실 뒤 · 열린 쪽</span><span class="m-door">후문</span></div>'
   +'<div class="m-floor">청중은 가운데를 돌아다니며 들어요</div>'+cells+'<div class="m-board">칠판</div></div></div>';
 }
 function mapSection(part,o){return '<section class="mapbox"><h2 class="h2">'+part+'부 자리 배치도 <span class="small">'+(part===1?"9자리":"8자리 · 가운데 빈자리")+'</span></h2>'+mapGrid(part,o)+'</section>'}
@@ -1091,7 +1094,7 @@ function postList(){return Object.keys(db.posts).map(function(k){return db.posts
 function vWrap(){
  if(locked())return vFocus();
  var share=isShare(),d=S.draft,posts=postList();
- function bookOpts(key){return '<option value="">책을 고르세요</option>'+BOOKS.filter(function(b){return !b.viewOnly}).map(function(b){return '<option value="'+esc(b.k)+'"'+(d[key]===b.k?" selected":"")+'>'+esc(b.t)+'</option>'}).join("")}
+ function bookOpts(key){return '<option value="">책을 고르세요</option>'+BOOKS.map(function(b){return '<option value="'+esc(b.k)+'"'+(d[key]===b.k?" selected":"")+'>'+esc(b.t)+'</option>'}).join("")}
  var form=share?"":'<form class="panel" data-form="post"><h2 class="h2">나의 다음 고전 고르기</h2><div class="formgrid">'
  +'<div class="field"><span class="lab">내 이름</span><p style="min-height:44px;display:flex;align-items:center;font:400 1.1rem var(--display)">'+esc(uname())+'</p></div>'
  +'<div class="field"><label for="pB1">나의 다음 고전</label><select id="pB1" data-input="pB1">'+bookOpts("pB1")+'</select></div>'
@@ -1115,7 +1118,7 @@ function vTeacher(){
  var t=db.timer,set=db.settings;
  var picks={};postList().forEach(function(p){picks[p.b1]=(picks[p.b1]||0)+1});
  var linked=BOOKS.filter(function(b){return (canvaOf(b)||safeUrl((db.books[b.k]||{}).web))}).length;
- var stats=BOOKS.filter(function(b){return !b.viewOnly}).map(function(b){var r=db.reactions[b.k]||{};return '<tr><td>'+esc(b.t)+'</td><td class="num">'+(r.want||0)+'</td><td class="num">'+(r.fun||0)+'</td><td class="num">'+expectsFor(b.k).length+'</td><td class="num">'+(picks[b.k]||0)+'</td></tr>'}).join("");
+ var stats=BOOKS.map(function(b){var r=db.reactions[b.k]||{};return '<tr><td>'+esc(b.t)+'</td><td class="num">'+(r.want||0)+'</td><td class="num">'+(r.fun||0)+'</td><td class="num">'+expectsFor(b.k).length+'</td><td class="num">'+(picks[b.k]||0)+'</td></tr>'}).join("");
  return '<div class="view"><div class="row" style="justify-content:space-between"><h1 class="h1">선생님 화면</h1><button class="btn ghost sm" data-act="logout">나가기</button></div>'
  +'<div class="cols"><section class="panel"><h2 class="h2">수업 진행 <span id="tTime" style="font-family:var(--mono)">'+fmt(remain())+'</span></h2><p>'+esc(step().title)+'</p>'+(REMOTE?'<div class="row"><p data-sync class="'+(S.sync&&S.sync.ok===false?"err":"small")+'" style="flex:1 1 220px">'+esc(syncText())+'</p><button class="btn ghost sm" data-act="sync">학생 태블릿에 다시 보내기</button></div>':'')
  +'<div class="row">'+(t.running?'<button class="btn" data-act="pause">일시정지</button>':'<button class="btn" data-act="start">시작</button>')+'<button class="btn ghost" data-act="prev">이전</button><button class="btn ghost" data-act="next">다음</button><button class="btn ghost" data-act="add" data-arg="60">+1분</button><button class="btn ghost" data-act="add" data-arg="-60">-1분</button><button class="btn ghost" data-act="reset">처음으로</button></div>'
